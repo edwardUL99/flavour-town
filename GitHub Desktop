@@ -1,0 +1,11 @@
+To make working on the project easier, you should download GitHub Desktop to your computer, where you can sign in and 'clone' this repository
+This will essentially copy it into a normal folder on your computer where you can easily drop files into it
+
+GitHub Desktop will keep track of any changes to this folder and if there are changes it will prompt you to upload them to origin(here) on
+the branch you chose. You will have to commit the changes then
+
+GitHub has a Hello World project to help you out
+
+https://desktop.github.com/
+
+Download it and install it, sign in and it will come up asking to create new reository or clone one. Click clone and choose the repository

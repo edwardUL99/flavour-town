@@ -7,6 +7,10 @@ local scene = composer.newScene()
 -- Code outside of the scene event functions below will only be executed ONCE unless
 -- the scene is removed entirely (not recycled) via "composer.removeScene()"
 -- -----------------------------------------------------------------------------------
+local physics = require( "physics" )
+physics.start()
+physics.setGravity(0,0)
+
 local foodsTable = {}
 local gameLoopTimer
 local scrollSpeed --Speed of background
@@ -16,6 +20,13 @@ local healthText
 local scoreText
 local paused = false
 local died = false
+local height = display.contentHeight
+local character
+--We want two of the same background to add scrolling effect.
+--Does the background remain constant with character/foods moving
+--or is it moving?
+local bg1
+local bg2
 
 ---------------
 local backGroup
@@ -30,6 +41,57 @@ end
 
 local function createObjects()
 	--Will provide code to randomly create certain objects
+end
+
+local function addScrollableBg()
+	local bgImage = {type="image",filename="background.png"}
+	--Code to add first background image
+	--Code to add second background image
+end
+
+local runtime = 0
+
+--Delta time ensures we have smooth scrolling accross different devices
+local function getDeltaTime()
+	local temp = system.getTimer()
+	local dt = (temp-runtime) / (1000/60)
+	runtime = temp
+	return dt
+end
+
+local function moveObject(event)
+	if (paused ~= true) then
+		for i = #foodsTable, 1, -1 do
+			foodsTable[i].y - foodsTable[i].y + scrollSpeed
+			if (foodsTable[i].y > height + 100) then
+				display.remove(potholesTable[i])
+				table.remove(foodsTable, i)
+				createObjects()
+			end
+		end
+	end
+end
+
+local function moveBg(dt)
+	bg1.y = bg1.y + scrollSpeed * dt
+	bg2.y = bg2.y + scrollSpeed * dt
+
+	if (bg1.y - display.contentHeight/2) > display.actualContentHeight  then
+ 		bg1:translate(0, -bg1.contentHeight * 2)
+	end
+	if (bg2.y - display.contentHeight/2) > display.actualContentHeight  then
+ 		bg2:translate(0, -bg2.contentHeight * 2)
+	end
+end
+
+local function enterFrame(event)
+	moveBg(getDeltaTime())
+end
+
+local function dragCharacter(event)
+	if paused ~= true then
+		--Code to drag the character will be added here
+	end
 end
 
 local function pause()
@@ -57,7 +119,19 @@ function scene:create( event )
 
 	local sceneGroup = self.view
 	-- Code here runs when the scene is first created but has not yet appeared on screen
+	physics.pause()
 
+	backGroup = display.newGroup()
+	sceneGroup:insert(backGroup)
+
+	mainGroup = display.newGroup()
+	sceneGroup:insert(mainGroup)
+
+	uiGroup = display.newGroup()
+	sceneGroup:insert(uiGroup)
+
+
+	character:addEventListener("touch", dragCharacter)
 end
 
 
@@ -72,7 +146,11 @@ function scene:show( event )
 
 	elseif ( phase == "did" ) then
 		-- Code here runs when the scene is entirely on screen
-
+		physics.start()
+		Runtime:addEventListener("collision", onCollision)
+		Runtime:addEventListener("enterFrame", enterFrame)
+		Runtime:addEventListener("enterFrame", moveObject)
+		--gameLoopTimer = timer.performWithDelay(2000, gameLoop, 0)
 	end
 end
 
@@ -88,7 +166,7 @@ function scene:hide( event )
 		timer.cancel(gameLoopTimer)
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen
-
+		physics.pause()
 	end
 end
 

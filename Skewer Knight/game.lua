@@ -27,6 +27,9 @@ local character
 --or is it moving?
 local bg1
 local bg2
+local motionx = 0
+local motiony = 0
+local speed = 2
 
 ---------------
 local backGroup
@@ -47,6 +50,26 @@ local function addScrollableBg()
 	local bgImage = {type="image",filename="background.png"}
 	--Code to add first background image
 	--Code to add second background image
+end
+
+local function keyPressed(event)
+	--Need to add code to add boundaries
+	if (event.phase = "down" and paused ~= true) then
+		if (event.keyName == "left") then
+			motionx = -speed
+		elseif (event.keyName == "right") then
+			motionx = speed
+		elseif (event.keyName == "up") then
+			motiony = -speed
+		elseif (event.keyName == "down") then
+			motiony = speed
+		end
+	end
+end
+
+local function moveSprite(event)
+	character.x = character.x + motionx
+	character.y = character.y + motiony
 end
 
 local runtime = 0
@@ -88,12 +111,6 @@ local function enterFrame(event)
 	moveBg(getDeltaTime())
 end
 
-local function dragCharacter(event)
-	if paused ~= true then
-		--Code to drag the character will be added here
-	end
-end
-
 local function pause()
  --Will provide pause function
 end
@@ -131,7 +148,7 @@ function scene:create( event )
 	sceneGroup:insert(uiGroup)
 
 
-	character:addEventListener("touch", dragCharacter)
+	character:addEventListener("key", keyPressed)
 end
 
 
@@ -150,6 +167,7 @@ function scene:show( event )
 		Runtime:addEventListener("collision", onCollision)
 		Runtime:addEventListener("enterFrame", enterFrame)
 		Runtime:addEventListener("enterFrame", moveObject)
+		Runtime:addEventListener("enterFrame", moveSprite)
 		--gameLoopTimer = timer.performWithDelay(2000, gameLoop, 0)
 	end
 end

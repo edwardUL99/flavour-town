@@ -65,6 +65,11 @@ local function keyPressed(event)
 			motiony = speed
 		end
 	end
+
+	if (event.phase == "up") then
+		motionx = 0
+		motiony = 0
+	end
 	return true
 end
 
@@ -147,9 +152,6 @@ function scene:create( event )
 
 	uiGroup = display.newGroup()
 	sceneGroup:insert(uiGroup)
-
-
-	character:addEventListener("key", keyPressed)
 end
 
 
@@ -169,6 +171,7 @@ function scene:show( event )
 		Runtime:addEventListener("enterFrame", enterFrame)
 		Runtime:addEventListener("enterFrame", moveObject)
 		Runtime:addEventListener("enterFrame", moveSprite)
+		Runtime:addEventListener("key", keyPressed)
 		--gameLoopTimer = timer.performWithDelay(2000, gameLoop, 0)
 	end
 end

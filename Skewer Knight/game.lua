@@ -65,6 +65,7 @@ local function keyPressed(event)
 			motiony = speed
 		end
 	end
+	return true
 end
 
 local function moveSprite(event)

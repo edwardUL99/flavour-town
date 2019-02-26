@@ -52,6 +52,8 @@ local function addScrollableBg()
 	--Code to add second background image
 end
 
+--May not need this function if we are using mouse to drag character
+--Will have to add boundaries
 local function keyPressed(event)
 	--Need to add code to add boundaries
 	if (event.phase = "down" and paused ~= true) then

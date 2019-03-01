@@ -14,8 +14,8 @@ physics.setGravity(0,0)
 local foodsTable = {}
 local gameLoopTimer
 local scrollSpeed --Speed of background
-local health
-local score
+local health = 3
+local score = 0
 local healthText
 local scoreText
 local paused = false
@@ -56,7 +56,7 @@ end
 --Will have to add boundaries
 local function keyPressed(event)
 	--Need to add code to add boundaries
-	if (event.phase = "down" and paused ~= true) then
+	if (event.phase == "down" and paused ~= true) then
 		if (event.keyName == "left") then
 			motionx = -speed
 		elseif (event.keyName == "right") then
@@ -75,9 +75,41 @@ local function keyPressed(event)
 	return true
 end
 
+--Will be used when joystick is added
 local function moveSprite(event)
 	character.x = character.x + motionx
 	character.y = character.y + motiony
+end
+
+local function checkBounds()
+	if (character.x > display.viewableContentWidth + 300) then
+		character.x = character.x - 10
+	elseif (character.x < -800) then
+		character.x = character.x + 300
+	end
+
+	if (character.y > display.viewableContentHeight) then
+		character.y = character.y - 100
+	--elseif (character.y < 0 + display.viewableContentHeight) then
+		--character.y = character.y - 300
+	end
+end
+
+local function dragCharacter(event)
+	local character = event.target
+	local phase = event.phase
+	if ("began" == phase) then
+		display.currentStage:setFocus(character)
+		character.touchOffsetX = event.x - character.x
+		character.touchOffsetY = event.y - character.y
+	elseif ("moved" == phase) then
+		character.x = event.x - character.touchOffsetX
+		character.y = event.y - character.touchOffsetY
+	elseif ("ended" == phase or "cancelled" == phase) then
+		display.currentStage:setFocus(nil)
+	end
+
+	return true
 end
 
 local runtime = 0
@@ -93,7 +125,7 @@ end
 local function moveObject(event)
 	if (paused ~= true) then
 		for i = #foodsTable, 1, -1 do
-			foodsTable[i].y - foodsTable[i].y + scrollSpeed
+			foodsTable[i].y = foodsTable[i].y + scrollSpeed
 			if (foodsTable[i].y > height + 100) then
 				display.remove(potholesTable[i])
 				table.remove(foodsTable, i)
@@ -154,6 +186,24 @@ function scene:create( event )
 
 	uiGroup = display.newGroup()
 	sceneGroup:insert(uiGroup)
+
+	local background = display.newImageRect(backGroup, "background.jpg", display.actualContentWidth,display.actualContentHeight)
+	background.x = display.contentCenterX
+	background.y = display.contentCenterY
+
+	character = display.newImageRect(mainGroup, "character.png", 400, 300)
+	character.x = display.contentCenterX - 1000
+	character.y = display.contentCenterY
+	character.myName = "character"
+
+	--Health is just text for prototype
+	healthText = display.newText(uiGroup, "Health: " .. health, display.contentCenterX - 1000, display.contentCenterY - 500, native.systemFont, 80)
+
+	--Score is text for prototype
+	scoreText = display.newText(uiGroup, "Score: " .. score, display.contentCenterX + 1000, display.contentCenterY - 500, native.systemFont, 80)
+
+
+	character:addEventListener("touch", dragCharacter)
 end
 
 
@@ -170,10 +220,10 @@ function scene:show( event )
 		-- Code here runs when the scene is entirely on screen
 		physics.start()
 		Runtime:addEventListener("collision", onCollision)
-		Runtime:addEventListener("enterFrame", enterFrame)
-		Runtime:addEventListener("enterFrame", moveObject)
-		Runtime:addEventListener("enterFrame", moveSprite)
-		Runtime:addEventListener("key", keyPressed)
+		Runtime:addEventListener("enterFrame", checkBounds)
+		--Runtime:addEventListener("enterFrame", moveObject)
+		--Runtime:addEventListener("enterFrame", moveSprite)
+		--Runtime:addEventListener("key", keyPressed)
 		--gameLoopTimer = timer.performWithDelay(2000, gameLoop, 0)
 	end
 end

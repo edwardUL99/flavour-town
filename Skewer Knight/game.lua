@@ -31,6 +31,14 @@ local motionx = 0
 local motiony = 0
 local speed = 2
 
+--Boundaries variables
+------------------------------------------------
+local leftBound = -(display.viewableContentWidth)
+local rightBound = display.actualContentWidth - display.contentWidth
+local topBound = 0
+local bottomBound = display.actualContentHeight
+-------------------------------------------------
+
 ---------------
 local backGroup
 local mainGroup  ---------Providing variables for displayGroups to be used later
@@ -82,16 +90,16 @@ local function moveSprite(event)
 end
 
 local function checkBounds()
-	if (character.x > display.viewableContentWidth + 300) then
-		character.x = character.x - 10
-	elseif (character.x < -800) then
-		character.x = character.x + 300
+	if (character.x > rightBound) then
+		character.x = rightBound - 20
+	elseif (character.x < leftBound) then
+		character.x = leftBound + 20
 	end
 
-	if (character.y > display.viewableContentHeight) then
-		character.y = character.y - 100
-	--elseif (character.y < 0 + display.viewableContentHeight) then
-		--character.y = character.y - 300
+	if (character.y < topBound) then
+		character.y = topBound + 20
+	elseif (character.y > bottomBound) then
+		character.y = bottomBound - 20
 	end
 end
 

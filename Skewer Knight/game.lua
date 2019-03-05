@@ -14,9 +14,9 @@ physics.setGravity(0,0)
 
 --Tables and image sheet required for game -
 local foodsTable = {}
-local collideds = {}
+local skewered = {}
 local maxFoodsOnDisplay = 10 --Arbitrary set to 10 for now
-local maxCollideds = 4 --Arbitrary, set to 4 for now
+local maxSkewered = 4 --Arbitrary, set to 4 for now
 local imageSheet = graphics.newImageSheet("spritesheet.png", sheetInfo:getSheet())
 -- ------------------
 
@@ -186,10 +186,6 @@ end
 
 local function updateText()
  --Will ensure text is always updated 
-end
-
-local function storeFoodCombination(objects, numOfObjects)
- --May store the food combination table if required into a table 
 end
 
 local function resume()

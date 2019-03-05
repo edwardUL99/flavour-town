@@ -80,6 +80,7 @@ local function createObjects()
 
 	newItem.x = rightBound + 100
 	newItem.y = math.random(bottomBound)
+	newItem:toBack()
 end
 
 local function addScrollableBg()

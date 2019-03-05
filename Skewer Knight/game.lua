@@ -3,8 +3,7 @@ local composer = require( "composer" )
 
 local scene = composer.newScene()
 
-local sheetInfo = require("spritesheet")
-
+local sheetInfo = require("spritesheet.lua") --Introduces the functions required to grab sprites from sheet
 -- -----------------------------------------------------------------------------------
 -- Code outside of the scene event functions below will only be executed ONCE unless
 -- the scene is removed entirely (not recycled) via "composer.removeScene()"
@@ -13,30 +12,42 @@ local physics = require( "physics" )
 physics.start()
 physics.setGravity(0,0)
 
-local imageSheet = graphics.newImageSheet("spritesheet.png", sheetInfo:getSheet())
-
+--Tables and image sheet required for game -
 local foodsTable = {}
 local collideds = {}
+local maxFoodsOnDisplay = 10 --Arbitrary set to 10 for now
+local maxCollideds = 4 --Arbitrary, set to 4 for now
+local imageSheet = graphics.newImageSheet("spritesheet.png", sheetInfo:getSheet())
+-- ------------------
+
+
 local gameLoopTimer
-local scrollSpeed --Speed of background
+local scrollSpeed = 2 --Speed of background. Arbitrarily set to 2 for now
+
+------------------
 local health = 3
 local score = 0
-local healthText
+local healthText      --UI-related variables
 local scoreText
 local paused = false
 local died = false
+--------------------
+
+
+--Graphics variables--
 local character
 --We want two of the same background to add scrolling effect.
 --Does the background remain constant with character/foods moving
 --or is it moving?
 local bg1
 local bg2
+--------------------
 
------------------
+-------------------
 local motionx = 0
-local motiony = 0	--Movement variables
+local motiony = 0	--Character movement variables
 local speed = 2
------------------
+-------------------
 
 --Boundaries variables
 ------------------------------------------------
@@ -54,22 +65,21 @@ local uiGroup
 
 --Providing a simple function to return to menu
 local function goToMenu()
+	composer.removeScene("game")
 	composer.gotoScene("menu","fade",500)
 end
 
 local function createObjects()
 	--Will provide code to randomly create certain objects
-	names = {"bread", "broccoli", "burger", "lettuce", "tomato"}
-	local name = names[math.random(5)]
-	newItem = display.newImage(mainGroup, imageSheet, sheetInfo:getFrameIndex(name))
-	newItem.height = 200
-	newItem.width = 200
-	newItem.myName = name
+	local names = {"bread", "broccoli", "burger", "lettuce", "tomato"} --Will be randomly accessed
+	local name = names[math.random(#names)]
+	local newItem = display.newImageRect(mainGroup, imageSheet, sheetInfo:getFrameIndex(name))
 	table.insert(foodsTable, newItem)
-	physics.addBody(newItem,"dynamic", {radius=40, isSensor = true} )
+	newItem.myName = name
+	physics.addBody(newItem, "dynamic", {radius=40, bounce=0.0})
+
 	newItem.x = rightBound + 100
 	newItem.y = math.random(bottomBound)
-	newItem:toBack()
 end
 
 local function addScrollableBg()
@@ -81,23 +91,7 @@ end
 --May not need this function if we are using mouse to drag character
 --Will have to add boundaries
 local function keyPressed(event)
-	--Need to add code to add boundaries
-	if (event.phase == "down" and paused ~= true) then
-		if (event.keyName == "left") then
-			motionx = -speed
-		elseif (event.keyName == "right") then
-			motionx = speed
-		elseif (event.keyName == "up") then
-			motiony = -speed
-		elseif (event.keyName == "down") then
-			motiony = speed
-		end
-	end
-
-	if (event.phase == "up") then
-		motionx = 0
-		motiony = 0
-	end
+	--Code to maybe add back button functionality to go to main menu
 	return true
 end
 
@@ -124,32 +118,20 @@ end
 local function dragCharacter(event)
 	local character = event.target
 	local phase = event.phase
-	if ("began" == phase) then
-		display.currentStage:setFocus(character)
-		character.touchOffsetX = event.x - character.x
-		character.touchOffsetY = event.y - character.y
-	elseif ("moved" == phase) then
-		character.x = event.x - character.touchOffsetX
-		character.y = event.y - character.touchOffsetY
-	elseif ("ended" == phase or "cancelled" == phase) then
-		display.currentStage:setFocus(nil)
-	end
-
-	return true
-end
-
-local function back(event)
-	local key = event.keyName
-  if (event.phase == "down") then
-		if (key == "back") then
-			composer.removeScene("game")
-			composer.gotoScene("menu",{time=800,effect="crossFade"})
+	if (paused ~= true) then 
+		if ("began" == phase) then
+			display.currentStage:setFocus(character)
+			character.touchOffsetX = event.x - character.x
+			character.touchOffsetY = event.y - character.y
+		elseif ("moved" == phase) then
+			character.x = event.x - character.touchOffsetX
+			character.y = event.y - character.touchOffsetY
+		elseif ("ended" == phase or "cancelled" == phase) then
+			display.currentStage:setFocus(nil)
 		end
 	end
-
-	if (event.phase == "up") then
-		return true
-	end
+	
+	return true
 end
 
 local runtime = 0
@@ -163,38 +145,50 @@ local function getDeltaTime()
 end
 
 local function moveObject(event)
-	local dt = getDeltaTime()
 	if (paused ~= true) then
 		for i = #foodsTable, 1, -1 do
-			scrollSpeed = 2
-			foodsTable[i].x = foodsTable[i].x - scrollSpeed * dt
-			if (foodsTable[i].x < -(display.actualContentWidth)) then
-				display.remove(foodsTable[i])
+			foodsTable[i].y = foodsTable[i].y + scrollSpeed
+			if (foodsTable[i].y > height + 100) then
+				display.remove(potholesTable[i])
 				table.remove(foodsTable, i)
-				createObjects()
+				if (#foodsTable < maxFoodsOnDisplay) then
+					createObjects()
+				end
 			end
 		end
 	end
 end
 
+--May not be needed?
 local function moveBg(dt)
-	bg1.y = bg1.y + scrollSpeed * dt
-	bg2.y = bg2.y + scrollSpeed * dt
-
-	if (bg1.y - display.contentHeight/2) > display.actualContentHeight  then
- 		bg1:translate(0, -bg1.contentHeight * 2)
-	end
-	if (bg2.y - display.contentHeight/2) > display.actualContentHeight  then
- 		bg2:translate(0, -bg2.contentHeight * 2)
-	end
+	--Code to move background if necessary.
+	--Google how to do scrolling background
+	--http://lomza.totem-soft.com/tutorial-scrollable-background-in-corona-sdk/
 end
 
 local function enterFrame(event)
-	moveBg(getDeltaTime())
+	local dt = getDeltaTime()
+	moveBg(dt)
 end
 
 local function pause()
  --Will provide pause function
+end
+
+local function checkCombination(objectsTable)
+ --Will check a table with the food combination and return the score 
+end 
+
+local function updateSkewer()
+ --Will provide code to update the food contents on the skewer
+end 
+
+local function updateText()
+ --Will ensure text is always updated 
+end
+
+local function storeFoodCombination(objects, numOfObjects)
+ --May store the food combination table if required into a table 
 end
 
 local function resume()
@@ -203,39 +197,10 @@ end
 
 local function gameLoop()
 	--Will provide the function for spawning objects randomly
-	createObjects()
-end
-
-local function moveCollideds()
-	local move = function()
-		for i = 1, #collideds, 1 do
-			collideds[i].x = character.x
-			collideds[i].y = character.y
-			collideds[i].isBodyActive = false
-		end
-	end
-
-	timer.performWithDelay(100, move, 1)
 end
 
 local function onCollision(event)
 	--Will provide code for collision events
-	local obj1 = event.object1
-	local obj2 = event.object2
-	if (event.phase == "began") then
-		if (obj1.myName == "character" and obj2.myName == "burger") then
-			display.remove(obj2)
-			for i = #foodsTable, 1, -1 do
-				if (foodsTable[i] == obj2) then
-					table.insert(collideds, obj2)
-					table.remove(foodsTable, i)
-					break
-				end
-			end
-			score = score + 100
-			scoreText.text = "Score: " .. score
-		end
-	end
 end
 
 -- -----------------------------------------------------------------------------------
@@ -265,14 +230,13 @@ function scene:create( event )
 	character = display.newImageRect(mainGroup, "character.png", 400, 300)
 	character.x = display.contentCenterX - 1000
 	character.y = display.contentCenterY
-	physics.addBody(character, "static", {radius = 30, isSensor=true})
 	character.myName = "character"
 
 	--Health is just text for prototype
-	healthText = display.newText(uiGroup, "Health: " .. health, display.contentCenterX - (display.contentCenterX * 2), display.contentCenterY - 500, native.systemFont, 80)
+	healthText = display.newText(uiGroup, "Health: " .. health, display.contentCenterX - 1000, display.contentCenterY - 500, native.systemFont, 80)
 
 	--Score is text for prototype
-	scoreText = display.newText(uiGroup, "Score: " .. score, display.contentCenterX + (display.contentCenterX * 2), display.contentCenterY - 500, native.systemFont, 80)
+	scoreText = display.newText(uiGroup, "Score: " .. score, display.contentCenterX + 1000, display.contentCenterY - 500, native.systemFont, 80)
 
 
 	character:addEventListener("touch", dragCharacter)
@@ -294,9 +258,9 @@ function scene:show( event )
 		Runtime:addEventListener("collision", onCollision)
 		Runtime:addEventListener("enterFrame", checkBounds)
 		Runtime:addEventListener("enterFrame", moveObject)
-		--Runtime:addEventListener("enterFrame", moveCollideds)
-		Runtime:addEventListener("key", back)
-		gameLoopTimer = timer.performWithDelay(3000, gameLoop, 0)
+		--Runtime:addEventListener("enterFrame", moveSprite)
+		Runtime:addEventListener("key", keyPressed)
+		--gameLoopTimer = timer.performWithDelay(2000, gameLoop, 0)
 	end
 end
 

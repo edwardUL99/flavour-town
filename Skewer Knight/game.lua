@@ -3,6 +3,8 @@ local composer = require( "composer" )
 
 local scene = composer.newScene()
 
+local sheetInfo = require("spritesheet")
+
 -- -----------------------------------------------------------------------------------
 -- Code outside of the scene event functions below will only be executed ONCE unless
 -- the scene is removed entirely (not recycled) via "composer.removeScene()"
@@ -11,7 +13,10 @@ local physics = require( "physics" )
 physics.start()
 physics.setGravity(0,0)
 
+local imageSheet = graphics.newImageSheet("spritesheet.png", sheetInfo:getSheet())
+
 local foodsTable = {}
+local collideds = {}
 local gameLoopTimer
 local scrollSpeed --Speed of background
 local health = 3
@@ -20,16 +25,18 @@ local healthText
 local scoreText
 local paused = false
 local died = false
-local height = display.contentHeight
 local character
 --We want two of the same background to add scrolling effect.
 --Does the background remain constant with character/foods moving
 --or is it moving?
 local bg1
 local bg2
+
+-----------------
 local motionx = 0
-local motiony = 0
+local motiony = 0	--Movement variables
 local speed = 2
+-----------------
 
 --Boundaries variables
 ------------------------------------------------
@@ -52,6 +59,17 @@ end
 
 local function createObjects()
 	--Will provide code to randomly create certain objects
+	names = {"bread", "broccoli", "burger", "lettuce", "tomato"}
+	local name = names[math.random(5)]
+	newItem = display.newImage(mainGroup, imageSheet, sheetInfo:getFrameIndex(name))
+	newItem.height = 200
+	newItem.width = 200
+	newItem.myName = name
+	table.insert(foodsTable, newItem)
+	physics.addBody(newItem,"dynamic", {radius=40, isSensor = true} )
+	newItem.x = rightBound + 100
+	newItem.y = math.random(bottomBound)
+	newItem:toBack()
 end
 
 local function addScrollableBg()
@@ -120,6 +138,20 @@ local function dragCharacter(event)
 	return true
 end
 
+local function back(event)
+	local key = event.keyName
+  if (event.phase == "down") then
+		if (key == "back") then
+			composer.removeScene("game")
+			composer.gotoScene("menu",{time=800,effect="crossFade"})
+		end
+	end
+
+	if (event.phase == "up") then
+		return true
+	end
+end
+
 local runtime = 0
 
 --Delta time ensures we have smooth scrolling accross different devices
@@ -131,11 +163,13 @@ local function getDeltaTime()
 end
 
 local function moveObject(event)
+	local dt = getDeltaTime()
 	if (paused ~= true) then
 		for i = #foodsTable, 1, -1 do
-			foodsTable[i].y = foodsTable[i].y + scrollSpeed
-			if (foodsTable[i].y > height + 100) then
-				display.remove(potholesTable[i])
+			scrollSpeed = 2
+			foodsTable[i].x = foodsTable[i].x - scrollSpeed * dt
+			if (foodsTable[i].x < -(display.actualContentWidth)) then
+				display.remove(foodsTable[i])
 				table.remove(foodsTable, i)
 				createObjects()
 			end
@@ -169,10 +203,39 @@ end
 
 local function gameLoop()
 	--Will provide the function for spawning objects randomly
+	createObjects()
+end
+
+local function moveCollideds()
+	local move = function()
+		for i = 1, #collideds, 1 do
+			collideds[i].x = character.x
+			collideds[i].y = character.y
+			collideds[i].isBodyActive = false
+		end
+	end
+
+	timer.performWithDelay(100, move, 1)
 end
 
 local function onCollision(event)
 	--Will provide code for collision events
+	local obj1 = event.object1
+	local obj2 = event.object2
+	if (event.phase == "began") then
+		if (obj1.myName == "character" and obj2.myName == "burger") then
+			display.remove(obj2)
+			for i = #foodsTable, 1, -1 do
+				if (foodsTable[i] == obj2) then
+					table.insert(collideds, obj2)
+					table.remove(foodsTable, i)
+					break
+				end
+			end
+			score = score + 100
+			scoreText.text = "Score: " .. score
+		end
+	end
 end
 
 -- -----------------------------------------------------------------------------------
@@ -202,13 +265,14 @@ function scene:create( event )
 	character = display.newImageRect(mainGroup, "character.png", 400, 300)
 	character.x = display.contentCenterX - 1000
 	character.y = display.contentCenterY
+	physics.addBody(character, "static", {radius = 30, isSensor=true})
 	character.myName = "character"
 
 	--Health is just text for prototype
-	healthText = display.newText(uiGroup, "Health: " .. health, display.contentCenterX - 1000, display.contentCenterY - 500, native.systemFont, 80)
+	healthText = display.newText(uiGroup, "Health: " .. health, display.contentCenterX - (display.contentCenterX * 2), display.contentCenterY - 500, native.systemFont, 80)
 
 	--Score is text for prototype
-	scoreText = display.newText(uiGroup, "Score: " .. score, display.contentCenterX + 1000, display.contentCenterY - 500, native.systemFont, 80)
+	scoreText = display.newText(uiGroup, "Score: " .. score, display.contentCenterX + (display.contentCenterX * 2), display.contentCenterY - 500, native.systemFont, 80)
 
 
 	character:addEventListener("touch", dragCharacter)
@@ -229,10 +293,10 @@ function scene:show( event )
 		physics.start()
 		Runtime:addEventListener("collision", onCollision)
 		Runtime:addEventListener("enterFrame", checkBounds)
-		--Runtime:addEventListener("enterFrame", moveObject)
-		--Runtime:addEventListener("enterFrame", moveSprite)
-		--Runtime:addEventListener("key", keyPressed)
-		--gameLoopTimer = timer.performWithDelay(2000, gameLoop, 0)
+		Runtime:addEventListener("enterFrame", moveObject)
+		--Runtime:addEventListener("enterFrame", moveCollideds)
+		Runtime:addEventListener("key", back)
+		gameLoopTimer = timer.performWithDelay(3000, gameLoop, 0)
 	end
 end
 

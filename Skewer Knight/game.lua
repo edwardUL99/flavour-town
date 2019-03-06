@@ -176,9 +176,19 @@ local function pause()
  --Will provide pause function
 end
 
-local function checkCombination(objectsTable)
+local function checkCombination(namesTable)
  --Will check a table with the food combination and return the score 
 end 
+
+local function store(objectsTable)
+ --Will store the names of the objects in the table in an array and pass it to che checkCombination function
+ local namesTable = {}
+ for i = 1, #objectsTable, 1 do
+   namesTable[i] = objectsTable[i].myName
+ end
+ 
+ return checkCombination(namesTable)
+end
 
 local function updateSkewer()
  --Will provide code to update the food contents on the skewer

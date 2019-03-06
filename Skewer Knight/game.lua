@@ -176,6 +176,22 @@ local function pause()
  --Will provide pause function
 end
 
+local function isEqualTable(table1, table2)
+ --To be used in checkCombination method to check if the second table is equal to the table of ideal food combination(2nd table must be in same order as first table)
+ --table1 could be implemented as a 2D array of all arrays of ideal combinations, we'll see
+ if (#table1 == #table2) then
+  for i=1, #table2, 1 do
+   if (table1[i] ~= table2[i]) then
+    return false
+   end
+  end
+ else 
+  return false
+ end
+		
+ return true
+end
+
 local function checkCombination(namesTable)
  --Will check a table with the food combination and return the score 
 end 

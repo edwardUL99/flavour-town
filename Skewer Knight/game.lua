@@ -12,7 +12,7 @@ local physics = require( "physics" )
 physics.start()
 physics.setGravity(0,0)
 
---Tables and image sheet required for game -
+--Tables and image sheet required for game 
 local foodsTable = {}
 local skewered = {}
 local maxFoodsOnDisplay = 10 --Arbitrary set to 10 for now
@@ -72,10 +72,12 @@ end
 local function createObjects()
 	--Will provide code to randomly create certain objects
 	local names = {"bread", "broccoli", "burger", "lettuce", "tomato"} --Will be randomly accessed
-	local name = names[math.random(#names)]
-	local newItem = display.newImageRect(mainGroup, imageSheet, sheetInfo:getFrameIndex(name))
-	table.insert(foodsTable, newItem)
+	local name = names[math.random(5)]
+	local newItem = display.newImage(mainGroup, imageSheet, sheetInfo:getFrameIndex(name))
+	newItem.height = 200
+	newItem.width = 200
 	newItem.myName = name
+	table.insert(foodsTable, newItem)
 	physics.addBody(newItem, "dynamic", {radius=40, bounce=0.0})
 
 	newItem.x = rightBound + 100
@@ -146,15 +148,13 @@ local function getDeltaTime()
 end
 
 local function moveObject(event)
+	local dt = getDeltaTime()
 	if (paused ~= true) then
 		for i = #foodsTable, 1, -1 do
-			foodsTable[i].y = foodsTable[i].y + scrollSpeed
-			if (foodsTable[i].y > height + 100) then
-				display.remove(potholesTable[i])
+			foodsTable[i].x = foodsTable[i].x - scrollSpeed * dt
+			if (foodsTable[i].x < -(display.actualContentWidth)) then
+				display.remove(foodsTable[i])
 				table.remove(foodsTable, i)
-				if (#foodsTable < maxFoodsOnDisplay) then
-					createObjects()
-				end
 			end
 		end
 	end
@@ -220,6 +220,7 @@ end
 
 local function gameLoop()
 	--Will provide the function for spawning objects randomly
+	createObjects()
 end
 
 local function onCollision(event)
@@ -283,7 +284,7 @@ function scene:show( event )
 		Runtime:addEventListener("enterFrame", moveObject)
 		--Runtime:addEventListener("enterFrame", moveSprite)
 		Runtime:addEventListener("key", keyPressed)
-		--gameLoopTimer = timer.performWithDelay(2000, gameLoop, 0)
+		gameLoopTimer = timer.performWithDelay(2000, gameLoop, 0)
 	end
 end
 

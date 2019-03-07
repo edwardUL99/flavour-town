@@ -11,14 +11,14 @@
 --NOTES ON SYNTAX:
 --[1] Name Variables so you tell exactly what it is just by looking.
 --[2] Same with Functions, make their names a VERB that says what it does.
---[3] Don't leave empty lines inside functions, it makes it harder to read.
+--[3] Don't leave empty lines inside functions, it makes it harder to read. Corona tutorials says don't clump code together because it makes it harder to read
 --[4] All comments related to it should be inside the function itself,
---	  NOT above/below it etc
+--	  NOT above/below it etc, It's convention for function comments to go above just like in Java no?
 ----------------------------------------------------------------------------
 --STARTUP / IMPORTS ETC
 ----------------------------------------------------------------------------
 local scene = composer.newScene()
-local sheetInfo = require("spritesheet.lua") --Introduces the functions required to grab sprites from sheet
+local sheetInfo = require("spritesheet") --Introduces the functions required to grab sprites from sheet
 local physics = require( "physics" )
 physics.start()
 physics.setGravity(0,0)
@@ -109,21 +109,19 @@ local function getDeltaTime() --Delta time ensures we have smooth scrolling accr
 end
 
 local function moveObject(event)
+	local dt = getDeltaTime();
 	if (paused ~= true) then
 		for i = #looseFoodsTable, 1, -1 do
-			looseFoodsTable[i].y = looseFoodsTable[i].y + foodScrollSpeed
-			if (looseFoodsTable[i].y > height + 100) then
-				display.remove(potholesTable[i])
+			looseFoodsTable[i].x = looseFoodsTable[i].x - foodScrollSpeed * dt
+			if (looseFoodsTable[i].x < -(display.actualContentWidth)) then
+				display.remove(looseFoodsTable[i])
 				table.remove(looseFoodsTable, i)
-				if (#looseFoodsTable < maxLooseFoods) then
-					createObjects()
-				end
 			end
 		end
 	end
 end
 
-local function enterFrame(event) --( * What is this?)
+local function enterFrame(event) --( * It will be for the moving background. http://lomza.totem-soft.com/tutorial-scrollable-background-in-corona-sdk/)
 	local dt = getDeltaTime()
 	moveBg(dt)
 end

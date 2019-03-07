@@ -3,7 +3,7 @@ local composer = require( "composer" )
 
 local scene = composer.newScene()
 
-local sheetInfo = require("spritesheet.lua") --Introduces the functions required to grab sprites from sheet
+local sheetInfo = require("spritesheet") --Introduces the functions required to grab sprites from sheet
 -- -----------------------------------------------------------------------------------
 -- Code outside of the scene event functions below will only be executed ONCE unless
 -- the scene is removed entirely (not recycled) via "composer.removeScene()"

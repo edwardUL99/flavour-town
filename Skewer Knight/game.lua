@@ -153,6 +153,7 @@ local function enterFrame(event) --( * It will be for the moving background. htt
 end
 
 local function isEqualArray(table1, table2)
+	--Since the score value is only stored at end of each combination table, we can ignore it and check the names only
 	if ((#table1-1) == #table2) then
 		for i = 1, (#table1 - 1) do
 			if (table1[i] ~= table2[i]) then
@@ -172,6 +173,7 @@ local function createCombinationsTable()
 	for i = 1, amountOfCombos do --Creating 2D array
 		foodCombinations[i] = {}
 	end
+	--The score values for each combination is in the last position i.e #foodCombinations[i] where i is some number 1-5
 	foodCombinations[1] = {"bread", "bread", "bread", "bread", 500}
 	foodCombinations[2] = {"broccoli", "broccoli", "broccoli", "broccoli", 50}
 	foodCombinations[3] = {"burger", "burger", "burger", "burger", 1000}

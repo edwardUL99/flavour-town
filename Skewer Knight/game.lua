@@ -354,6 +354,10 @@ function scene:hide( event )
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen
 		physics.pause()
+		Runtime:removeEventListener("collision",onCollision)
+		Runtime:removeEventListener("enterFrame", checkBounds)
+		Runtime:removeEventListener("enterFrame", moveObject)
+		Runtime:removeEventListener("key", keyPressed)
 	end
 end
 

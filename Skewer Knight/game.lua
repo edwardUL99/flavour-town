@@ -53,8 +53,6 @@ local bg1
 local bg2 --two SCROLLING backgrounds, to make it look like player is moving)
 local foodScrollSpeed = 2--(Add multiple backgrounds of different speeds,
 local bg2ScrollSpeed = 3 --Food moves at the same speed as the first)
-local motionx = 2
-local motiony = 2
 --------------------
 --Boundaries variables--
 local leftBound = -(display.viewableContentWidth)
@@ -67,6 +65,11 @@ local backLayer
 local mainLayer
 local uiLayer
 --------------------
+------------------- (I don't know if we're still using these, but I saw they were deleted.
+--local motionx = 0     Keeping them here just in case that was by accident) (Aidan)
+--local motiony = 0	--Character movement variables
+--local speed = 2
+-------------------
 ----------------------------------------------------------------------------
 --WORKING FUNCTIONS
 ----------------------------------------------------------------------------
@@ -77,15 +80,15 @@ end
 
 local function checkBounds()
 	if (player.x > rightBound) then
-		player.x = rightBound - 50
+		player.x = rightBound - 20
 	elseif (player.x < leftBound) then
-		player.x = leftBound + 50
+		player.x = leftBound + 20
 	end
-
+	--
 	if (player.y < topBound) then
-		player.y = topBound + 50
+		player.y = topBound + 20
 	elseif (player.y > bottomBound) then
-		player.y = bottomBound - 50
+		player.y = bottomBound - 20
 	end
 end
 
@@ -97,14 +100,14 @@ local function createObjects()
 	newItem.width = 200
 	newItem.myName = name
 	table.insert(looseFoodsTable, newItem)
-	physics.addBody(newItem, "dynamic", {radius=40, bounce=0.0})
-  --
+	physics.addBody(newItem, "static", {radius=40, bounce=0.0}) --(We don't need the food
+  --																						to hit each other etc, static is good enough)
 	newItem.x = rightBound + 100
 	newItem.y = math.random(bottomBound)
-	newItem:toBack() --Allows food go behind the player, not over them
+	newItem:toBack()
 end
 
-local function dragPlayer(event)
+local function dragplayer(event)
 	local player = event.target
 	local phase = event.phase
 	if (paused ~= true) then
@@ -119,7 +122,7 @@ local function dragPlayer(event)
 			display.currentStage:setFocus(nil)
 		end
 	end
-
+	--
 	return true
 end
 
@@ -154,11 +157,8 @@ local function enterFrame(event) --( * It will be for the moving background. htt
 	moveBg(dt)
 end
 
---[[@param table1 -The foodCombination predefined
-The order the parameters are passed in are important!
-@param table2 -The skewer array to be checked against the predefined goodCombination--]]
 local function isEqualArray(table1, table2)
-	--#table1 - 1 ensures only the NAMES are checked, the POINTS value is the last value, i.e #table1, otherwise the tables will never be equals
+	--Since the score value is only stored at end of each combination table, we can ignore it and check the names only
 	if ((#table1-1) == #table2) then
 		for i = 1, (#table1 - 1) do
 			if (table1[i] ~= table2[i]) then
@@ -178,7 +178,7 @@ local function createCombinationsTable()
 	for i = 1, amountOfCombos do --Creating 2D array
 		foodCombinations[i] = {}
 	end
-	--The score values for each combination is in the last position i.e #foodCombinations[i] where i is some number 1-lengthOfTable(#)
+	--The score values for each combination is in the last position i.e #foodCombinations[i] where i is some number 1-5
 	foodCombinations[1] = {"bread", "bread", "bread", "bread", 500}
 	foodCombinations[2] = {"broccoli", "broccoli", "broccoli", "broccoli", 50}
 	foodCombinations[3] = {"burger", "burger", "burger", "burger", 1000}
@@ -201,13 +201,13 @@ local function print2D(twoD)
 end
 ---Will remove later--
 
-local function checkCombination(skewerTable)
+local function checkCombination(namesTable)
 	for i = 1, #foodCombinations do
-		if (isEqualArray(foodCombinations[i], skewerTable)) then --foodCombinations is a table of tables, so foodCombinations[i] passes a TABLE into the method
-			return foodCombinations[i][#foodCombinations[i]] -- returns the points value stored at foodCombinations[i][#foodCombinations[i]], i.e the last position of the particular table
+		if (isEqualArray(foodCombinations[i], namesTable)) then
+			return foodCombinations[i][#foodCombinations[i]]
 		end
 	end
-	return 500 --The DEFAULT points value if the skewer table does not match any predefined foodCombination
+	return 500
 end
 
 local function keyPressed(event)
@@ -224,11 +224,11 @@ end
 
 --The return value is the score to be given to the player
 local function store(objectsTable)
- local skewerTable = {}
+ local namesTable = {}
  for i = 1, #objectsTable, 1 do
-   skewerTable[i] = objectsTable[i].myName
+   namesTable[i] = objectsTable[i].myName
  end
- return checkCombination(skewerTable)
+ return checkCombination(namesTable)
 end
 
 local function updateText()
@@ -238,11 +238,11 @@ end
 
 local function gameLoop()
 	createObjects()
-	updateText()
-end
+	updateText() -- (* We don't need to update the Text on every frame, just when it's changed.
+end			--So the collisions etc should call the updateText method instead of the loop)
 ----------------------------------------------------------------------------
 ----------------------------------------------------------------------------
---INCOMPLETE/BROKEN/UNKNOWN FUNCTIONS BELOW
+--INCOMPLETE/BROKEN FUNCTIONS BELOW
 ----------------------------------------------------------------------------
 
 local function addScrollableBg()
@@ -263,7 +263,6 @@ end
 	--player.y = player.y + motiony
 --end
 
-
 local function pause()
  --Will provide pause function
 end
@@ -274,12 +273,6 @@ end
 
 local function onCollision(event)
 	--Will provide code for collision events
-
-	--[[*Add the following pseudocode in when everything is set up
-	if numberOfObjects not greater than maxOnSkewer then
-		onSkewerArray[nextPos] = collidedObject.myName -- For this line table.insert(onSkewerArray, collidedObject.myName) would get rid of having to increment a position
-	end
-	--]]
 end
 
 ----------------------------------------------------------------------------
@@ -319,7 +312,7 @@ function scene:create( event )
 	--Score is text for prototype
 	scoreText = display.newText(uiLayer, "Score: " .. score, display.contentCenterX + 1000, display.contentCenterY - 500, native.systemFont, 80)
 
-	createCombinationsTable() --Initialising the foodCombinations 2D Array
+	createCombinationsTable()
 
 	--Debug to print test output to console, will remove later
 	print2D(foodCombinations)
@@ -328,7 +321,7 @@ function scene:create( event )
 	print(checkCombination(good))
 	--------------------------------------------------------------
 
-	player:addEventListener("touch", dragPlayer)
+	player:addEventListener("touch", dragplayer)
 end
 
 

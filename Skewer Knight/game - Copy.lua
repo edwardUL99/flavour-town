@@ -273,6 +273,12 @@ end
 
 local function onCollision(event)
 	--Will provide code for collision events
+	
+	--[[*Add the following pseudocode in when everything is set up
+	if numberOfObjects not greater than maxOnSkewer then
+		onSkewerArray[nextPos] = collidedObject.myName -- For this line table.insert(onSkewerArray, collidedObject.myName) would get rid of having to increment a position
+	end
+	--]]
 end
 
 ----------------------------------------------------------------------------

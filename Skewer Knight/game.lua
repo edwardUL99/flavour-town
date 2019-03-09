@@ -107,7 +107,7 @@ local function createObjects()
 	newItem:toBack()
 end
 
-local function dragplayer(event)
+local function dragPlayer(event)
 	local player = event.target
 	local phase = event.phase
 	if (paused ~= true) then
@@ -263,6 +263,27 @@ end
 	--player.y = player.y + motiony
 --end
 
+--[[ Will be used if we switch to Windows and use arrow keys
+local fuction arrowsPressed(event)
+	if (event.phase == "down") then 
+		if (event.keyName == "left") then 
+			motionx = -speed 
+		elseif (event.keyName == "right") then 
+			motionx = speed 
+		elseif (event.keyName == "down") then 
+			motiony = speed 
+		elseif (event.keyName == "up") then
+			motiony = -speed 
+		end 
+	end 
+	if (event.phase == "up) then 
+		motionx = 0
+		motiony = 0
+	end 
+	return false 
+end 
+--]]
+
 local function pause()
  --Will provide pause function
 end
@@ -273,6 +294,12 @@ end
 
 local function onCollision(event)
 	--Will provide code for collision events
+	
+	--[[*Add the following pseudocode in when everything is set up
+	if numberOfObjects not greater than maxOnSkewer then
+		onSkewerArray[nextPos] = collidedObject.myName -- For this line table.insert(onSkewerArray, collidedObject.myName) would get rid of having to increment a position
+	end
+	--]]
 end
 
 ----------------------------------------------------------------------------
@@ -321,7 +348,7 @@ function scene:create( event )
 	print(checkCombination(good))
 	--------------------------------------------------------------
 
-	player:addEventListener("touch", dragplayer)
+	player:addEventListener("touch", dragPlayer)
 end
 
 

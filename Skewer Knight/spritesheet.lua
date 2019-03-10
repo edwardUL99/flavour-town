@@ -13,7 +13,7 @@ local SheetInfo = {}
 SheetInfo.sheet =
 {
     frames = {
-    
+
         {
             -- bread
             x=1,
@@ -96,6 +96,14 @@ end
 
 function SheetInfo:getFrameIndex(name)
     return self.frameIndex[name];
+end
+
+function SheetInfo:getWidth(name)
+  return self.sheet.frames[self.frameIndex[name]].width
+end
+
+function SheetInfo:getHeight(name)
+  return self.sheet.frames[self.frameIndex[name]].height
 end
 
 return SheetInfo

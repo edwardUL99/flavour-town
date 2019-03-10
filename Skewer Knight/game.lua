@@ -95,7 +95,8 @@ end
 local function createObjects()
 	local names = {"bread", "broccoli", "burger", "lettuce", "tomato"} --Will be randomly accessed
 	local name = names[math.random(#names)]
-	local newItem = display.newImage(mainLayer, imageSheet, sheetInfo:getFrameIndex(name))
+	--I added the getWidth and getHeight methods to the spritesheet.lua file. Better to use newImageRect
+	local newItem = display.newImageRect(mainLayer, imageSheet, sheetInfo:getFrameIndex(name), sheetInfo:getWidth(name), sheetInfo:getHeight(name))
 	newItem.height = 200
 	newItem.width = 200
 	newItem.myName = name
@@ -104,7 +105,6 @@ local function createObjects()
   --																						to hit each other etc, static is good enough)
 	newItem.x = rightBound + 100
 	newItem.y = math.random(bottomBound)
-	newItem:toBack()
 end
 
 local function dragPlayer(event)
@@ -265,23 +265,23 @@ end
 
 --[[ Will be used if we switch to Windows and use arrow keys
 local fuction arrowsPressed(event)
-	if (event.phase == "down") then 
-		if (event.keyName == "left") then 
-			motionx = -speed 
-		elseif (event.keyName == "right") then 
-			motionx = speed 
-		elseif (event.keyName == "down") then 
-			motiony = speed 
+	if (event.phase == "down") then
+		if (event.keyName == "left") then
+			motionx = -speed
+		elseif (event.keyName == "right") then
+			motionx = speed
+		elseif (event.keyName == "down") then
+			motiony = speed
 		elseif (event.keyName == "up") then
-			motiony = -speed 
-		end 
-	end 
-	if (event.phase == "up) then 
+			motiony = -speed
+		end
+	end
+	if (event.phase == "up) then
 		motionx = 0
 		motiony = 0
-	end 
-	return false 
-end 
+	end
+	return false
+end
 --]]
 
 local function pause()
@@ -294,7 +294,7 @@ end
 
 local function onCollision(event)
 	--Will provide code for collision events
-	
+
 	--[[*Add the following pseudocode in when everything is set up
 	if numberOfObjects not greater than maxOnSkewer then
 		onSkewerArray[nextPos] = collidedObject.myName -- For this line table.insert(onSkewerArray, collidedObject.myName) would get rid of having to increment a position

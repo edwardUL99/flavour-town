@@ -49,6 +49,9 @@ local amountOfCombos = 5 --Decide later
 --------------------
 --Graphics variables--
 local player
+local pauseButton
+local playButton
+local pauseText
 local bg1
 local bg2 --two SCROLLING backgrounds, to make it look like player is moving)
 local foodScrollSpeed = 2--(Add multiple backgrounds of different speeds,
@@ -231,6 +234,20 @@ local function store(objectsTable)
  return checkCombination(namesTable)
 end
 
+local function pause()
+ paused = true
+ pauseText.isVisible = true
+ pauseButton.isVisible = false
+ playButton.isVisible = true
+end
+
+local function resume()
+	paused = false
+	pauseText.isVisible = false
+	playButton.isVisible = false
+	pauseButton.isVisible = true
+end
+
 local function updateText()
  scoreText = "Score: " .. score
  healthText = "Health: " .. health
@@ -284,14 +301,6 @@ local fuction arrowsPressed(event)
 end
 --]]
 
-local function pause()
- --Will provide pause function
-end
-
-local function resume()
-	--Will provide resume function
-end
-
 local function onCollision(event)
 	--Will provide code for collision events
 
@@ -339,6 +348,19 @@ function scene:create( event )
 	--Score is text for prototype
 	scoreText = display.newText(uiLayer, "Score: " .. score, display.contentCenterX + 1000, display.contentCenterY - 500, native.systemFont, 80)
 
+	pauseButton = display.newImageRect(uiLayer, "pause.png", 200, 200)
+	pauseButton.x = rightBound - 200
+	pauseButton.y = bottomBound - 100
+	pauseButton.isVisible = true
+
+	playButton = display.newImageRect(uiLayer, "play.png", 200, 200)
+	playButton.x = rightBound - 200
+	playButton.y = bottomBound - 100
+	playButton.isVisible = false
+
+	pauseText = display.newText(uiLayer, "Paused", 100, 100, display.systemFont, 60)
+	pauseText.isVisible = false
+
 	createCombinationsTable()
 
 	--Debug to print test output to console, will remove later
@@ -349,6 +371,8 @@ function scene:create( event )
 	--------------------------------------------------------------
 
 	player:addEventListener("touch", dragPlayer)
+	pauseButton:addEventListener("tap", pause)
+	playButton:addEventListener("tap", resume)
 end
 
 

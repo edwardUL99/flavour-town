@@ -375,6 +375,14 @@ function scene:create( event )
 	player:addEventListener("touch", dragPlayer)
 	pauseButton:addEventListener("tap", pause)
 	playButton:addEventListener("tap", resume)
+
+	physics.start()
+	Runtime:addEventListener("collision", onCollision)
+	Runtime:addEventListener("enterFrame", checkBounds)
+	Runtime:addEventListener("enterFrame", moveObject)
+	--Runtime:addEventListener("enterFrame", moveSprite)
+	Runtime:addEventListener("key", keyPressed)
+
 end
 
 
@@ -408,10 +416,8 @@ function scene:hide( event )
 
 	if ( phase == "will" ) then
 		-- Code here runs when the scene is on screen (but is about to go off screen)
-		timer.cancel(gameLoopTimer)
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen
-		physics.pause()
 		Runtime:removeEventListener("collision",onCollision)
 		Runtime:removeEventListener("enterFrame", checkBounds)
 		Runtime:removeEventListener("enterFrame", moveObject)
@@ -425,7 +431,8 @@ function scene:destroy( event )
 
 	local sceneGroup = self.view
 	-- Code here runs prior to the removal of scene's view
-
+	physics.pause()
+	timer.cancel(gameLoopTimer)
 end
 
 

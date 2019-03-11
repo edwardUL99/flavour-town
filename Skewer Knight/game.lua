@@ -235,6 +235,7 @@ local function store(objectsTable)
 end
 
 local function pause()
+ timer.pause(gameLoopTimer)
  paused = true
  pauseText.isVisible = true
  pauseButton.isVisible = false
@@ -242,6 +243,7 @@ local function pause()
 end
 
 local function resume()
+	timer.resume(gameLoopTimer)
 	paused = false
 	pauseText.isVisible = false
 	playButton.isVisible = false

@@ -87,7 +87,7 @@ local function checkBounds()
 	elseif (player.x < leftBound) then
 		player.x = leftBound + 20
 	end
-	--
+
 	if (player.y < topBound) then
 		player.y = topBound + 20
 	elseif (player.y > bottomBound) then
@@ -104,8 +104,7 @@ local function createObjects()
 	newItem.width = 200
 	newItem.myName = name
 	table.insert(looseFoodsTable, newItem)
-	physics.addBody(newItem, "static", {radius=40, bounce=0.0}) --(We don't need the food
-  --																						to hit each other etc, static is good enough)
+	physics.addBody(newItem, "dynamic", {radius=40, bounce=0.0}) --(*Static and static cant collide with each other)
 	newItem.x = rightBound + 100
 	newItem.y = math.random(bottomBound)
 end
@@ -185,7 +184,7 @@ local function createCombinationsTable()
 	foodCombinations[1] = {"bread", "bread", "bread", "bread", 500}
 	foodCombinations[2] = {"broccoli", "broccoli", "broccoli", "broccoli", 50}
 	foodCombinations[3] = {"burger", "burger", "burger", "burger", 1000}
-	foodCombinations[4] = {"lettuce", "lettuce", "lettuce", "lettuce", 100}
+	foodCombinations[4] = {"lettuce", "lettuce", "lettuce", "lettuce", -100}
 	foodCombinations[5] = {"tomato", "tomato", "tomato", "tomato", 200}
 end
 
@@ -251,14 +250,13 @@ local function resume()
 end
 
 local function updateText()
- scoreText = "Score: " .. score
- healthText = "Health: " .. health
+ scoreText.text = "Score: " .. score
+ healthText.text = "Health: " .. health
 end
 
 local function gameLoop()
 	createObjects()
-	updateText() -- (* We don't need to update the Text on every frame, just when it's changed.
-end			--So the collisions etc should call the updateText method instead of the loop)
+end
 ----------------------------------------------------------------------------
 ----------------------------------------------------------------------------
 --INCOMPLETE/BROKEN FUNCTIONS BELOW
@@ -303,14 +301,61 @@ local fuction arrowsPressed(event)
 end
 --]]
 
-local function onCollision(event)
-	--Will provide code for collision events
+local function restorePlayer()
+	player.isBodyActive = false
 
-	--[[*Add the following pseudocode in when everything is set up
-	if numberOfObjects not greater than maxOnSkewer then
-		onSkewerArray[nextPos] = collidedObject.myName -- For this line table.insert(onSkewerArray, collidedObject.myName) would get rid of having to increment a position
+	transition.to(player, {alpha=1, time=4000,
+		onComplete = function()
+			player.isBodyActive = true
+		end
+	})
+	Runtime:addEventListener("enterFrame", checkBounds)
+end
+
+local function onCollision(event) --(*Is lettuce considered an enemy food? I'll assume it is for now)
+	if (event.phase == "began") then
+		local collidedObject = event.object2
+		if (collidedObject.myName == "player") then
+			collidedObject = event.object1
+		end
+
+		print(collidedObject.myName)
+		display.remove(collidedObject)
+
+		for i = #looseFoodsTable, 1, -1 do
+			if (looseFoodsTable[i] == collidedObject) then
+				table.remove(looseFoodsTable, i)
+			end
+		end
+
+		table.insert(onSkewerArray, collidedObject.myName)
+
+		if (#onSkewerArray == maxOnSkewer) then
+			local points = checkCombination(onSkewerArray)
+			local plusOrMinus = "+"
+			if (points < 0) then
+				plusOrMinus = ""
+			end
+			onSkewerArray = {}
+			local pointsText = display.newText(uiLayer, plusOrMinus .. points, 100, 100, display.systemFont, 60)
+			local hideTimer = timer.performWithDelay(3000, function()
+																										 	pointsText.isVisible = false end, 1)
+			score = score + points
+
+			if (points < 0 and health > 0) then
+				health = health - 1
+			end
+			updateText()
+
+			if (health == 0) then
+				player.alpha = 0
+				timer.performWithDelay(2000, goToMainMenu)
+			elseif (points < 0) then
+				player.alpha = 0
+				timer.performWithDelay(1000, restorePlayer)
+			end
+		end
 	end
-	--]]
 end
 
 ----------------------------------------------------------------------------
@@ -375,13 +420,6 @@ function scene:create( event )
 	player:addEventListener("touch", dragPlayer)
 	pauseButton:addEventListener("tap", pause)
 	playButton:addEventListener("tap", resume)
-
-	physics.start()
-	Runtime:addEventListener("collision", onCollision)
-	Runtime:addEventListener("enterFrame", checkBounds)
-	Runtime:addEventListener("enterFrame", moveObject)
-	--Runtime:addEventListener("enterFrame", moveSprite)
-	Runtime:addEventListener("key", keyPressed)
 
 end
 

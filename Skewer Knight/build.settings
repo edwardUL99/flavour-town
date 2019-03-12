@@ -12,7 +12,12 @@ settings =
 		default = "landscapeRight",
 		supported = { "landscapeRight", },
 	},
-
+	
+	window = 
+	{
+		defaultViewWidth = 1366,
+		defaultViewHeight = 768,
+	},
 	--
 	-- Android section
 	--

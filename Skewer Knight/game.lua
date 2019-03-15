@@ -54,8 +54,9 @@ local playButton
 local pauseText
 local bg1
 local bg2 --two SCROLLING backgrounds, to make it look like player is moving)
-local foodScrollSpeed = 2--(Add multiple backgrounds of different speeds,
-local bg2ScrollSpeed = 3 --Food moves at the same speed as the first)
+local bgImage2 = {type = "image", filename ="background.jpg"}
+local foodScrollSpeed = 10
+local bgScrollSpeed = 5
 --------------------
 --Boundaries variables--
 local leftBound = -(display.viewableContentWidth)
@@ -73,9 +74,34 @@ local uiLayer
 --local motiony = 0	--Character movement variables
 --local speed = 2
 -------------------
-----------------------------------------------------------------------------
---WORKING FUNCTIONS
-----------------------------------------------------------------------------
+
+---------------------
+--BACKGROUND CRAP
+-------------------
+local function moveBg(dt)
+	bg1.x = bg1.x - bgScrollSpeed * dt
+	bg2.x = bg2.x - bgScrollSpeed * dt
+
+	if(bg1.x + display.actualContentWidth - 400) < 0 then
+		bg1:translate( -bg1.contentWidth * -2, 0)
+	end
+	if (bg2.x + display.actualContentWidth - 400) < 0 then
+		bg2:translate( -bg2.contentWidth * -2, 0)
+	end
+end
+
+local function getDeltaTime() --Delta time ensures we have smooth scrolling accross different devices
+	local temp = system.getTimer()
+	local dt = (temp-runtime) / (1000/60)
+	runtime = temp
+	return dt
+end
+
+local function enterFrame(event) --( * It will be for the moving background. http://lomza.totem-soft.com/tutorial-scrollable-background-in-corona-sdk/)
+	local dt = getDeltaTime()
+	moveBg(dt)
+end
+
 local function goToMainMenu()
 	composer.removeScene("game")
 	composer.gotoScene("menu","fade",500)
@@ -128,16 +154,10 @@ local function dragPlayer(event)
 	return true
 end
 
-local function getDeltaTime() --Delta time ensures we have smooth scrolling accross different devices
-	local temp = system.getTimer()
-	local dt = (temp-runtime) / (1000/60)
-	runtime = temp
-	return dt
-end
-
 local function moveObject(event)
 	local dt = getDeltaTime();
 	if (paused ~= true) then
+		moveBg(dt)
 		for i = #looseFoodsTable, 1, -1 do
 			looseFoodsTable[i].x = looseFoodsTable[i].x - foodScrollSpeed * dt
 			if (looseFoodsTable[i].x < -(display.actualContentWidth)) then
@@ -146,17 +166,6 @@ local function moveObject(event)
 			end
 		end
 	end
-end
-
-local function moveBg(dt) --May not be needed?
-	--Code to move background if necessary.
-	--Google how to do scrolling background
-	--http://lomza.totem-soft.com/tutorial-scrollable-background-in-corona-sdk/
-end
-
-local function enterFrame(event) --( * It will be for the moving background. http://lomza.totem-soft.com/tutorial-scrollable-background-in-corona-sdk/)
-	local dt = getDeltaTime()
-	moveBg(dt)
 end
 
 local function isEqualArray(table1, table2)
@@ -174,6 +183,41 @@ end
 
 local function updateSkewer()
  --Will provide code to update the food contents on the skewer
+ local i = #onSkewerArray
+ if (i==nil) then i=0 end
+ print("There are " .. #onSkewerArray .. " foods on the skewer.")
+if(#onSkewerArray == 1) then
+	foodPos1 = display.newImageRect(mainLayer, imageSheet, sheetInfo:getFrameIndex(onSkewerArray[i]), sheetInfo:getWidth(onSkewerArray[i]), sheetInfo:getHeight(onSkewerArray[i]))
+	foodPos1.x = display.contentCenterX - (1200 - 55*1)
+	foodPos1.y = display.contentCenterY + 600
+	foodPos1.height = 50
+	foodPos1.width = 50
+elseif (#onSkewerArray == 2) then
+	foodPos2 = display.newImageRect(mainLayer, imageSheet, sheetInfo:getFrameIndex(onSkewerArray[i]), sheetInfo:getWidth(onSkewerArray[i]), sheetInfo:getHeight(onSkewerArray[i]))
+	foodPos2.x = display.contentCenterX - (1200 - 55*2)
+	foodPos2.y = display.contentCenterY + 600
+	foodPos2.height = 50
+	foodPos2.width = 50
+elseif (#onSkewerArray == 3) then
+	foodPos3 = display.newImageRect(mainLayer, imageSheet, sheetInfo:getFrameIndex(onSkewerArray[i]), sheetInfo:getWidth(onSkewerArray[i]), sheetInfo:getHeight(onSkewerArray[i]))
+	foodPos3.x = display.contentCenterX - (1200 - 55*3)
+	foodPos3.y = display.contentCenterY + 600
+	foodPos3.height = 50
+	foodPos3.width = 50
+elseif (#onSkewerArray == 4) then
+	foodPos4 = display.newImageRect(mainLayer, imageSheet, sheetInfo:getFrameIndex(onSkewerArray[i]), sheetInfo:getWidth(onSkewerArray[i]), sheetInfo:getHeight(onSkewerArray[i]))
+	foodPos4.x = display.contentCenterX - (1200 - 55*4)
+	foodPos4.y = display.contentCenterY + 600
+	foodPos4.height = 50
+	foodPos4.width = 50
+end
+end
+
+local function clearSkewer()
+	display.remove(foodPos1)
+	display.remove(foodPos2)
+	display.remove(foodPos3)
+	display.remove(foodPos4)
 end
 
 local function createCombinationsTable()
@@ -239,6 +283,7 @@ local function pause()
  pauseText.isVisible = true
  pauseButton.isVisible = false
  playButton.isVisible = true
+  bgScrollSpeed = 0
 end
 
 local function resume()
@@ -247,6 +292,7 @@ local function resume()
 	pauseText.isVisible = false
 	playButton.isVisible = false
 	pauseButton.isVisible = true
+	bgScrollSpeed = 5
 end
 
 local function updateText()
@@ -262,13 +308,7 @@ end
 --INCOMPLETE/BROKEN FUNCTIONS BELOW
 ----------------------------------------------------------------------------
 
-local function addScrollableBg()
-	local bgImage = {type="image",filename="background.png"}
-	--Code to add first background image
-	--Code to add second background image
-end
-
-----------------------------------------------------------------------------
+---------------------------------------------------------------------------
 ----------------------------------------------------------------------------
 --EMPTY/UNUSED FUNCTIONS BELOW
 ----------------------------------------------------------------------------
@@ -329,6 +369,7 @@ local function onCollision(event) --(*Is lettuce considered an enemy food? I'll 
 		end
 
 		table.insert(onSkewerArray, collidedObject.myName)
+		updateSkewer()
 
 		if (#onSkewerArray == maxOnSkewer) then
 			local points = checkCombination(onSkewerArray)
@@ -337,6 +378,7 @@ local function onCollision(event) --(*Is lettuce considered an enemy food? I'll 
 				plusOrMinus = ""
 			end
 			onSkewerArray = {}
+			clearSkewer()
 			local pointsText = display.newText(uiLayer, plusOrMinus .. points, 100, 100, display.systemFont, 60)
 			local hideTimer = timer.performWithDelay(3000, function()
 																										 	pointsText.isVisible = false end, 1)
@@ -379,9 +421,22 @@ function scene:create( event )
 	uiLayer = display.newGroup()
 	sceneGroup:insert(uiLayer)
 
-	local background = display.newImageRect(backLayer, "background.jpg", display.actualContentWidth,display.actualContentHeight)
+	--[[local background = display.newImageRect(backLayer, "background.jpg", display.actualContentWidth,display.actualContentHeight)
 	background.x = display.contentCenterX
-	background.y = display.contentCenterY
+	background.y = display.contentCenterY]]--
+	--
+	-- Add First bg image
+	--bg1 = display.newRect(0, 0, display.actualContentWidth, display.actualContentHeight )
+	bg1 = display.newRect(backLayer, 0, 0, display.actualContentWidth,display.actualContentHeight)
+	bg1.fill = bgImage2
+	bg1.x = display.contentCenterX
+	bg1.y = display.contentCenterY
+	--
+	-- Add Second bg image
+	bg2 = display.newRect(backLayer, 0, 0, display.actualContentWidth,display.actualContentHeight)
+	bg2.fill = bgImage2
+	bg2.x = display.contentCenterX + display.actualContentWidth
+	bg2.y = display.contentCenterY
 
 	player = display.newImageRect(mainLayer, "player.png", 400, 300)
 	player.x = display.contentCenterX - 1000
@@ -409,7 +464,7 @@ function scene:create( event )
 	pauseText.isVisible = false
 
 	createCombinationsTable()
-
+	--init()
 	--Debug to print test output to console, will remove later
 	print2D(foodCombinations)
 
@@ -439,6 +494,7 @@ function scene:show( event )
 		Runtime:addEventListener("collision", onCollision)
 		Runtime:addEventListener("enterFrame", checkBounds)
 		Runtime:addEventListener("enterFrame", moveObject)
+		--Runtime:addEventListener("enterFrame", enterFrame)
 		--Runtime:addEventListener("enterFrame", moveSprite)
 		Runtime:addEventListener("key", keyPressed)
 		gameLoopTimer = timer.performWithDelay(2000, gameLoop, 0)

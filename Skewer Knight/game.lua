@@ -431,12 +431,12 @@ function scene:create( event )
   lives[0].y = 150
 
   lives[1] = display.newImageRect(uiLayer,"heart.png",200,200)
-  lives[1] = -600
-  lives[1] = 150
+  lives[1].x = -600
+  lives[1].y = 150
 
   lives[2] = display.newImageRect(uiLayer,"heart.png",200,200)
-  lives[2] = -500
-  lives[2] = 150
+  lives[2].x = -500
+  lives[2].y = 150
 
 	player = display.newImageRect(mainLayer, "player.png", 480, 222)
 	player.x = display.contentCenterX - 1000

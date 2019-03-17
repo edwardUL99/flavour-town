@@ -1,22 +1,3 @@
-----------------------------------------------------------------------------
---	NOTES
-----------------------------------------------------------------------------
---I've renamed most of the variables to be more readable, and moved them about
---	slightly. Check to see their new names before using them.
--- (I haven't touched the functions except move them.
---   Haven't touched the Scene Functions yet)
---
---If you want someone to check something out, mark it with an " * ".
---
---NOTES ON SYNTAX:
---[1] Name Variables so you tell exactly what it is just by looking.
---[2] Same with Functions, make their names a VERB that says what it does.
---[3] Don't leave empty lines inside functions, it makes it harder to read. Corona tutorials says don't clump code together because it makes it harder to read
---[4] All comments related to it should be inside the function itself,
---	  NOT above/below it etc, It's convention for function comments to go above just like in Java no?
-----------------------------------------------------------------------------
---STARTUP / IMPORTS ETC
-----------------------------------------------------------------------------
 local composer = require( "composer" ) --This is very IMPORTANT
 local scene = composer.newScene()
 local sheetInfo = require("spritesheet") --Introduces the functions required to grab sprites from sheet
@@ -30,15 +11,7 @@ local imageSheet = graphics.newImageSheet("spritesheet.png", sheetInfo:getSheet(
 ---UI related variables--
 local health = 3
 local score = 0
-local life=display.newImageRect("heart.png",200,200)
-  life.x=-700
-  life.y=150
-local life1=display.newImageRect("heart.png",200,200)
-  life1.x=-600
-  life1.y=150
-local life2=display.newImageRect("heart.png",200,200)
-  life2.x=-500
-  life2.y=150
+local lives = {}
 local scoreText
 --------------------
 --Basic Game Variables--
@@ -280,15 +253,6 @@ local function keyPressed(event)
 	end
 end
 
---The return value is the score to be given to the player
-local function store(objectsTable)
- local namesTable = {}
- for i = 1, #objectsTable, 1 do
-   namesTable[i] = objectsTable[i].myName
- end
- return checkCombination(namesTable)
-end
-
 local function pause()
  timer.pause(gameLoopTimer)
  paused = true
@@ -309,12 +273,12 @@ end
 
 local function updateText()
  scoreText.text = "Score: " .. score
- if(health==2) then
-    display.remove(life2)
- elseif(health==1) then
-    display.remove(life1)
-elseif(health==0)then
-   display.remove(life)
+ if (health == 2) then
+    display.remove(lives[2])
+ elseif(health == 1) then
+    display.remove(lives[1])
+ elseif ( health == 0) then
+   display.remove(lives[0])
  end
 end
 
@@ -460,6 +424,18 @@ function scene:create( event )
 	bg2.fill = bgImage2
 	bg2.x = display.contentCenterX + display.actualContentWidth
 	bg2.y = display.contentCenterY
+
+  lives[0] = display.newImageRect(uiLayer,"heart.png",200,200)
+  lives[0].x = -700
+  lives[0].y = 150
+
+  lives[1] = display.newImageRect(uiLayer,"heart.png",200,200)
+  lives[1] = -600
+  lives[1] = 150
+
+  lives[2] = display.newImageRect(uiLayer,"heart.png",200,200)
+  lives[2] = -500
+  lives[2] = 150
 
 	player = display.newImageRect(mainLayer, "player.png", 480, 222)
 	player.x = display.contentCenterX - 1000

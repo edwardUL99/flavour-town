@@ -28,6 +28,10 @@ local foodsToMove = {}
 local maxOnSkewer = 4
 local foodCombinations = {}
 local amountOfCombos = 5 --Decide later
+-----------------------
+--Audio--
+local hurtAudio = audio.loadSound("Oof.mp3")
+local eatAudio = audio.loadSound("OmNomNom.wav")
 --------------------
 --Graphics variables--
 local player
@@ -77,7 +81,7 @@ end
 local function trackPlayer()
 	if (not paused) then
 		for i = #foodsToMove, 1, -1 do
-			foodsToMove[i].x = player.x
+			foodsToMove[i].x = player.x + (75*(i-1))
 			foodsToMove[i].y = player.y
 		end
 	end
@@ -184,38 +188,38 @@ local function isEqualArray(table1, table2)
 	return false
 end
 
-local function updateSkewer()
+--[[local function updateSkewer()
  --Will provide code to update the food contents on the skewer
  local i = #onSkewerArray
  if (i==nil) then i=0 end
  print("There are " .. #onSkewerArray .. " foods on the skewer.")
 if(#onSkewerArray == 1) then
-	foodPos1 = display.newImageRect(mainLayer, imageSheet, sheetInfo:getFrameIndex(onSkewerArray[i]), sheetInfo:getWidth(onSkewerArray[i]), sheetInfo:getHeight(onSkewerArray[i]))
+	local foodPos1 = display.newImageRect(mainLayer, imageSheet, sheetInfo:getFrameIndex(onSkewerArray[i]), sheetInfo:getWidth(onSkewerArray[i]), sheetInfo:getHeight(onSkewerArray[i]))
 	foodPos1.x = display.contentCenterX - (1200 - 55*1)
 	foodPos1.y = display.contentCenterY + 600
 	foodPos1.height = 50
 	foodPos1.width = 50
 elseif (#onSkewerArray == 2) then
-	foodPos2 = display.newImageRect(mainLayer, imageSheet, sheetInfo:getFrameIndex(onSkewerArray[i]), sheetInfo:getWidth(onSkewerArray[i]), sheetInfo:getHeight(onSkewerArray[i]))
+	local foodPos2 = display.newImageRect(mainLayer, imageSheet, sheetInfo:getFrameIndex(onSkewerArray[i]), sheetInfo:getWidth(onSkewerArray[i]), sheetInfo:getHeight(onSkewerArray[i]))
 	foodPos2.x = display.contentCenterX - (1200 - 55*2)
 	foodPos2.y = display.contentCenterY + 600
 	foodPos2.height = 50
 	foodPos2.width = 50
 elseif (#onSkewerArray == 3) then
-	foodPos3 = display.newImageRect(mainLayer, imageSheet, sheetInfo:getFrameIndex(onSkewerArray[i]), sheetInfo:getWidth(onSkewerArray[i]), sheetInfo:getHeight(onSkewerArray[i]))
+	local foodPos3 = display.newImageRect(mainLayer, imageSheet, sheetInfo:getFrameIndex(onSkewerArray[i]), sheetInfo:getWidth(onSkewerArray[i]), sheetInfo:getHeight(onSkewerArray[i]))
 	foodPos3.x = display.contentCenterX - (1200 - 55*3)
 	foodPos3.y = display.contentCenterY + 600
 	foodPos3.height = 50
 	foodPos3.width = 50
 elseif (#onSkewerArray == 4) then
-	foodPos4 = display.newImageRect(mainLayer, imageSheet, sheetInfo:getFrameIndex(onSkewerArray[i]), sheetInfo:getWidth(onSkewerArray[i]), sheetInfo:getHeight(onSkewerArray[i]))
+	local foodPos4 = display.newImageRect(mainLayer, imageSheet, sheetInfo:getFrameIndex(onSkewerArray[i]), sheetInfo:getWidth(onSkewerArray[i]), sheetInfo:getHeight(onSkewerArray[i]))
 	foodPos4.x = display.contentCenterX - (1200 - 55*4)
 	foodPos4.y = display.contentCenterY + 600
 	foodPos4.height = 50
 	foodPos4.width = 50
 end
 end
-
+--]]
 local function clearSkewer()
 	display.remove(foodPos1)
 	display.remove(foodPos2)
@@ -256,7 +260,23 @@ local function checkCombination(namesTable)
 			return foodCombinations[i][#foodCombinations[i]]
 		end
 	end
-	return 500
+	return #onSkewerArray*50
+end
+
+local function eatSkewer(event)
+	if(#onSkewerArray>0)then
+			clearSkewer()
+			audio.play(eatAudio)
+			unTrackPlayer()
+			local points = checkCombination(onSkewerArray)
+			score = score + points
+			local pointsText = display.newText(uiLayer, "+".. points, player.x+200, player.y+100, display.systemFont, 60)
+			timer.performWithDelay(2000, function() transition.fadeOut(pointsText, {time = 500}) end, 1)
+			scoreText.text = "Score: " .. score
+
+		--	updateSkewer()
+			onSkewerArray = {}
+		end
 end
 
 local function keyPressed(event)
@@ -314,13 +334,13 @@ end
 ----------------------------------------------------------------------------
 
 
---local function moveSprite(event)
+local function moveSprite(event)
 ----Will be used when joystick is added
-	--player.x = player.x + motionx
-	--player.y = player.y + motiony
+	player.x = player.x + motionx
+	player.y = player.y + motiony
 --end
 
---[[ Will be used if we switch to Windows and use arrow keys
+-- Will be used if we switch to Windows and use arrow keys
 local fuction arrowsPressed(event)
 	if (event.phase == "down") then
 		if (event.keyName == "left") then
@@ -333,13 +353,12 @@ local fuction arrowsPressed(event)
 			motiony = -speed
 		end
 	end
-	if (event.phase == "up) then
+	if (event.phase == "up") then
 		motionx = 0
 		motiony = 0
 	end
 	return false
 end
---]]
 
 local function restorePlayer()
 	player.isBodyActive = false
@@ -365,16 +384,16 @@ local function onCollision(event) --(*Is lettuce considered an enemy food? I'll 
          --Changes colour of player to red, then changes it back after 500ms
          player:setFillColor(1, 0.2, 0.2)
          timer.performWithDelay(500, function() player:setFillColor(1, 1, 1) end, 1)
-         audio.play(audio.loadSound("Oof.mp3"))
+         audio.play(hurtAudio)
          updateText()
 				 display.remove(collidedObject)
       else
          print("Things stabbed!")
          table.insert(onSkewerArray, collidedObject.myName)
-				 timer.performWithDelay(100, function()
+				 timer.performWithDelay(50, function()
 				 														collidedObject.isBodyActive = false
 																		table.insert(foodsToMove, collidedObject) end)
-   			updateSkewer()
+   			--updateSkewer()
         print(collidedObject.myName)
       end
       for i = #looseFoodsTable, 1, -1 do
@@ -390,11 +409,10 @@ local function onCollision(event) --(*Is lettuce considered an enemy food? I'll 
 				plusOrMinus = ""
 			end
 			onSkewerArray = {}
-      audio.play(audio.loadSound("OmNomNom.wav"))
+      	audio.play(eatAudio)
 			timer.performWithDelay(850, function() clearSkewer() end)
-			local pointsText = display.newText(uiLayer, plusOrMinus .. points, player.x+200, player.y+100, display.systemFont, 60)
-			local hideTimer = timer.performWithDelay(3000, function()
-																										 	pointsText.isVisible = false end, 1)
+			local pointsText = display.newText(uiLayer, plusOrMinus .. points, player.x+200, player.y+100, display.systemFont, 100)
+			local hideTimer = timer.performWithDelay(2000, function() transition.fadeOut(pointsText, {time = 500}) end, 1)
 			score = score + points
 
 			if (points < 0 and health > 0) then
@@ -404,6 +422,7 @@ local function onCollision(event) --(*Is lettuce considered an enemy food? I'll 
       end
 			if (health < 1) then
 				player.alpha = 0
+				unTrackPlayer()
 				timer.performWithDelay(2000, goToMainMenu)
 			end
 		end
@@ -492,6 +511,7 @@ function scene:create( event )
 	--------------------------------------------------------------
 
 	player:addEventListener("touch", dragPlayer)
+	player:addEventListener("tap", eatSkewer)
 	pauseButton:addEventListener("tap", pause)
 	playButton:addEventListener("tap", resume)
 

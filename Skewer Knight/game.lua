@@ -115,6 +115,8 @@ end
 local function goToMainMenu()
 	composer.removeScene("game")
 	composer.gotoScene("menu","fade",500)
+   health = 3
+   onSkewerArray ={}
 end
 
 local function checkBounds()
@@ -140,7 +142,7 @@ local function createObjects()
 	newItem.width = 200
 	newItem.myName = name
 	table.insert(looseFoodsTable, newItem)
-	physics.addBody(newItem, "dynamic", {radius=40, bounce=0.0}) --(*Static and static cant collide with each other)
+	physics.addBody(newItem, "dynamic", {radius=100, bounce=0.0}) --(*Static and static cant collide with each other)
 	newItem.x = rightBound + 100
 	newItem.y = math.random(bottomBound)
 end
@@ -308,9 +310,11 @@ end
 local function updateText()
  scoreText.text = "Score: " .. score
  if(health==2) then
- display.remove(life2)
+    display.remove(life2)
  elseif(health==1) then
- display.remove(life1)
+    display.remove(life1)
+elseif(health==0)then
+   display.remove(life)
  end
 end
 
@@ -372,28 +376,24 @@ local function onCollision(event) --(*Is lettuce considered an enemy food? I'll 
 		if (collidedObject.myName == "player") then
 			collidedObject = event.object1
 		end
-      if(event.element1 == 1) then
+      if(event.element1 == 1) then --event.element1 == 1, when the body of the player collides with the food
          print("Player hit!")
          health = health - 1
+         print(health)
          updateText()
       else
          print("Things stabbed!")
          table.insert(onSkewerArray, collidedObject.myName)
    		updateSkewer()
          print(collidedObject.myName)
-   		display.remove(collidedObject)
-         for i = #looseFoodsTable, 1, -1 do
-            if (looseFoodsTable[i] == collidedObject) then
-               table.remove(looseFoodsTable, i)
-            end
-         end
       end
+      display.remove(collidedObject)
+      for i = #looseFoodsTable, 1, -1 do
+         if (looseFoodsTable[i] == collidedObject) then
+            table.remove(looseFoodsTable, i)
 
-
-
-
-
-
+   end
+      end
 		if (#onSkewerArray == maxOnSkewer) then
 			local points = checkCombination(onSkewerArray)
 			local plusOrMinus = "+"
@@ -411,16 +411,12 @@ local function onCollision(event) --(*Is lettuce considered an enemy food? I'll 
 				health = health - 1
 			end
 			updateText()
-
-			if (health == 0) then
+      end
+			if (health < 1) then
 				player.alpha = 0
 				timer.performWithDelay(2000, goToMainMenu)
-			elseif (points < 0) then
-				player.alpha = 0
-				timer.performWithDelay(1000, restorePlayer)
 			end
 		end
-	end
 end
 
 ----------------------------------------------------------------------------

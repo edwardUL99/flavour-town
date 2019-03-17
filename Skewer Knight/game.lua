@@ -83,6 +83,13 @@ local function trackPlayer()
 	end
 end
 
+local function unTrackPlayer()
+	for i = #foodsToMove, 1, -1 do
+		display.remove(foodsToMove[i])
+		table.remove(foodsToMove, i)
+	end
+end
+
 local function getDeltaTime() --Delta time ensures we have smooth scrolling accross different devices
 	local temp = system.getTimer()
 	local dt = (temp-runtime) / (1000/60)
@@ -360,6 +367,7 @@ local function onCollision(event) --(*Is lettuce considered an enemy food? I'll 
          timer.performWithDelay(500, function() player:setFillColor(1, 1, 1) end, 1)
          audio.play(audio.loadSound("Oof.mp3"))
          updateText()
+				 display.remove(collidedObject)
       else
          print("Things stabbed!")
          table.insert(onSkewerArray, collidedObject.myName)
@@ -367,16 +375,15 @@ local function onCollision(event) --(*Is lettuce considered an enemy food? I'll 
 				 														collidedObject.isBodyActive = false
 																		table.insert(foodsToMove, collidedObject) end)
    			updateSkewer()
-         print(collidedObject.myName)
+        print(collidedObject.myName)
       end
-      --display.remove(collidedObject)
       for i = #looseFoodsTable, 1, -1 do
          if (looseFoodsTable[i] == collidedObject) then
             table.remove(looseFoodsTable, i)
-
-   end
+					end
       end
 		if (#onSkewerArray == maxOnSkewer) then
+			timer.performWithDelay(200, unTrackPlayer)
 			local points = checkCombination(onSkewerArray)
 			local plusOrMinus = "+"
 			if (points < 0) then

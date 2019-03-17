@@ -182,31 +182,31 @@ local function updateSkewer()
  local i = #onSkewerArray
  if (i==nil) then i=0 end
  print("There are " .. #onSkewerArray .. " foods on the skewer.")
-if(#onSkewerArray == 1) then
-	foodPos1 = display.newImageRect(mainLayer, imageSheet, sheetInfo:getFrameIndex(onSkewerArray[i]), sheetInfo:getWidth(onSkewerArray[i]), sheetInfo:getHeight(onSkewerArray[i]))
-	foodPos1.x = display.contentCenterX - (1200 - 55*1)
-	foodPos1.y = display.contentCenterY + 600
-	foodPos1.height = 50
-	foodPos1.width = 50
-elseif (#onSkewerArray == 2) then
-	foodPos2 = display.newImageRect(mainLayer, imageSheet, sheetInfo:getFrameIndex(onSkewerArray[i]), sheetInfo:getWidth(onSkewerArray[i]), sheetInfo:getHeight(onSkewerArray[i]))
-	foodPos2.x = display.contentCenterX - (1200 - 55*2)
-	foodPos2.y = display.contentCenterY + 600
-	foodPos2.height = 50
-	foodPos2.width = 50
-elseif (#onSkewerArray == 3) then
-	foodPos3 = display.newImageRect(mainLayer, imageSheet, sheetInfo:getFrameIndex(onSkewerArray[i]), sheetInfo:getWidth(onSkewerArray[i]), sheetInfo:getHeight(onSkewerArray[i]))
-	foodPos3.x = display.contentCenterX - (1200 - 55*3)
-	foodPos3.y = display.contentCenterY + 600
-	foodPos3.height = 50
-	foodPos3.width = 50
-elseif (#onSkewerArray == 4) then
-	foodPos4 = display.newImageRect(mainLayer, imageSheet, sheetInfo:getFrameIndex(onSkewerArray[i]), sheetInfo:getWidth(onSkewerArray[i]), sheetInfo:getHeight(onSkewerArray[i]))
-	foodPos4.x = display.contentCenterX - (1200 - 55*4)
-	foodPos4.y = display.contentCenterY + 600
-	foodPos4.height = 50
-	foodPos4.width = 50
-end
+	if(#onSkewerArray == 1) then
+		foodPos1 = display.newImageRect(mainLayer, imageSheet, sheetInfo:getFrameIndex(onSkewerArray[i]), sheetInfo:getWidth(onSkewerArray[i]), sheetInfo:getHeight(onSkewerArray[i]))
+		foodPos1.x = display.contentCenterX - (1200 - 55*1)
+		foodPos1.y = display.contentCenterY + 600
+		foodPos1.height = 50
+		foodPos1.width = 50
+	elseif (#onSkewerArray == 2) then
+		foodPos2 = display.newImageRect(mainLayer, imageSheet, sheetInfo:getFrameIndex(onSkewerArray[i]), sheetInfo:getWidth(onSkewerArray[i]), sheetInfo:getHeight(onSkewerArray[i]))
+		foodPos2.x = display.contentCenterX - (1200 - 55*2)
+		foodPos2.y = display.contentCenterY + 600
+		foodPos2.height = 50
+		foodPos2.width = 50
+	elseif (#onSkewerArray == 3) then
+		foodPos3 = display.newImageRect(mainLayer, imageSheet, sheetInfo:getFrameIndex(onSkewerArray[i]), sheetInfo:getWidth(onSkewerArray[i]), sheetInfo:getHeight(onSkewerArray[i]))
+		foodPos3.x = display.contentCenterX - (1200 - 55*3)
+		foodPos3.y = display.contentCenterY + 600
+		foodPos3.height = 50
+		foodPos3.width = 50
+	elseif (#onSkewerArray == 4) then
+		foodPos4 = display.newImageRect(mainLayer, imageSheet, sheetInfo:getFrameIndex(onSkewerArray[i]), sheetInfo:getWidth(onSkewerArray[i]), sheetInfo:getHeight(onSkewerArray[i]))
+		foodPos4.x = display.contentCenterX - (1200 - 55*4)
+		foodPos4.y = display.contentCenterY + 600
+		foodPos4.height = 50
+		foodPos4.width = 50
+	end
 end
 
 local function clearSkewer()
@@ -383,7 +383,7 @@ local function onCollision(event) --(*Is lettuce considered an enemy food? I'll 
 				plusOrMinus = ""
 			end
 			onSkewerArray = {}
-      audio.play(audio.loadSound("OmNomNom.wav"))
+      	audio.play(audio.loadSound("OmNomNom.wav"))
 			timer.performWithDelay(850, function() clearSkewer() end)
 			local pointsText = display.newText(uiLayer, plusOrMinus .. points, player.x+200, player.y+100, display.systemFont, 60)
 			local hideTimer = timer.performWithDelay(3000, function()

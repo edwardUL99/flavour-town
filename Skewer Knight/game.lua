@@ -24,6 +24,7 @@ local runtime = 0
 local looseFoodsTable = {}
 local maxLooseFoods = 10
 local onSkewerArray = {}
+local foodsToMove = {}
 local maxOnSkewer = 4
 local foodCombinations = {}
 local amountOfCombos = 5 --Decide later
@@ -70,6 +71,15 @@ local function moveBg(dt)
 	end
 	if (bg2.x + display.actualContentWidth - 400) < 0 then
 		bg2:translate( -bg2.contentWidth * -2, 0)
+	end
+end
+
+local function trackPlayer()
+	if (not paused) then
+		for i = #foodsToMove, 1, -1 do
+			foodsToMove[i].x = player.x
+			foodsToMove[i].y = player.y
+		end
 	end
 end
 
@@ -143,6 +153,7 @@ local function moveObject(event)
 	local dt = getDeltaTime();
 	if (paused ~= true) then
 		moveBg(dt)
+		trackPlayer()
 		for i = #looseFoodsTable, 1, -1 do
 			looseFoodsTable[i].x = looseFoodsTable[i].x - foodScrollSpeed * dt
 			if (looseFoodsTable[i].x < -(display.actualContentWidth)) then
@@ -352,10 +363,13 @@ local function onCollision(event) --(*Is lettuce considered an enemy food? I'll 
       else
          print("Things stabbed!")
          table.insert(onSkewerArray, collidedObject.myName)
-   		updateSkewer()
+				 timer.performWithDelay(100, function()
+				 														collidedObject.isBodyActive = false
+																		table.insert(foodsToMove, collidedObject) end)
+   			updateSkewer()
          print(collidedObject.myName)
       end
-      display.remove(collidedObject)
+      --display.remove(collidedObject)
       for i = #looseFoodsTable, 1, -1 do
          if (looseFoodsTable[i] == collidedObject) then
             table.remove(looseFoodsTable, i)
@@ -369,7 +383,7 @@ local function onCollision(event) --(*Is lettuce considered an enemy food? I'll 
 				plusOrMinus = ""
 			end
 			onSkewerArray = {}
-         audio.play(audio.loadSound("OmNomNom.wav"))
+      audio.play(audio.loadSound("OmNomNom.wav"))
 			timer.performWithDelay(850, function() clearSkewer() end)
 			local pointsText = display.newText(uiLayer, plusOrMinus .. points, player.x+200, player.y+100, display.systemFont, 60)
 			local hideTimer = timer.performWithDelay(3000, function()

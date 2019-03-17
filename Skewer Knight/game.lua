@@ -57,6 +57,8 @@ local amountOfCombos = 5 --Decide later
 --------------------
 --Graphics variables--
 local player
+local playerShape = {-200,111,  -41,111,   -41,-89,   -200,-89}  
+local skewerShape = {-40,50,  240,50,  240,31,  -40,31}
 local pauseButton
 local playButton
 local pauseText
@@ -309,7 +311,7 @@ local function updateText()
  display.remove(life2)
  elseif(health==1) then
  display.remove(life1)
- end	
+ end
 end
 
 local function gameLoop()
@@ -450,10 +452,11 @@ function scene:create( event )
 	bg2.x = display.contentCenterX + display.actualContentWidth
 	bg2.y = display.contentCenterY
 
-	player = display.newImageRect(mainLayer, "player.png", 400, 300)
+	player = display.newImageRect(mainLayer, "player.png", 480, 222)
 	player.x = display.contentCenterX - 1000
 	player.y = display.contentCenterY
-	physics.addBody(player, "static", {radius = 30, isSensor=true})
+	physics.addBody(player, "static",   {shape = playerShape, isSensor=true},
+                                       {shape = skewerShape, isSensor=true})
 	player.myName = "player"
 
 	--Score is text for prototype

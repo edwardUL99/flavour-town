@@ -30,7 +30,15 @@ local imageSheet = graphics.newImageSheet("spritesheet.png", sheetInfo:getSheet(
 ---UI related variables--
 local health = 3
 local score = 0
-local healthText
+local life=display.newImageRect("heart.png",200,200)
+  life.x=-700
+  life.y=150
+local life1=display.newImageRect("heart.png",200,200)
+  life1.x=-600
+  life1.y=150
+local life2=display.newImageRect("heart.png",200,200)
+  life2.x=-500
+  life2.y=150
 local scoreText
 --------------------
 --Basic Game Variables--
@@ -297,7 +305,11 @@ end
 
 local function updateText()
  scoreText.text = "Score: " .. score
- healthText.text = "Health: " .. health
+ if(health==2) then
+ display.remove(life2)
+ elseif(health==1) then
+ display.remove(life1)
+ end	
 end
 
 local function gameLoop()
@@ -443,9 +455,6 @@ function scene:create( event )
 	player.y = display.contentCenterY
 	physics.addBody(player, "static", {radius = 30, isSensor=true})
 	player.myName = "player"
-
-	--Health is just text for prototype
-	healthText = display.newText(uiLayer, "Health: " .. health, display.contentCenterX - 1000, display.contentCenterY - 500, native.systemFont, 80)
 
 	--Score is text for prototype
 	scoreText = display.newText(uiLayer, "Score: " .. score, display.contentCenterX + 1000, display.contentCenterY - 500, native.systemFont, 80)

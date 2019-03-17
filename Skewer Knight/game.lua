@@ -30,7 +30,6 @@ local foodCombinations = {}
 local amountOfCombos = 5 --Decide later
 --------------------
 --Graphics variables--
-local playerGroup ={}
 local player
 local playerShape = {-200,111,  -41,111,   -41,-89,   -200,-89}
 local skewerShape = {-40,50,  240,50,  240,31,  -40,31}
@@ -136,12 +135,12 @@ local function dragPlayer(event)
 	local phase = event.phase
 	if (paused ~= true) then
 		if ("began" == phase) then
-			display.currentStage:setFocus(playerGroup)
-			player.touchOffsetX = event.x - playerGroup.x
-			player.touchOffsetY = event.y - playerGroup.y
+			display.currentStage:setFocus(player)
+			player.touchOffsetX = event.x - player.x
+			player.touchOffsetY = event.y - player.y
 		elseif ("moved" == phase) then
-			playerGroup.x = event.x - playerGroup.touchOffsetX
-			playerGroup.y = event.y - playerGroup.touchOffsetY
+			player.x = event.x - player.touchOffsetX
+			player.y = event.y - player.touchOffsetY
 		elseif ("ended" == phase or "cancelled" == phase) then
 			display.currentStage:setFocus(nil)
 		end
@@ -459,7 +458,6 @@ function scene:create( event )
 	physics.addBody(player, "static",   {shape = playerShape, isSensor=true},
                                        {shape = skewerShape, isSensor=true})
 	player.myName = "player"
-   playerGroup:insert(player)
 
 	--Score is text for prototype
 	scoreText = display.newText(uiLayer, "Score: " .. score, display.contentCenterX + 1000, display.contentCenterY - 500, native.systemFont, 80)

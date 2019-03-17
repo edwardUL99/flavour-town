@@ -57,7 +57,7 @@ local amountOfCombos = 5 --Decide later
 --------------------
 --Graphics variables--
 local player
-local playerShape = {-200,111,  -41,111,   -41,-89,   -200,-89}  
+local playerShape = {-200,111,  -41,111,   -41,-89,   -200,-89}
 local skewerShape = {-40,50,  240,50,  240,31,  -40,31}
 local pauseButton
 local playButton
@@ -372,18 +372,27 @@ local function onCollision(event) --(*Is lettuce considered an enemy food? I'll 
 		if (collidedObject.myName == "player") then
 			collidedObject = event.object1
 		end
+      if(event.element1 == 1) then
+         print("Player hit!")
+         health = health - 1
+         updateText()
+      else
+         print("Things stabbed!")
+         table.insert(onSkewerArray, collidedObject.myName)
+   		updateSkewer()
+         print(collidedObject.myName)
+   		display.remove(collidedObject)
+         for i = #looseFoodsTable, 1, -1 do
+            if (looseFoodsTable[i] == collidedObject) then
+               table.remove(looseFoodsTable, i)
+            end
+         end
+      end
 
-		print(collidedObject.myName)
-		display.remove(collidedObject)
 
-		for i = #looseFoodsTable, 1, -1 do
-			if (looseFoodsTable[i] == collidedObject) then
-				table.remove(looseFoodsTable, i)
-			end
-		end
 
-		table.insert(onSkewerArray, collidedObject.myName)
-		updateSkewer()
+
+
 
 		if (#onSkewerArray == maxOnSkewer) then
 			local points = checkCombination(onSkewerArray)

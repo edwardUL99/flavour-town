@@ -380,6 +380,10 @@ local function onCollision(event) --(*Is lettuce considered an enemy food? I'll 
          print("Player hit!")
          health = health - 1
          print(health)
+         --Changes colour of player to red, then changes it back after 500ms
+         player:setFillColor(1, 0.2, 0.2)
+         timer.performWithDelay(500, function() player:setFillColor(1, 1, 1) end, 1)
+         audio.play(audio.loadSound("Oof.mp3"))
          updateText()
       else
          print("Things stabbed!")
@@ -401,8 +405,8 @@ local function onCollision(event) --(*Is lettuce considered an enemy food? I'll 
 				plusOrMinus = ""
 			end
 			onSkewerArray = {}
-			clearSkewer()
-			local pointsText = display.newText(uiLayer, plusOrMinus .. points, 100, 100, display.systemFont, 60)
+			timer.performWithDelay(750, function() clearSkewer() end)
+			local pointsText = display.newText(uiLayer, plusOrMinus .. points, player.x+200, player.y+100, display.systemFont, 60)
 			local hideTimer = timer.performWithDelay(3000, function()
 																										 	pointsText.isVisible = false end, 1)
 			score = score + points

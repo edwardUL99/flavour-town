@@ -142,7 +142,7 @@ local function createObjects()
 	newItem.width = 200
 	newItem.myName = name
 	table.insert(looseFoodsTable, newItem)
-	physics.addBody(newItem, "dynamic", {radius=100, bounce=0.0}) --(*Static and static cant collide with each other)
+	physics.addBody(newItem, "dynamic", {radius=75, bounce=0.0}) --(*Static and static cant collide with each other)
 	newItem.x = rightBound + 100
 	newItem.y = math.random(bottomBound)
 end
@@ -405,7 +405,8 @@ local function onCollision(event) --(*Is lettuce considered an enemy food? I'll 
 				plusOrMinus = ""
 			end
 			onSkewerArray = {}
-			timer.performWithDelay(750, function() clearSkewer() end)
+         audio.play(audio.loadSound("OmNomNom.wav"))
+			timer.performWithDelay(850, function() clearSkewer() end)
 			local pointsText = display.newText(uiLayer, plusOrMinus .. points, player.x+200, player.y+100, display.systemFont, 60)
 			local hideTimer = timer.performWithDelay(3000, function()
 																										 	pointsText.isVisible = false end, 1)

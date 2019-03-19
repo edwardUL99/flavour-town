@@ -13,11 +13,11 @@ local widget = require "widget"
 --------------------------------------------
 
 -- forward declarations and other locals
-local playBtn
+local playButton
 
 -- 'onRelease' event listener for playBtn
 local function onPlayBtnRelease()
-
+	playButton.emboss = false
 	-- go to level1.lua scene
 	composer.gotoScene( "game", "fade", 500 )
 
@@ -45,17 +45,31 @@ function scene:create( event )
 	titleLogo.y = 100
 
 	-- create a widget button (which will load game.lua on release)
-	playBtn = display.newText("Play Now", display.contentCenterX, display.contentHeight - 125, native.systemFont, 55)
-	playBtn:setFillColor(0, 1, 0)
-	--playBtn.x = display.contentCenterX
-	--playBtn.y = display.contentHeight - 125
+	local options =
+	{
+		label="Play Now",
+		fontSize = 80,
+		shape = "roundedRect",
+		width=320,
+		height=150,
+		fillColor = { default = { 0.25, 0.25, 0.25, 1}, over = {0.5, 0.5, 0.5, 1} },
+		strokeColor = { default = {1, 1, 1}, over = {1, 0, 0} },
+		strokeWidth = 2
+	}
+  playButton = widget.newButton(options)
+	playButton.x = display.contentCenterX
+	playButton.y = display.contentHeight - 125
+
+	--playBtn = display.newText("Play Now", display.contentCenterX, display.contentHeight - 125, native.systemFont, 55)
+	--playBtn:setFillColor(0, 1, 0)
+
 
 	-- all display objects must be inserted into group
 	sceneGroup:insert( background )
 	sceneGroup:insert( titleLogo )
-	sceneGroup:insert( playBtn )
+	sceneGroup:insert( playButton )
 
-	playBtn:addEventListener("tap", onPlayBtnRelease)
+	playButton:addEventListener("tap", onPlayBtnRelease)
 end
 
 function scene:show( event )
@@ -94,9 +108,9 @@ function scene:destroy( event )
 	-- INSERT code here to cleanup the scene
 	-- e.g. remove display objects, remove touch listeners, save state, etc.
 
-	if playBtn then
-		playBtn:removeSelf()	-- widgets must be manually removed
-		playBtn = nil
+	if playButton then
+		playButton:removeSelf()	-- widgets must be manually removed
+		playButton = nil
 	end
 end
 

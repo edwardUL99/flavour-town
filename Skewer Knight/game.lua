@@ -40,6 +40,8 @@ local skewerShape = {-40,50,  240,50,  240,31,  -40,31}
 local pauseButton
 local playButton
 local pauseText
+local eatButton
+local menuButton
 local bg1
 local bg2 --two SCROLLING backgrounds, to make it look like player is moving)
 local bgImage2 = {type = "image", filename ="background.jpg"}
@@ -67,14 +69,16 @@ local uiLayer
 --BACKGROUND CRAP
 -------------------
 local function moveBg(dt)
-	bg1.x = bg1.x - bgScrollSpeed * dt
-	bg2.x = bg2.x - bgScrollSpeed * dt
+	if (not paused) then
+		bg1.x = bg1.x - bgScrollSpeed * dt
+		bg2.x = bg2.x - bgScrollSpeed * dt
 
-	if(bg1.x + display.actualContentWidth - 400) < 0 then
-		bg1:translate( -bg1.contentWidth * -2, 0)
-	end
-	if (bg2.x + display.actualContentWidth - 400) < 0 then
-		bg2:translate( -bg2.contentWidth * -2, 0)
+		if(bg1.x + display.actualContentWidth - 400) < 0 then
+			bg1:translate( -bg1.contentWidth * -2, 0)
+		end
+		if (bg2.x + display.actualContentWidth - 400) < 0 then
+			bg2:translate( -bg2.contentWidth * -2, 0)
+		end
 	end
 end
 
@@ -144,7 +148,7 @@ end
 local function dragPlayer(event)
 	local player = event.target
 	local phase = event.phase
-	if (paused ~= true) then
+	if (not paused) then
 		if ("began" == phase) then
 			display.currentStage:setFocus(player)
 			player.touchOffsetX = event.x - player.x
@@ -162,7 +166,7 @@ end
 
 local function moveObject(event)
 	local dt = getDeltaTime();
-	if (paused ~= true) then
+	if (not paused) then
 		moveBg(dt)
 		trackPlayer()
 		for i = #looseFoodsTable, 1, -1 do
@@ -175,6 +179,7 @@ local function moveObject(event)
 	end
 end
 
+--(*Mightn't need if using new checkCombination method)
 local function isEqualArray(table1, table2)
 	--Since the score value is only stored at end of each combination table, we can ignore it and check the names only
 	if ((#table1-1) == #table2) then
@@ -187,6 +192,7 @@ local function isEqualArray(table1, table2)
 	end
 	return false
 end
+
 
 --[[local function updateSkewer()
  --Will provide code to update the food contents on the skewer
@@ -227,6 +233,7 @@ local function clearSkewer()
 	display.remove(foodPos4)
 end
 
+--(*Mightn't need if using new checkCombination method)
 local function createCombinationsTable()
 	for i = 1, amountOfCombos do --Creating 2D array
 		foodCombinations[i] = {}
@@ -254,13 +261,29 @@ local function print2D(twoD)
 end
 ---Will remove later--
 
+--[[
 local function checkCombination(namesTable)
 	for i = 1, #foodCombinations do
 		if (isEqualArray(foodCombinations[i], namesTable)) then
 			return foodCombinations[i][#foodCombinations[i]]
-		end
+	--[[	end
 	end
 	return #onSkewerArray*50
+end]]--
+
+local function checkCombination(namesTable)
+	local foodScores = {
+		["bread"] = 125,
+		["burger"] = 250,
+		["broccoli"] = 25,
+		["lettuce"] = -25,
+		["tomato"] = 50,
+	}
+	local sum = 0
+	for i = 1, #namesTable do
+		sum = sum + foodScores[namesTable[i]]
+	end
+	return sum
 end
 
 local function eatSkewer(event)
@@ -297,7 +320,8 @@ local function pause()
  pauseText.isVisible = true
  pauseButton.isVisible = false
  playButton.isVisible = true
-  bgScrollSpeed = 0
+ eatButton.isVisible = false
+ menuButton.isVisible = true
 end
 
 local function resume()
@@ -306,7 +330,8 @@ local function resume()
 	pauseText.isVisible = false
 	playButton.isVisible = false
 	pauseButton.isVisible = true
-	bgScrollSpeed = 5
+	eatButton.isVisible = true
+	menuButton.isVisible = false
 end
 
 local function updateText()
@@ -501,6 +526,10 @@ function scene:create( event )
 	pauseText = display.newText(uiLayer, "Paused", 100, 100, display.systemFont, 60)
 	pauseText.isVisible = false
 
+	eatButton = display.newText(uiLayer, "Eat", leftBound + 100, bottomBound - 100, display.systemFont, 80)
+	menuButton = display.newText(uiLayer, "Menu", leftBound + 100, bottomBound - 100, display.systemFont, 80)
+	menuButton.isVisible = false
+
 	createCombinationsTable()
 	--init()
 	--Debug to print test output to console, will remove later
@@ -513,7 +542,9 @@ function scene:create( event )
 	player:addEventListener("touch", dragPlayer)
 	player:addEventListener("tap", eatSkewer)
 	pauseButton:addEventListener("tap", pause)
+	menuButton:addEventListener("tap", goToMainMenu)
 	playButton:addEventListener("tap", resume)
+	eatButton:addEventListener("tap", eatSkewer)
 
 end
 

@@ -1,22 +1,3 @@
-----------------------------------------------------------------------------
---	NOTES
-----------------------------------------------------------------------------
---I've renamed most of the variables to be more readable, and moved them about
---	slightly. Check to see their new names before using them.
--- (I haven't touched the functions except move them.
---   Haven't touched the Scene Functions yet)
---
---If you want someone to check something out, mark it with an " * ".
---
---NOTES ON SYNTAX:
---[1] Name Variables so you tell exactly what it is just by looking.
---[2] Same with Functions, make their names a VERB that says what it does.
---[3] Don't leave empty lines inside functions, it makes it harder to read. Corona tutorials says don't clump code together because it makes it harder to read
---[4] All comments related to it should be inside the function itself,
---	  NOT above/below it etc, It's convention for function comments to go above just like in Java no?
-----------------------------------------------------------------------------
---STARTUP / IMPORTS ETC
-----------------------------------------------------------------------------
 local composer = require( "composer" ) --This is very IMPORTANT
 local scene = composer.newScene()
 local sheetInfo = require("spritesheet") --Introduces the functions required to grab sprites from sheet
@@ -30,7 +11,7 @@ local imageSheet = graphics.newImageSheet("spritesheet.png", sheetInfo:getSheet(
 ---UI related variables--
 local health = 3
 local score = 0
-local healthText
+local lives = {}
 local scoreText
 --------------------
 --Basic Game Variables--
@@ -43,12 +24,19 @@ local runtime = 0
 local looseFoodsTable = {}
 local maxLooseFoods = 10
 local onSkewerArray = {}
+local foodsToMove = {}
 local maxOnSkewer = 4
 local foodCombinations = {}
 local amountOfCombos = 5 --Decide later
+-----------------------
+--Audio--
+local hurtAudio = audio.loadSound("Oof.mp3")
+local eatAudio = audio.loadSound("OmNomNom.wav")
 --------------------
 --Graphics variables--
 local player
+local playerShape = {-200,111,  -41,111,   -41,-89,   -200,-89}
+local skewerShape = {-40,50,  240,50,  240,31,  -40,31}
 local pauseButton
 local playButton
 local pauseText
@@ -90,6 +78,22 @@ local function moveBg(dt)
 	end
 end
 
+local function trackPlayer()
+	if (not paused) then
+		for i = #foodsToMove, 1, -1 do
+			foodsToMove[i].x = player.x + (75*(i-1))
+			foodsToMove[i].y = player.y
+		end
+	end
+end
+
+local function unTrackPlayer()
+	for i = #foodsToMove, 1, -1 do
+		display.remove(foodsToMove[i])
+		table.remove(foodsToMove, i)
+	end
+end
+
 local function getDeltaTime() --Delta time ensures we have smooth scrolling accross different devices
 	local temp = system.getTimer()
 	local dt = (temp-runtime) / (1000/60)
@@ -105,6 +109,8 @@ end
 local function goToMainMenu()
 	composer.removeScene("game")
 	composer.gotoScene("menu","fade",500)
+   health = 3
+   onSkewerArray ={}
 end
 
 local function checkBounds()
@@ -130,7 +136,7 @@ local function createObjects()
 	newItem.width = 200
 	newItem.myName = name
 	table.insert(looseFoodsTable, newItem)
-	physics.addBody(newItem, "dynamic", {radius=40, bounce=0.0}) --(*Static and static cant collide with each other)
+	physics.addBody(newItem, "dynamic", {radius=75, bounce=0.0}) --(*Static and static cant collide with each other)
 	newItem.x = rightBound + 100
 	newItem.y = math.random(bottomBound)
 end
@@ -158,6 +164,7 @@ local function moveObject(event)
 	local dt = getDeltaTime();
 	if (paused ~= true) then
 		moveBg(dt)
+		trackPlayer()
 		for i = #looseFoodsTable, 1, -1 do
 			looseFoodsTable[i].x = looseFoodsTable[i].x - foodScrollSpeed * dt
 			if (looseFoodsTable[i].x < -(display.actualContentWidth)) then
@@ -181,38 +188,38 @@ local function isEqualArray(table1, table2)
 	return false
 end
 
-local function updateSkewer()
+--[[local function updateSkewer()
  --Will provide code to update the food contents on the skewer
  local i = #onSkewerArray
  if (i==nil) then i=0 end
  print("There are " .. #onSkewerArray .. " foods on the skewer.")
 if(#onSkewerArray == 1) then
-	foodPos1 = display.newImageRect(mainLayer, imageSheet, sheetInfo:getFrameIndex(onSkewerArray[i]), sheetInfo:getWidth(onSkewerArray[i]), sheetInfo:getHeight(onSkewerArray[i]))
+	local foodPos1 = display.newImageRect(mainLayer, imageSheet, sheetInfo:getFrameIndex(onSkewerArray[i]), sheetInfo:getWidth(onSkewerArray[i]), sheetInfo:getHeight(onSkewerArray[i]))
 	foodPos1.x = display.contentCenterX - (1200 - 55*1)
 	foodPos1.y = display.contentCenterY + 600
 	foodPos1.height = 50
 	foodPos1.width = 50
 elseif (#onSkewerArray == 2) then
-	foodPos2 = display.newImageRect(mainLayer, imageSheet, sheetInfo:getFrameIndex(onSkewerArray[i]), sheetInfo:getWidth(onSkewerArray[i]), sheetInfo:getHeight(onSkewerArray[i]))
+	local foodPos2 = display.newImageRect(mainLayer, imageSheet, sheetInfo:getFrameIndex(onSkewerArray[i]), sheetInfo:getWidth(onSkewerArray[i]), sheetInfo:getHeight(onSkewerArray[i]))
 	foodPos2.x = display.contentCenterX - (1200 - 55*2)
 	foodPos2.y = display.contentCenterY + 600
 	foodPos2.height = 50
 	foodPos2.width = 50
 elseif (#onSkewerArray == 3) then
-	foodPos3 = display.newImageRect(mainLayer, imageSheet, sheetInfo:getFrameIndex(onSkewerArray[i]), sheetInfo:getWidth(onSkewerArray[i]), sheetInfo:getHeight(onSkewerArray[i]))
+	local foodPos3 = display.newImageRect(mainLayer, imageSheet, sheetInfo:getFrameIndex(onSkewerArray[i]), sheetInfo:getWidth(onSkewerArray[i]), sheetInfo:getHeight(onSkewerArray[i]))
 	foodPos3.x = display.contentCenterX - (1200 - 55*3)
 	foodPos3.y = display.contentCenterY + 600
 	foodPos3.height = 50
 	foodPos3.width = 50
 elseif (#onSkewerArray == 4) then
-	foodPos4 = display.newImageRect(mainLayer, imageSheet, sheetInfo:getFrameIndex(onSkewerArray[i]), sheetInfo:getWidth(onSkewerArray[i]), sheetInfo:getHeight(onSkewerArray[i]))
+	local foodPos4 = display.newImageRect(mainLayer, imageSheet, sheetInfo:getFrameIndex(onSkewerArray[i]), sheetInfo:getWidth(onSkewerArray[i]), sheetInfo:getHeight(onSkewerArray[i]))
 	foodPos4.x = display.contentCenterX - (1200 - 55*4)
 	foodPos4.y = display.contentCenterY + 600
 	foodPos4.height = 50
 	foodPos4.width = 50
 end
 end
-
+--]]
 local function clearSkewer()
 	display.remove(foodPos1)
 	display.remove(foodPos2)
@@ -253,7 +260,23 @@ local function checkCombination(namesTable)
 			return foodCombinations[i][#foodCombinations[i]]
 		end
 	end
-	return 500
+	return #onSkewerArray*50
+end
+
+local function eatSkewer(event)
+	if(#onSkewerArray>0)then
+			clearSkewer()
+			audio.play(eatAudio)
+			unTrackPlayer()
+			local points = checkCombination(onSkewerArray)
+			score = score + points
+			local pointsText = display.newText(uiLayer, "+".. points, player.x+200, player.y+100, display.systemFont, 60)
+			timer.performWithDelay(2000, function() transition.fadeOut(pointsText, {time = 500}) end, 1)
+			scoreText.text = "Score: " .. score
+
+		--	updateSkewer()
+			onSkewerArray = {}
+		end
 end
 
 local function keyPressed(event)
@@ -266,15 +289,6 @@ local function keyPressed(event)
 	if (event.phase == "up") then
 		return true
 	end
-end
-
---The return value is the score to be given to the player
-local function store(objectsTable)
- local namesTable = {}
- for i = 1, #objectsTable, 1 do
-   namesTable[i] = objectsTable[i].myName
- end
- return checkCombination(namesTable)
 end
 
 local function pause()
@@ -297,7 +311,13 @@ end
 
 local function updateText()
  scoreText.text = "Score: " .. score
- healthText.text = "Health: " .. health
+ if (health == 2) then
+    display.remove(lives[2])
+ elseif(health == 1) then
+    display.remove(lives[1])
+ elseif ( health == 0) then
+   display.remove(lives[0])
+ end
 end
 
 local function gameLoop()
@@ -314,13 +334,13 @@ end
 ----------------------------------------------------------------------------
 
 
---local function moveSprite(event)
+local function moveSprite(event)
 ----Will be used when joystick is added
-	--player.x = player.x + motionx
-	--player.y = player.y + motiony
+	player.x = player.x + motionx
+	player.y = player.y + motiony
 --end
 
---[[ Will be used if we switch to Windows and use arrow keys
+-- Will be used if we switch to Windows and use arrow keys
 local fuction arrowsPressed(event)
 	if (event.phase == "down") then
 		if (event.keyName == "left") then
@@ -333,13 +353,12 @@ local fuction arrowsPressed(event)
 			motiony = -speed
 		end
 	end
-	if (event.phase == "up) then
+	if (event.phase == "up") then
 		motionx = 0
 		motiony = 0
 	end
 	return false
 end
---]]
 
 local function restorePlayer()
 	player.isBodyActive = false
@@ -358,46 +377,55 @@ local function onCollision(event) --(*Is lettuce considered an enemy food? I'll 
 		if (collidedObject.myName == "player") then
 			collidedObject = event.object1
 		end
-
-		print(collidedObject.myName)
-		display.remove(collidedObject)
-
-		for i = #looseFoodsTable, 1, -1 do
-			if (looseFoodsTable[i] == collidedObject) then
-				table.remove(looseFoodsTable, i)
-			end
-		end
-
-		table.insert(onSkewerArray, collidedObject.myName)
-		updateSkewer()
-
+      if(event.element1 == 1) then --event.element1 == 1, when the body of the player collides with the food
+         print("Player hit!")
+         health = health - 1
+         print(health)
+         --Changes colour of player to red, then changes it back after 500ms
+         player:setFillColor(1, 0.2, 0.2)
+         timer.performWithDelay(500, function() player:setFillColor(1, 1, 1) end, 1)
+         audio.play(hurtAudio)
+         updateText()
+				 display.remove(collidedObject)
+      else
+         print("Things stabbed!")
+         table.insert(onSkewerArray, collidedObject.myName)
+				 timer.performWithDelay(50, function()
+				 														collidedObject.isBodyActive = false
+																		table.insert(foodsToMove, collidedObject) end)
+   			--updateSkewer()
+        print(collidedObject.myName)
+      end
+      for i = #looseFoodsTable, 1, -1 do
+         if (looseFoodsTable[i] == collidedObject) then
+            table.remove(looseFoodsTable, i)
+					end
+      end
 		if (#onSkewerArray == maxOnSkewer) then
+			timer.performWithDelay(200, unTrackPlayer)
 			local points = checkCombination(onSkewerArray)
 			local plusOrMinus = "+"
 			if (points < 0) then
 				plusOrMinus = ""
 			end
 			onSkewerArray = {}
-			clearSkewer()
-			local pointsText = display.newText(uiLayer, plusOrMinus .. points, 100, 100, display.systemFont, 60)
-			local hideTimer = timer.performWithDelay(3000, function()
-																										 	pointsText.isVisible = false end, 1)
+      	audio.play(eatAudio)
+			timer.performWithDelay(850, function() clearSkewer() end)
+			local pointsText = display.newText(uiLayer, plusOrMinus .. points, player.x+200, player.y+100, display.systemFont, 100)
+			local hideTimer = timer.performWithDelay(2000, function() transition.fadeOut(pointsText, {time = 500}) end, 1)
 			score = score + points
 
 			if (points < 0 and health > 0) then
 				health = health - 1
 			end
 			updateText()
-
-			if (health == 0) then
+      end
+			if (health < 1) then
 				player.alpha = 0
+				unTrackPlayer()
 				timer.performWithDelay(2000, goToMainMenu)
-			elseif (points < 0) then
-				player.alpha = 0
-				timer.performWithDelay(1000, restorePlayer)
 			end
 		end
-	end
 end
 
 ----------------------------------------------------------------------------
@@ -438,14 +466,24 @@ function scene:create( event )
 	bg2.x = display.contentCenterX + display.actualContentWidth
 	bg2.y = display.contentCenterY
 
-	player = display.newImageRect(mainLayer, "player.png", 400, 300)
+  lives[0] = display.newImageRect(uiLayer,"heart.png",200,200)
+  lives[0].x = -700
+  lives[0].y = 150
+
+  lives[1] = display.newImageRect(uiLayer,"heart.png",200,200)
+  lives[1].x = -600
+  lives[1].y = 150
+
+  lives[2] = display.newImageRect(uiLayer,"heart.png",200,200)
+  lives[2].x = -500
+  lives[2].y = 150
+
+	player = display.newImageRect(mainLayer, "player.png", 480, 222)
 	player.x = display.contentCenterX - 1000
 	player.y = display.contentCenterY
-	physics.addBody(player, "static", {radius = 30, isSensor=true})
+	physics.addBody(player, "static",   {shape = playerShape, isSensor=true},
+                                       {shape = skewerShape, isSensor=true})
 	player.myName = "player"
-
-	--Health is just text for prototype
-	healthText = display.newText(uiLayer, "Health: " .. health, display.contentCenterX - 1000, display.contentCenterY - 500, native.systemFont, 80)
 
 	--Score is text for prototype
 	scoreText = display.newText(uiLayer, "Score: " .. score, display.contentCenterX + 1000, display.contentCenterY - 500, native.systemFont, 80)
@@ -473,6 +511,7 @@ function scene:create( event )
 	--------------------------------------------------------------
 
 	player:addEventListener("touch", dragPlayer)
+	player:addEventListener("tap", eatSkewer)
 	pauseButton:addEventListener("tap", pause)
 	playButton:addEventListener("tap", resume)
 

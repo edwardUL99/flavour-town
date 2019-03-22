@@ -18,6 +18,7 @@ local scoreText
 local paused = false
 local died = false
 local gameLoopTimer
+local gameLoopCycle = 2000 --Time between each game loop
 local runtime = 0
 --------------------
 --Arrays & tables--
@@ -347,6 +348,7 @@ end
 
 local function gameLoop()
 	createObjects()
+	foodScrollSpeed = foodScrollSpeed + 0.5
 end
 ----------------------------------------------------------------------------
 ----------------------------------------------------------------------------
@@ -567,7 +569,7 @@ function scene:show( event )
 		--Runtime:addEventListener("enterFrame", enterFrame)
 		--Runtime:addEventListener("enterFrame", moveSprite)
 		Runtime:addEventListener("key", keyPressed)
-		gameLoopTimer = timer.performWithDelay(2000, gameLoop, 0)
+		gameLoopTimer = timer.performWithDelay(gameLoopCycle, gameLoop, 0)
 	end
 end
 

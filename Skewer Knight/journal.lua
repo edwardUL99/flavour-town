@@ -73,9 +73,10 @@ local function displayCombos()
 
 	for i = 1, #combinationsTable do
 		for j = 1, #combinationsTable[i] do
-			for k = 1, #combinationsTable[i][j] do
+			for k = 1, #combinationsTable[i][j] - 1 do
 			combo = combo .. combinationsTable[i][j][k] .. "-"
 			end
+			combo = combo .. combinationsTable[i][j][#combinationsTable[i][j]]
 			text = display.newText(uiLayer, combo, x, y, system.nativeFont, 50)
 			combo = ""
 			x = x + 100
@@ -105,7 +106,7 @@ function scene:create( event )
 	uiLayer = display.newGroup()
 	sceneGroup:insert(uiLayer)
 
-	composer.removeScene("game")
+	composer.removeScene("loading")
 
 	loadTables()
 

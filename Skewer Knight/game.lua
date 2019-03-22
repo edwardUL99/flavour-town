@@ -127,6 +127,7 @@ end
 local function goToJournal()
 	composer.setVariable("scene", "journal")
 	composer.gotoScene("loading", "fade", 500)
+end
 
 local function checkBounds()
 	if (player.x > rightBound) then
@@ -527,7 +528,7 @@ function scene:create( event )
 	menuButton = display.newText(uiLayer, "Menu", leftBound + 100, bottomBound - 100, display.systemFont, 80)
 	menuButton.isVisible = false
 
-	journalButton = display.newText(uiLayer, "Journal", leftBound + 300, bottomBound - 100, display.systemFont, 80)
+	journalButton = display.newText(uiLayer, "Journal", leftBound + 400, bottomBound - 100, display.systemFont, 80)
 	journalButton.isVisible = false
 
 	createCombinationsTable()

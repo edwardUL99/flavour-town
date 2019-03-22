@@ -2,6 +2,8 @@ local composer = require( "composer" ) --This is very IMPORTANT
 local scene = composer.newScene()
 local sheetInfo = require("spritesheet") --Introduces the functions required to grab sprites from sheet
 local physics = require( "physics" )
+local objects = require("objects")
+
 physics.start()
 physics.setGravity(0,0)
 local imageSheet = graphics.newImageSheet("spritesheet.png", sheetInfo:getSheet())
@@ -107,8 +109,9 @@ local function getDeltaTime() --Delta time ensures we have smooth scrolling accr
 end
 
 local function goToMainMenu()
-	composer.removeScene("game")
-	composer.gotoScene("menu","fade",500)
+	composer.setVariable("toScene", "menu")
+	composer.removeScene("loading")
+	composer.gotoScene("loading","fade",500)
 end
 
 local function checkBounds()
@@ -117,26 +120,13 @@ local function checkBounds()
 	elseif (player.x < leftBound) then
 		player.x = leftBound + 20
 	end
+end
 
 	if (player.y < topBound) then
 		player.y = topBound + 20
 	elseif (player.y > bottomBound) then
 		player.y = bottomBound - 20
 	end
-end
-
-local function createObjects()
-	local names = {"bread", "broccoli", "burger", "lettuce", "tomato"} --Will be randomly accessed
-	local name = names[math.random(#names)]
-	--I added the getWidth and getHeight methods to the spritesheet.lua file. Better to use newImageRect
-	local newItem = display.newImageRect(mainLayer, imageSheet, sheetInfo:getFrameIndex(name), sheetInfo:getWidth(name), sheetInfo:getHeight(name))
-	newItem.height = 200
-	newItem.width = 200
-	newItem.myName = name
-	table.insert(looseFoodsTable, newItem)
-	physics.addBody(newItem, "dynamic", {radius=75, bounce=0.0}) --(*Static and static cant collide with each other)
-	newItem.x = rightBound + 100
-	newItem.y = math.random(bottomBound)
 end
 
 local function dragPlayer(event)
@@ -240,21 +230,6 @@ local function createCombinationsTable()
 	foodCombinations[5] = {"tomato", "tomato", "tomato", "tomato", 200}
 end
 
---debug to test output on console
-local function printTable(table)
-	for i = 1, #table do
-		print(table[i])
-	end
-	print("------------")
-end
-
-local function print2D(twoD)
-	for i = 1, #twoD do
-		printTable(twoD[i])
-	end
-end
----Will remove later--
-
 --[[
 local function checkCombination(namesTable)
 	for i = 1, #foodCombinations do
@@ -340,7 +315,7 @@ local function updateText()
 end
 
 local function gameLoop()
-	createObjects()
+	table.insert(looseFoodsTable, objects:createObjects(mainLayer, rightBound, bottomBound))
 	foodScrollSpeed = foodScrollSpeed + 0.5
 end
 ----------------------------------------------------------------------------
@@ -581,7 +556,6 @@ function scene:destroy( event )
 	-- Code here runs prior to the removal of scene's view
 	physics.pause()
 	timer.cancel(gameLoopTimer)
-	print("Scene destroyed")
 	Runtime:removeEventListener("collision",onCollision)
 	Runtime:removeEventListener("enterFrame", checkBounds)
 	Runtime:removeEventListener("enterFrame", moveObject)

@@ -52,10 +52,10 @@ local foodScrollSpeed = 10
 local bgScrollSpeed = 5
 --------------------
 --Boundaries variables--
-local leftBound = -(display.viewableContentWidth)
-local rightBound = display.actualContentWidth - display.contentWidth
-local topBound = 0
-local bottomBound = display.actualContentHeight
+local leftBound
+local rightBound
+local topBound
+local bottomBound
 --------------------
 --Providing variables for displayGroups to be used later--
 local backLayer
@@ -120,7 +120,6 @@ local function checkBounds()
 	elseif (player.x < leftBound) then
 		player.x = leftBound + 20
 	end
-end
 
 	if (player.y < topBound) then
 		player.y = topBound + 20
@@ -434,6 +433,10 @@ function scene:create( event )
 	local sceneGroup = self.view
 	-- Code here runs when the scene is first created but has not yet appeared on screen
 	physics.pause()
+	leftBound = -(display.viewableContentWidth)
+	rightBound = display.actualContentWidth - display.contentWidth
+	topBound = 0
+	bottomBound = display.actualContentHeight
 
 	backLayer = display.newGroup()
 	sceneGroup:insert(backLayer)
@@ -554,12 +557,12 @@ function scene:destroy( event )
 
 	local sceneGroup = self.view
 	-- Code here runs prior to the removal of scene's view
-	physics.pause()
-	timer.cancel(gameLoopTimer)
 	Runtime:removeEventListener("collision",onCollision)
 	Runtime:removeEventListener("enterFrame", checkBounds)
 	Runtime:removeEventListener("enterFrame", moveObject)
 	Runtime:removeEventListener("key", keyPressed)
+	physics.pause()
+	timer.cancel(gameLoopTimer)
 end
 
 

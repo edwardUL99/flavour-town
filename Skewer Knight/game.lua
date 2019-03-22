@@ -106,16 +106,9 @@ local function getDeltaTime() --Delta time ensures we have smooth scrolling accr
 	return dt
 end
 
-local function enterFrame(event) --( * It will be for the moving background. http://lomza.totem-soft.com/tutorial-scrollable-background-in-corona-sdk/)
-	local dt = getDeltaTime()
-	moveBg(dt)
-end
-
 local function goToMainMenu()
 	composer.removeScene("game")
 	composer.gotoScene("menu","fade",500)
-   health = 3
-   onSkewerArray ={}
 end
 
 local function checkBounds()
@@ -533,13 +526,6 @@ function scene:create( event )
 	menuButton.isVisible = false
 
 	createCombinationsTable()
-	--init()
-	--Debug to print test output to console, will remove later
-	print2D(foodCombinations)
-
-	local good = {"lettuce", "lettuce", "lettuce", "lettuce"}
-	print(checkCombination(good))
-	--------------------------------------------------------------
 
 	player:addEventListener("touch", dragPlayer)
 	player:addEventListener("tap", eatSkewer)
@@ -584,10 +570,6 @@ function scene:hide( event )
 		-- Code here runs when the scene is on screen (but is about to go off screen)
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen
-		Runtime:removeEventListener("collision",onCollision)
-		Runtime:removeEventListener("enterFrame", checkBounds)
-		Runtime:removeEventListener("enterFrame", moveObject)
-		Runtime:removeEventListener("key", keyPressed)
 	end
 end
 
@@ -599,6 +581,11 @@ function scene:destroy( event )
 	-- Code here runs prior to the removal of scene's view
 	physics.pause()
 	timer.cancel(gameLoopTimer)
+	print("Scene destroyed")
+	Runtime:removeEventListener("collision",onCollision)
+	Runtime:removeEventListener("enterFrame", checkBounds)
+	Runtime:removeEventListener("enterFrame", moveObject)
+	Runtime:removeEventListener("key", keyPressed)
 end
 
 

@@ -546,8 +546,11 @@ function scene:hide( event )
 
 	if ( phase == "will" ) then
 		-- Code here runs when the scene is on screen (but is about to go off screen)
+		physics.pause()
+		timer.cancel(gameLoopTimer)
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen
+		print("done")
 	end
 end
 
@@ -561,8 +564,6 @@ function scene:destroy( event )
 	Runtime:removeEventListener("enterFrame", checkBounds)
 	Runtime:removeEventListener("enterFrame", moveObject)
 	Runtime:removeEventListener("key", keyPressed)
-	physics.pause()
-	timer.cancel(gameLoopTimer)
 end
 
 

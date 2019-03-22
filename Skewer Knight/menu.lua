@@ -24,6 +24,12 @@ local function onPlayBtnRelease()
 	return true	-- indicates successful touch
 end
 
+local function goToJournal()
+	composer.gotoScene("journal", "fade", 500)
+
+	return true
+end
+
 function scene:create( event )
 	local sceneGroup = self.view
 
@@ -63,13 +69,29 @@ function scene:create( event )
 	--playBtn = display.newText("Play Now", display.contentCenterX, display.contentHeight - 125, native.systemFont, 55)
 	--playBtn:setFillColor(0, 1, 0)
 
+	local options1 =
+{
+	label="Journal",
+	fontSize = 80,
+	shape = "roundedRect",
+	width=320,
+	height=150,
+	fillColor = { default = { 0.25, 0.25, 0.25, 1}, over = {0.5, 0.5, 0.5, 1} },
+	strokeColor = { default = {1, 1, 1}, over = {1, 0, 0} },
+	strokeWidth = 2
+}
+local journalBtn = widget.newButton(options1)
+journalBtn.x = 1000
+journalBtn.y = display.contentHeight - 125
 
 	-- all display objects must be inserted into group
 	sceneGroup:insert( background )
 	sceneGroup:insert( titleLogo )
 	sceneGroup:insert( playButton )
+	sceneGroup:insert(journalBtn)
 
 	playButton:addEventListener("tap", onPlayBtnRelease)
+	journalBtn:addEventListener("tap", goToJournal)
 end
 
 function scene:show( event )

@@ -112,6 +112,8 @@ local function goToMainMenu()
 	composer.setVariable("toScene", "menu")
 	composer.removeScene("loading")
 	composer.gotoScene("loading","fade",500)
+
+	return true
 end
 
 local function checkBounds()

@@ -7,6 +7,8 @@ local physics = require( "physics" )
 --local filePath = system.pathForFile("tables.json", system.DocumentsDirectory)
 
 physics.start()
+system.activate( "multitouch" )
+
 physics.setGravity(0,0)
 local imageSheet = graphics.newImageSheet("spritesheet.png", sheetInfo:getSheet())
 ----------------------------------------------------------------------------
@@ -70,7 +72,7 @@ local uiLayer
 ------------------- (I don't know if we're still using these, but I saw they were deleted.
 local motionx = 0     --Keeping them here just in case that was by accident) (Aidan)
 local motiony = 0	--Character movement variables
-local speed = 10
+local speed = 20
 -------------------
 
 ---------------------
@@ -314,13 +316,6 @@ local function eatSkewer(event)
 				health = health - 1
 			end
 			updateText()
-
-
-			if (health < 1) then
-				player.alpha = 0
-				unTrackPlayer()
-				timer.performWithDelay(2000, goToMainMenu)
-			end
 		end
 end
 
@@ -384,17 +379,17 @@ end
 -- Will be used if we switch to Windows and use arrow keys
 local function arrowPressed(event)
 	if (event.phase == "down") then
-		if (event.keyName == "left") then
+		if (event.keyName == "left" or event.keyName =="a") then
 			motionx = -speed
-		elseif (event.keyName == "right") then
+		elseif (event.keyName == "right" or event.keyName =="d") then
 			motionx = speed
-		elseif (event.keyName == "down") then
+		elseif (event.keyName == "down"or event.keyName =="s") then
 			motiony = speed
-		elseif (event.keyName == "up") then
+		elseif (event.keyName == "up"or event.keyName =="w") then
 			motiony = -speed
 		end
 	end
-	if (event.phase == "up") then
+	if (event.phase == "up" and activeButton == nil) then
 		motionx = 0
 		motiony = 0
 	end
@@ -428,6 +423,11 @@ local function onCollision(event) --(*Is lettuce considered an enemy food? I'll 
          audio.play(hurtAudio)
          updateText()
 				 display.remove(collidedObject)
+				 if (health < 1) then
+	 				player.alpha = 0
+	 				unTrackPlayer()
+	 				timer.performWithDelay(2000, goToMainMenu)
+	 			end
       else
          print("Things stabbed!")
          table.insert(onSkewerArray, collidedObject.myName)

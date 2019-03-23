@@ -124,11 +124,15 @@ local function goToMainMenu()
 	--composer.removeScene("game")
 	composer.setVariable("scene", "menu")
 	composer.gotoScene("loading","fade",500)
+
+	return true
 end
 
 local function goToJournal()
 	composer.setVariable("scene", "journal")
 	composer.gotoScene("loading", "fade", 500)
+
+	return true
 end
 
 local function checkBounds()

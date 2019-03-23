@@ -19,13 +19,15 @@ local playButton
 local function onPlayBtnRelease()
 	playButton.emboss = false
 	-- go to level1.lua scene
-	composer.gotoScene( "game", "fade", 500 )
+	composer.removeScene("game")
+	timer.performWithDelay(50, function() composer.gotoScene( "game", "fade", 500 ) end)
 
 	return true	-- indicates successful touch
 end
 
 local function goToJournal()
-	composer.gotoScene("journal", "fade", 500)
+	composer.removeScene("game")
+	timer.performWithDelay(50, function() composer.gotoScene("journal", "fade", 500) end)
 
 	return true
 end

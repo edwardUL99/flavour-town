@@ -10,12 +10,13 @@ local scene = composer.newScene()
 local json = require("json")
 
 local combinationsTable = {}
+local backLayer
 local uiLayer
+local alreadyLoaded = false
 
 local filePath = system.pathForFile("combo.json", system.DocumentsDirectory)
 
 local function goToMainMenu()
-	composer.removeScene("journal")
 	composer.gotoScene("menu", "fade", 500)
 end
 
@@ -27,10 +28,6 @@ local function loadTables()
 		local contents = file:read("*a")
 		io.close(file)
 		combinationsTable = json.decode(contents)
-	end
-
-	if (combinationsTable == nil or #combinationsTable == 0) then
-		combinationsTable = {}
 	end
 end
 
@@ -50,6 +47,30 @@ local function displayArray(array)
 		end
 		print("----------------------")
 	end
+end
+
+local function isEqualArray(table1, table2)
+	--Since the score value is only stored at end of each combination table, we can ignore it and check the names only
+	if (#table1 == #table2) then
+		for i = 1, #table1 do
+			if (table1[i] ~= table2[i]) then
+				return false
+			end
+		end
+		return true
+	end
+	return false
+end
+
+local function containsCombo(combo)
+	for i = 1, #combinationsTable do
+		for j = 1, #combinationsTable[i] do
+			if (isEqualArray(combinationsTable[j], combo)) then
+				return true
+			end
+		end
+	end
+	return false
 end
 
 local function printTable(table)
@@ -73,23 +94,24 @@ local function displayCombos()
 
 	for i = 1, #combinationsTable do
 		for j = 1, #combinationsTable[i] do
-			for k = 1, #combinationsTable[i][j] - 1 do
-			combo = combo .. combinationsTable[i][j][k] .. "-"
-			end
-			combo = combo .. combinationsTable[i][j][#combinationsTable[i][j]]
-			text = display.newText(uiLayer, combo, x, y, system.nativeFont, 50)
-			combo = ""
-			x = x + 100
-			y = y + 100
+			print(combinationsTable[j])
+			--if (not containsCombo(combinationsTable[j])) then
+				for k = 1, #combinationsTable[i][j] - 1 do
+					combo = combo .. combinationsTable[i][j][k] .. "-"
+				end
+				combo = combo .. combinationsTable[i][j][#combinationsTable[i][j]]
+				text = display.newText(uiLayer, combo, x, y, system.nativeFont, 50)
+				combo = ""
+				x = x + 100
+				y = y + 100
+			--end
 		end
 	end
 end
 
 local function deleteFile()
 	os.remove("combo.json", system.DocumentsDirectory)
-	composer.setVariable("skewerArray", {})
 	combinationsTable = {}
-	saveCombos()
 	composer.removeScene("journal")
 	composer.gotoScene("journal")
 end
@@ -103,29 +125,23 @@ function scene:create( event )
 
 	local sceneGroup = self.view
 	-- Code here runs when the scene is first created but has not yet appeared on screen
+	backLayer = display.newGroup()
+	sceneGroup:insert(backLayer)
 	uiLayer = display.newGroup()
 	sceneGroup:insert(uiLayer)
 
 	composer.removeScene("loading")
-
-	loadTables()
-
-
 	table.insert(combinationsTable, composer.getVariable("skewerArray"))
 
-	local background = display.newImageRect(sceneGroup, "backdrop.png", display.actualContentWidth, display.actualContentHeight + 3000)
+	local background = display.newImageRect(backLayer, "backdrop.png", display.actualContentWidth, display.actualContentHeight + 3000)
 	background.x = display.contentCenterX
 	background.y = display.ContentCenterY
-	background:toBack()
 
 	local menuBtn = display.newText(uiLayer, "Menu", -100, display.contentHeight - 125, native.systemFont, 80)
 	local resetBtn = display.newText(uiLayer, "Reset Records", 1000, display.contentHeight - 125, native.systemFont, 80)
 
 	menuBtn:addEventListener("tap", goToMainMenu)
  resetBtn:addEventListener("tap", deleteFile)
-
-	displayCombos()
-	saveCombos()
 
 	--deleteFile()
 
@@ -140,9 +156,10 @@ function scene:show( event )
 
 	if ( phase == "will" ) then
 		-- Code here runs when the scene is still off screen (but is about to come on screen)
-
 	elseif ( phase == "did" ) then
-		-- Code here runs when the scene is entirely on screen
+		loadTables()
+		displayCombos()
+		saveCombos()
 
 	end
 end
@@ -159,7 +176,6 @@ function scene:hide( event )
 
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen
-
 	end
 end
 

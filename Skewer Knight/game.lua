@@ -292,6 +292,8 @@ local function checkPowerUp()
 	if(isEqualArray(onSkewerArray,{"tomato","tomato","tomato"}))then
 		print("adding one health!")
 		if(health<3)then
+			local healthNewText = display.newText(uiLayer, "+1 health", player.x+100, player.y, native.systemFont, 80)
+			timer.performWithDelay(2000, function() transition.fadeOut(healthNewText, {time = 500}) end, 1)
 			health = health + 1
 		end
 	elseif(isEqualArray(onSkewerArray,"bread", "burger", "bread"))then
@@ -411,7 +413,7 @@ local function gameLoop()
 	for i = 1, spawnRate do
 		table.insert(looseFoodsTable, objects:createObjects(mainLayer, rightBound, bottomBound))
 	end
-	if(foodScrollSpeed < 5)then
+	if(foodScrollSpeed < 30)then
 		foodScrollSpeed = foodScrollSpeed + 0.5
 	end
 end

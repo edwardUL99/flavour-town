@@ -37,6 +37,9 @@ local hurtAudio = audio.loadSound("Oof.mp3")
 local eatAudio = audio.loadSound("OmNomNom.wav")
 --------------------
 --Graphics variables--
+local heartXPos = -700
+local heartYPos = 150
+local heartArrayPos = 1
 local player
 local playerShape = {-200,111,  -41,111,   -41,-89,   -200,-89}
 local skewerShape = {-40,50,  240,50,  240,31,  -40,31}
@@ -167,8 +170,8 @@ end
 --(*Mightn't need if using new checkCombination method)
 local function isEqualArray(table1, table2)
 	--Since the score value is only stored at end of each combination table, we can ignore it and check the names only
-	if ((#table1-1) == #table2) then
-		for i = 1, (#table1 - 1) do
+	if ((#table1) == #table2) then
+		for i = 1, #table1 do
 			if (table1[i] ~= table2[i]) then
 				return false
 			end
@@ -256,9 +259,55 @@ local function checkCombination(namesTable)
 	return sum
 end
 
+local function addHeart()
+  if (health <= 3) then
+    lives[heartArrayPos] = display.newImageRect(uiLayer,"heart.png",200,200)
+    lives[heartArrayPos].x = heartXPos 
+    lives[heartArrayPos].y = heartYPos
+    heartXPos = heartXPos + 100
+    heartArrayPos = heartArrayPos + 1
+  end 
+end
+    
+
+local function checkPowerUp()
+	if(isEqualArray(onSkewerArray,{"tomato","tomato","tomato"}))then
+		print("adding one health!")
+		if(health<3)then
+      addHeart()
+			local healthNewText = display.newText(uiLayer, "+1 health", player.x+100, player.y, native.systemFont, 80)
+			timer.performWithDelay(2000, function() transition.fadeOut(healthNewText, {time = 500}) end, 1)
+			health = health + 1
+		end
+	elseif(isEqualArray(onSkewerArray,{"bread", "burger", "bread"}))then
+		print("Extra chunky")
+		transition.scaleBy(player, {xScale = 1, yScale = 1})
+		--I have not changed the hotboexes to fit the bigger model
+		local playerShapeXL = {2*-200,2*111,  2*-41,2*111,   2*-41,2*-89,   2*-200,2*-89}
+		local skewerShapeXL = {2*-40,2*50,  2*240,2*50,  2*240,2*31,  2*-40,2*31}
+		physics.removeBody(player)
+		physics.addBody(player,"kinematic", {shape = playerShapeXL, isSensor = true},
+														{shape = skewerShapeXL, isSensor = true})
+		timer.performWithDelay(10000, function()
+			if(composer.getSceneName == "game") then
+				transition.scaleBy(player, {xScale = -1, yScale = -1})
+				physics.removeBody(player)
+				physics.addBody(player,"kinematic", {shape = playerShape, isSensor = true},
+																{shape = skewerShape, isSensor = true})
+			end
+		end)
+	elseif(isEqualArray(onSkewerArray, {"broccoli","broccoli","broccoli"}))then
+		print("Go green")
+		player:setFillColor(0, 1, 0.2)
+		timer.performWithDelay(30000,function() if(composer.getSceneName == "game") then player:setFillColor(1, 1, 1)end end)
+	end
+
+end
+
 local function eatSkewer(event)
 	if(#onSkewerArray>0)then
 			clearSkewer()
+      checkPowerUp()
 			audio.play(eatAudio)
 			unTrackPlayer()
 			local points = checkCombination(onSkewerArray)
@@ -307,11 +356,17 @@ end
 local function updateText()
  scoreText.text = "Score: " .. score
  if (health == 2) then
-    display.remove(lives[2])
+    display.remove(lives[3])
+    heartXPos = heartXPos - 100
+    heartArrayPos = heartArrayPos - 1
  elseif(health == 1) then
-    display.remove(lives[1])
+    display.remove(lives[2])
+    heartXPos = heartXPos - 100
+    heartArrayPos = heartArrayPos - 1
  elseif ( health == 0) then
-   display.remove(lives[0])
+   display.remove(lives[1])
+   heartXPos = heartXPos - 100
+   heartArrayPos = heartArrayPos - 1
  end
 end
 
@@ -465,18 +520,10 @@ function scene:create( event )
 	bg2.fill = bgImage2
 	bg2.x = display.contentCenterX + display.actualContentWidth
 	bg2.y = display.contentCenterY
-
-  lives[0] = display.newImageRect(uiLayer,"heart.png",200,200)
-  lives[0].x = -700
-  lives[0].y = 150
-
-  lives[1] = display.newImageRect(uiLayer,"heart.png",200,200)
-  lives[1].x = -600
-  lives[1].y = 150
-
-  lives[2] = display.newImageRect(uiLayer,"heart.png",200,200)
-  lives[2].x = -500
-  lives[2].y = 150
+  
+  for i = 1, 3 do
+    addHeart()
+  end
 
 	player = display.newImageRect(mainLayer, "player.png", 480, 222)
 	player.x = display.contentCenterX - 1000

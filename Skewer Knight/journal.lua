@@ -96,10 +96,10 @@ local function displayCombos()
 		for j = 1, #combinationsTable[i] do
 			print(combinationsTable[j])
 			--if (not containsCombo(combinationsTable[j])) then
-				for k = 1, #combinationsTable[i][j] - 1 do
-					combo = combo .. combinationsTable[i][j][k] .. "-"
+				for k = 1, #combinationsTable[i] - 1 do
+					combo = combo .. combinationsTable[i][j] .. "-"
 				end
-				combo = combo .. combinationsTable[i][j][#combinationsTable[i][j]]
+				combo = combo .. combinationsTable[i][j]
 				text = display.newText(uiLayer, combo, x, y, system.nativeFont, 50)
 				combo = ""
 				x = x + 100
@@ -110,10 +110,11 @@ local function displayCombos()
 end
 
 local function deleteFile()
-	os.remove("combo.json", system.DocumentsDirectory)
+	os.remove(filePath)
 	combinationsTable = {}
-	composer.removeScene("journal")
-	composer.gotoScene("journal")
+	composer.setVariable("fromScene", "journal")
+	composer.setVariable("scene", "journal")
+	composer.gotoScene("loading")
 end
 
 -- -----------------------------------------------------------------------------------
@@ -141,7 +142,13 @@ function scene:create( event )
 	local resetBtn = display.newText(uiLayer, "Reset Records", 1000, display.contentHeight - 125, native.systemFont, 80)
 
 	menuBtn:addEventListener("tap", goToMainMenu)
- resetBtn:addEventListener("tap", deleteFile)
+ 	resetBtn:addEventListener("tap", deleteFile)
+
+	print2D(combinationsTable)
+
+ 	loadTables()
+ 	displayCombos()
+ 	saveCombos()
 
 	--deleteFile()
 
@@ -157,9 +164,6 @@ function scene:show( event )
 	if ( phase == "will" ) then
 		-- Code here runs when the scene is still off screen (but is about to come on screen)
 	elseif ( phase == "did" ) then
-		loadTables()
-		displayCombos()
-		saveCombos()
 
 	end
 end

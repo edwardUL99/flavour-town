@@ -123,6 +123,7 @@ end
 local function goToMainMenu()
 	--composer.removeScene("game")
 	composer.setVariable("scene", "menu")
+	composer.setVariable("fromScene", "game")
 	composer.gotoScene("loading","fade",500)
 
 	return true
@@ -130,6 +131,7 @@ end
 
 local function goToJournal()
 	composer.setVariable("scene", "journal")
+	composer.setVariable("fromScene", "game")
 	composer.gotoScene("loading", "fade", 500)
 
 	return true
@@ -290,7 +292,6 @@ local function checkCombination(namesTable)
 	return sum
 end
 
-<<<<<<< HEAD
 local function checkPowerUp()
 	printTable(onSkewerArray)
 	if(isEqualArray(onSkewerArray,{"tomato","tomato","tomato"}))then
@@ -325,10 +326,6 @@ local function checkPowerUp()
 
 end
 
-
-
-=======
->>>>>>> parent of 5a42cd6... added powerups
 local function updateText()
  scoreText.text = "Score: " .. score
  if (health == 2) then
@@ -400,13 +397,11 @@ local function gameLoop()
 	for i = 1, spawnRate do
 		table.insert(looseFoodsTable, objects:createObjects(mainLayer, rightBound, bottomBound))
 	end
-<<<<<<< HEAD
 	if(foodScrollSpeed < 30)then
 		foodScrollSpeed = foodScrollSpeed + 0.5
 	end
-=======
+
 	foodScrollSpeed = foodScrollSpeed + 0.5
->>>>>>> parent of 5a42cd6... added powerups
 end
 ----------------------------------------------------------------------------
 ----------------------------------------------------------------------------

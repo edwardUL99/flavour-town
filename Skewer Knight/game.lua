@@ -342,6 +342,7 @@ local function eatSkewer(event)
 		clearSkewer()
 		audio.play(eatAudio)
 		unTrackPlayer()
+    checkPowerUp()
 		local points = checkCombination(onSkewerArray)
 		score = score + points
 		local pointsText = display.newText(uiLayer, "+".. points, player.x+200, player.y+100, display.systemFont, 60)

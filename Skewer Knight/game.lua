@@ -7,6 +7,8 @@ local physics = require( "physics" )
 --local filePath = system.pathForFile("tables.json", system.DocumentsDirectory)
 
 physics.start()
+system.activate( "multitouch" )
+
 physics.setGravity(0,0)
 local imageSheet = graphics.newImageSheet("spritesheet.png", sheetInfo:getSheet())
 ----------------------------------------------------------------------------
@@ -32,7 +34,7 @@ local spawnRate = 1
 local onSkewerArray = {}
 local foodCombos = {}
 local foodsToMove = {}
-local maxOnSkewer = 3
+local maxOnSkewer = 4
 local foodCombinations = {}
 local amountOfCombos = 5 --Decide later
 -----------------------
@@ -122,12 +124,15 @@ local function goToMainMenu()
 	--composer.removeScene("game")
 	composer.setVariable("scene", "menu")
 	composer.gotoScene("loading","fade",500)
-	player:removeSelf()
+
+	return true
 end
 
 local function goToJournal()
 	composer.setVariable("scene", "journal")
 	composer.gotoScene("loading", "fade", 500)
+
+	return true
 end
 
 local function checkBounds()
@@ -181,8 +186,8 @@ end
 --(*Mightn't need if using new checkCombination method)
 local function isEqualArray(table1, table2)
 	--Since the score value is only stored at end of each combination table, we can ignore it and check the names only
-	if ((#table1) == #table2) then
-		for i = 1, (#table1) do
+	if ((#table1-1) == #table2) then
+		for i = 1, (#table1 - 1) do
 			if (table1[i] ~= table2[i]) then
 				return false
 			end
@@ -224,13 +229,13 @@ elseif (#onSkewerArray == 4) then
 	foodPos4.width = 50
 end
 end
-
+--]]
 local function clearSkewer()
 	display.remove(foodPos1)
 	display.remove(foodPos2)
 	display.remove(foodPos3)
 	display.remove(foodPos4)
-end]]
+end
 
 --(*Mightn't need if using new checkCombination method)
 local function createCombinationsTable()
@@ -247,7 +252,6 @@ end
 
 --debug to test output on console
 local function printTable(table)
-	print("------------")
 	for i = 1, #table do
 		print(table[i])
 	end
@@ -273,9 +277,9 @@ end]]--
 
 local function checkCombination(namesTable)
 	local foodScores = {
-		["bread"] = 50,
-		["burger"] = 50,
-		["broccoli"] = -25,
+		["bread"] = 125,
+		["burger"] = 250,
+		["broccoli"] = 25,
 		["lettuce"] = -25,
 		["tomato"] = 50,
 	}
@@ -283,10 +287,10 @@ local function checkCombination(namesTable)
 	for i = 1, #namesTable do
 		sum = sum + foodScores[namesTable[i]]
 	end
-
 	return sum
 end
 
+<<<<<<< HEAD
 local function checkPowerUp()
 	printTable(onSkewerArray)
 	if(isEqualArray(onSkewerArray,{"tomato","tomato","tomato"}))then
@@ -323,44 +327,27 @@ end
 
 
 
+=======
+>>>>>>> parent of 5a42cd6... added powerups
 local function updateText()
  scoreText.text = "Score: " .. score
- for i = 0, #lives, 1 do
-	 display.remove(lives[i])
-end
-
- lives[0] = display.newImageRect(uiLayer,"heart.png",200,200)
- lives[0].x = -700
- lives[0].y = 150
-
- lives[1] = display.newImageRect(uiLayer,"heart.png",200,200)
- lives[1].x = -600
- lives[1].y = 150
-
- lives[2] = display.newImageRect(uiLayer,"heart.png",200,200)
- lives[2].x = -500
- lives[2].y = 150
-
-	 if (health == 2) then
-	   display.remove(lives[2])
-	elseif(health == 1) then
-		display.remove(lives[2])
-	   display.remove(lives[1])
-	elseif( health < 1) then
-		display.remove(lives[2])
-	   display.remove(lives[1])
-	   display.remove(lives[0])
-	end
+ if (health == 2) then
+    display.remove(lives[2])
+ elseif(health == 1) then
+    display.remove(lives[1])
+ elseif ( health == 0) then
+   display.remove(lives[0])
+ end
 end
 
 local function eatSkewer(event)
 	if(#onSkewerArray>0)then
 		table.insert(foodCombos, onSkewerArray)
 		composer.setVariable("skewerArray", foodCombos)
+		clearSkewer()
 		audio.play(eatAudio)
 		unTrackPlayer()
 		local points = checkCombination(onSkewerArray)
-		checkPowerUp()
 		score = score + points
 		local pointsText = display.newText(uiLayer, "+".. points, player.x+200, player.y+100, display.systemFont, 60)
 		timer.performWithDelay(2000, function() transition.fadeOut(pointsText, {time = 500}) end, 1)
@@ -413,9 +400,13 @@ local function gameLoop()
 	for i = 1, spawnRate do
 		table.insert(looseFoodsTable, objects:createObjects(mainLayer, rightBound, bottomBound))
 	end
+<<<<<<< HEAD
 	if(foodScrollSpeed < 30)then
 		foodScrollSpeed = foodScrollSpeed + 0.5
 	end
+=======
+	foodScrollSpeed = foodScrollSpeed + 0.5
+>>>>>>> parent of 5a42cd6... added powerups
 end
 ----------------------------------------------------------------------------
 ----------------------------------------------------------------------------
@@ -436,7 +427,7 @@ end
 
 -- Will be used if we switch to Windows and use arrow keys
 local function arrowPressed(event)
-	if (true) then
+	if (event.phase == "down") then
 		if (event.keyName == "left" or event.keyName =="a") then
 			motionx = -speed
 		elseif (event.keyName == "right" or event.keyName =="d") then
@@ -447,11 +438,9 @@ local function arrowPressed(event)
 			motiony = -speed
 		end
 	end
-	if (event.phase == "up") then
-		if(event.phase ~= "down")then
-			motionx = 0
-			motiony = 0
-		end
+	if (event.phase == "up" and activeButton == nil) then
+		motionx = 0
+		motiony = 0
 	end
 	return false
 end
@@ -494,10 +483,6 @@ local function onCollision(event) --(*Is lettuce considered an enemy food? I'll 
 				 timer.performWithDelay(50, function()
 				 														collidedObject.isBodyActive = false
 																		table.insert(foodsToMove, collidedObject) end)
-		if (#onSkewerArray == maxOnSkewer) then
-			timer.performWithDelay(100, function()
-															eatSkewer()end)
-		end
    			--updateSkewer()
         print(collidedObject.myName)
       end
@@ -506,7 +491,12 @@ local function onCollision(event) --(*Is lettuce considered an enemy food? I'll 
             table.remove(looseFoodsTable, i)
 					end
       end
-
+		if (#onSkewerArray == maxOnSkewer) then
+			timer.performWithDelay(50, function()
+																 collidedObject.isBodyActive = false
+																 table.insert(foodsToMove, collidedObject)
+															 	 eatSkewer() end)
+		end
 	end
 end
 
@@ -548,10 +538,22 @@ function scene:create( event )
 	bg2.x = display.contentCenterX + display.actualContentWidth
 	bg2.y = display.contentCenterY
 
+  lives[0] = display.newImageRect(uiLayer,"heart.png",200,200)
+  lives[0].x = -700
+  lives[0].y = 150
+
+  lives[1] = display.newImageRect(uiLayer,"heart.png",200,200)
+  lives[1].x = -600
+  lives[1].y = 150
+
+  lives[2] = display.newImageRect(uiLayer,"heart.png",200,200)
+  lives[2].x = -500
+  lives[2].y = 150
+
 	player = display.newImageRect(mainLayer, "player.png", 480, 222)
 	player.x = display.contentCenterX - 1000
 	player.y = display.contentCenterY
-	physics.addBody(player, "kinematic",   {shape = playerShape, isSensor=true},
+	physics.addBody(player, "static",   {shape = playerShape, isSensor=true},
                                        {shape = skewerShape, isSensor=true})
 	player.myName = "player"
 
@@ -578,12 +580,13 @@ function scene:create( event )
 	journalButton = display.newText(uiLayer, "Journal", leftBound + 400, bottomBound - 100, display.systemFont, 80)
 	journalButton.isVisible = false
 
-	updateText()
 	createCombinationsTable()
 	--init()
 	--Debug to print test output to console, will remove later
 	print2D(foodCombinations)
 
+	local good = {"lettuce", "lettuce", "lettuce", "lettuce"}
+	print(checkCombination(good))
 	--------------------------------------------------------------
 
 	player:addEventListener("touch", dragPlayer)

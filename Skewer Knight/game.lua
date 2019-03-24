@@ -42,6 +42,9 @@ local hurtAudio = audio.loadSound("Oof.mp3")
 local eatAudio = audio.loadSound("OmNomNom.wav")
 --------------------
 --Graphics variables--
+local heartXPos = -700
+local heartYPos = 150
+local heartArrayPos = 1
 local player
 local playerShape = {-200,111,  -41,111,   -41,-89,   -200,-89}
 local skewerShape = {-40,50,  240,50,  240,31,  -40,31}
@@ -291,11 +294,22 @@ local function checkCombination(namesTable)
 	return sum
 end
 
+local function addHeart()
+  if (health <= 3) then
+    lives[heartArrayPos] = display.newImageRect(uiLayer,"heart.png",200,200)
+    lives[heartArrayPos].x = heartXPos 
+    lives[heartArrayPos].y = heartYPos
+    heartXPos = heartXPos + 100
+    heartArrayPos = heartArrayPos + 1
+  end 
+end
+
 local function checkPowerUp()
 	printTable(onSkewerArray)
 	if(isEqualArray(onSkewerArray,{"tomato","tomato","tomato"}))then
 		print("adding one health!")
 		if(health<3)then
+      addHeart()
 			local healthNewText = display.newText(uiLayer, "+1 health", player.x+100, player.y, native.systemFont, 80)
 			timer.performWithDelay(2000, function() transition.fadeOut(healthNewText, {time = 500}) end, 1)
 			health = health + 1
@@ -328,11 +342,17 @@ end
 local function updateText()
  scoreText.text = "Score: " .. score
  if (health == 2) then
-    display.remove(lives[2])
+    display.remove(lives[3])
+    heartXPos = heartXPos - 100
+    heartArrayPos = heartArrayPos - 1
  elseif(health == 1) then
-    display.remove(lives[1])
+    display.remove(lives[2])
+    heartXPos = heartXPos - 100
+    heartArrayPos = heartArrayPos - 1
  elseif ( health == 0) then
-   display.remove(lives[0])
+   display.remove(lives[1])
+   heartXPos = heartXPos - 100
+   heartArrayPos = heartArrayPos - 1
  end
 end
 
@@ -532,17 +552,9 @@ function scene:create( event )
 	bg2.x = display.contentCenterX + display.actualContentWidth
 	bg2.y = display.contentCenterY
 
-  lives[0] = display.newImageRect(uiLayer,"heart.png",200,200)
-  lives[0].x = -700
-  lives[0].y = 150
-
-  lives[1] = display.newImageRect(uiLayer,"heart.png",200,200)
-  lives[1].x = -600
-  lives[1].y = 150
-
-  lives[2] = display.newImageRect(uiLayer,"heart.png",200,200)
-  lives[2].x = -500
-  lives[2].y = 150
+ for i = 1, 3 do
+    addHeart()
+  end
 
 	player = display.newImageRect(mainLayer, "player.png", 480, 222)
 	player.x = display.contentCenterX - 1000

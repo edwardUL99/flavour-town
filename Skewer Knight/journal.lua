@@ -144,8 +144,6 @@ function scene:create( event )
 	menuBtn:addEventListener("tap", goToMainMenu)
  	resetBtn:addEventListener("tap", deleteFile)
 
-	print2D(combinationsTable)
-
  	loadTables()
  	displayCombos()
  	saveCombos()

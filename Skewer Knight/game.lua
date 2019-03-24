@@ -32,7 +32,6 @@ local looseFoodsTable = {}
 local maxLooseFoods = 10
 local spawnRate = 1
 local onSkewerArray = {}
-local foodCombos = {}
 local foodsToMove = {}
 local maxOnSkewer = 4
 local foodCombinations = {}
@@ -55,7 +54,7 @@ local journalButton
 local bg1
 local bg2 --two SCROLLING backgrounds, to make it look like player is moving)
 local bgImage2 = {type = "image", filename ="background.jpg"}
-local foodScrollSpeed = 10
+local foodScrollSpeed = 15
 local bgScrollSpeed = 5
 --------------------
 --Boundaries variables--
@@ -339,8 +338,7 @@ end
 
 local function eatSkewer(event)
 	if(#onSkewerArray>0)then
-		table.insert(foodCombos, onSkewerArray)
-		composer.setVariable("skewerArray", foodCombos)
+		composer.setVariable("skewerArray", onSkewerArray)
 		clearSkewer()
 		audio.play(eatAudio)
 		unTrackPlayer()

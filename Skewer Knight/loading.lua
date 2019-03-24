@@ -10,9 +10,10 @@ local scene = composer.newScene()
 local sceneToGo = composer.getVariable("scene")
 local fromScene = composer.getVariable("fromScene")
 
-composer.removeScene("game")
+composer.removeScene(sceneToGo)
+print(fromScene)
 composer.removeScene(fromScene)
-timer.performWithDelay(50, function() composer.gotoScene(sceneToGo) end)
+timer.performWithDelay(100, function() composer.gotoScene(sceneToGo) end)
 
 
 

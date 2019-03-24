@@ -17,7 +17,22 @@ local alreadyLoaded = false
 local filePath = system.pathForFile("combo.json", system.DocumentsDirectory)
 
 local function goToMainMenu()
-	composer.gotoScene("menu", "fade", 500)
+  composer.setVariable("scene", "menu")
+  composer.setVariable("fromScene", "journal")
+	composer.gotoScene("loading", "fade", 500)
+end
+
+local function printTable(table)
+	for i = 1, #table do
+		print(table[i])
+	end
+	print("------------")
+end
+
+local function print2D(twoD)
+	for i = 1, #twoD do
+		printTable(twoD[i])
+	end
 end
 
 local function loadTables()
@@ -29,6 +44,10 @@ local function loadTables()
 		io.close(file)
 		combinationsTable = json.decode(contents)
 	end
+  
+  if (combinationsTable == nil or #combinationsTable == 0) then
+    combinationsTable = {}
+  end
 end
 
 local function saveCombos()
@@ -64,54 +83,38 @@ end
 
 local function containsCombo(combo)
 	for i = 1, #combinationsTable do
-		for j = 1, #combinationsTable[i] do
-			if (isEqualArray(combinationsTable[j], combo)) then
-				return true
-			end
-		end
+    if (isEqualArray(combinationsTable[i], combo)) then
+      return true
+    end
 	end
 	return false
 end
 
-local function printTable(table)
-	for i = 1, #table do
-		print(table[i])
-	end
-	print("------------")
-end
-
-local function print2D(twoD)
-	for i = 1, #twoD do
-		printTable(twoD[i])
-	end
-end
 
 local function displayCombos()
 	local x = 100
 	local y = 100
-	local combo = ''
+	local combo = ""
 	local text
-
-	for i = 1, #combinationsTable do
-		for j = 1, #combinationsTable[i] do
-			print(combinationsTable[j])
-			--if (not containsCombo(combinationsTable[j])) then
-				for k = 1, #combinationsTable[i] - 1 do
-					combo = combo .. combinationsTable[i][j] .. "-"
-				end
-				combo = combo .. combinationsTable[i][j]
-				text = display.newText(uiLayer, combo, x, y, system.nativeFont, 50)
-				combo = ""
-				x = x + 100
-				y = y + 100
-			--end
+  
+  if (combinationsTable[1] ~= nil) then 
+    for i = 1, #combinationsTable do
+      for j = 1, #combinationsTable[i]-1 do
+        combo = combo .. combinationsTable[i][j].. "-"
+      end
+      combo = combo .. combinationsTable[i][#combinationsTable[i]]
+      text = display.newText(uiLayer, combo, x, y, system.nativeFont, 50)
+      combo = ""
+      x = x + 100
+      y = y + 100
 		end
 	end
 end
 
 local function deleteFile()
-	os.remove(filePath)
+	print(os.remove(filePath))
 	combinationsTable = {}
+  saveCombos()
 	composer.setVariable("fromScene", "journal")
 	composer.setVariable("scene", "journal")
 	composer.gotoScene("loading")
@@ -123,16 +126,15 @@ end
 
 -- create()
 function scene:create( event )
-
 	local sceneGroup = self.view
 	-- Code here runs when the scene is first created but has not yet appeared on screen
 	backLayer = display.newGroup()
 	sceneGroup:insert(backLayer)
 	uiLayer = display.newGroup()
 	sceneGroup:insert(uiLayer)
+  combinationsTable = {}
 
-	composer.removeScene("loading")
-	table.insert(combinationsTable, composer.getVariable("skewerArray"))
+  loadTables()
 
 	local background = display.newImageRect(backLayer, "backdrop.png", display.actualContentWidth, display.actualContentHeight + 3000)
 	background.x = display.contentCenterX
@@ -143,8 +145,13 @@ function scene:create( event )
 
 	menuBtn:addEventListener("tap", goToMainMenu)
  	resetBtn:addEventListener("tap", deleteFile)
+  
+  if (composer.getVariable("skewerArray") ~= nil) then
+    print("Not equal to nil")
+    table.insert(combinationsTable, composer.getVariable("skewerArray"))
+    composer.variables["skewerArray"] = nil
+  end
 
- 	loadTables()
  	displayCombos()
  	saveCombos()
 
@@ -162,7 +169,6 @@ function scene:show( event )
 	if ( phase == "will" ) then
 		-- Code here runs when the scene is still off screen (but is about to come on screen)
 	elseif ( phase == "did" ) then
-
 	end
 end
 
@@ -187,7 +193,6 @@ function scene:destroy( event )
 
 	local sceneGroup = self.view
 	-- Code here runs prior to the removal of scene's view
-
 end
 
 

@@ -34,7 +34,7 @@ end
 
 function scene:create( event )
 	local sceneGroup = self.view
-
+  
 	-- Called when the scene's view does not exist.
 	--
 	-- INSERT code here to initialize the scene
@@ -72,7 +72,7 @@ function scene:create( event )
 	--playBtn:setFillColor(0, 1, 0)
 
 	local options1 =
-{
+  {
 	label="Journal",
 	fontSize = 80,
 	shape = "roundedRect",
@@ -81,10 +81,10 @@ function scene:create( event )
 	fillColor = { default = { 0.25, 0.25, 0.25, 1}, over = {0.5, 0.5, 0.5, 1} },
 	strokeColor = { default = {1, 1, 1}, over = {1, 0, 0} },
 	strokeWidth = 2
-}
-local journalBtn = widget.newButton(options1)
-journalBtn.x = 1000
-journalBtn.y = display.contentHeight - 125
+  }
+  local journalBtn = widget.newButton(options1)
+  journalBtn.x = 1000
+  journalBtn.y = display.contentHeight - 125
 
 	-- all display objects must be inserted into group
 	sceneGroup:insert( background )

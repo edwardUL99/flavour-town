@@ -33,7 +33,7 @@ local maxLooseFoods = 10
 local spawnRate = 1
 local onSkewerArray = {}
 local foodsToMove = {}
-local maxOnSkewer = 4
+local maxOnSkewer = 3
 local foodCombinations = {}
 local amountOfCombos = 5 --Decide later
 -----------------------
@@ -190,8 +190,8 @@ end
 --(*Mightn't need if using new checkCombination method)
 local function isEqualArray(table1, table2)
 	--Since the score value is only stored at end of each combination table, we can ignore it and check the names only
-	if ((#table1-1) == #table2) then
-		for i = 1, (#table1 - 1) do
+	if (#table1 == #table2) then
+		for i = 1, #table1 do
 			if (table1[i] ~= table2[i]) then
 				return false
 			end
@@ -305,7 +305,6 @@ local function addHeart()
 end
 
 local function checkPowerUp()
-	printTable(onSkewerArray)
 	if(isEqualArray(onSkewerArray,{"tomato","tomato","tomato"}))then
 		print("adding one health!")
 		if(health<3)then
@@ -314,7 +313,7 @@ local function checkPowerUp()
 			timer.performWithDelay(2000, function() transition.fadeOut(healthNewText, {time = 500}) end, 1)
 			health = health + 1
 		end
-	elseif(isEqualArray(onSkewerArray,"bread", "burger", "bread"))then
+	elseif(isEqualArray(onSkewerArray,{"bread", "burger", "bread"}))then
 		print("Extra chunky")
 		transition.scaleBy(player, {xScale = 1, yScale = 1})
 		--I have not changed the hotboexes to fit the bigger model
@@ -498,7 +497,7 @@ local function onCollision(event) --(*Is lettuce considered an enemy food? I'll 
 				 														collidedObject.isBodyActive = false
 																		table.insert(foodsToMove, collidedObject) end)
    			--updateSkewer()
-        print(collidedObject.myName)
+        print(collidedObject.myName .. " " .. "called from collision function")
       end
       for i = #looseFoodsTable, 1, -1 do
          if (looseFoodsTable[i] == collidedObject) then

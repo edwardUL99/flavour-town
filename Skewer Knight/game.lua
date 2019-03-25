@@ -2,6 +2,8 @@ local composer = require( "composer" ) --This is very IMPORTANT
 local scene = composer.newScene()
 local sheetInfo = require("spritesheet") --Introduces the functions required to grab sprites from sheet
 local physics = require( "physics" )
+local objects = require("objects")
+
 physics.start()
 physics.setGravity(0,0)
 local imageSheet = graphics.newImageSheet("spritesheet.png", sheetInfo:getSheet())
@@ -18,6 +20,7 @@ local scoreText
 local paused = false
 local died = false
 local gameLoopTimer
+local gameLoopCycle = 2000 --Time between each game loop
 local runtime = 0
 --------------------
 --Arrays & tables--
@@ -34,6 +37,9 @@ local hurtAudio = audio.loadSound("Oof.mp3")
 local eatAudio = audio.loadSound("OmNomNom.wav")
 --------------------
 --Graphics variables--
+local heartXPos = -700
+local heartYPos = 150
+local heartArrayPos = 1
 local player
 local playerShape = {-200,111,  -41,111,   -41,-89,   -200,-89}
 local skewerShape = {-40,50,  240,50,  240,31,  -40,31}
@@ -49,10 +55,10 @@ local foodScrollSpeed = 10
 local bgScrollSpeed = 5
 --------------------
 --Boundaries variables--
-local leftBound = -(display.viewableContentWidth)
-local rightBound = display.actualContentWidth - display.contentWidth
-local topBound = 0
-local bottomBound = display.actualContentHeight
+local leftBound
+local rightBound
+local topBound
+local bottomBound
 --------------------
 --Providing variables for displayGroups to be used later--
 local backLayer
@@ -105,16 +111,12 @@ local function getDeltaTime() --Delta time ensures we have smooth scrolling accr
 	return dt
 end
 
-local function enterFrame(event) --( * It will be for the moving background. http://lomza.totem-soft.com/tutorial-scrollable-background-in-corona-sdk/)
-	local dt = getDeltaTime()
-	moveBg(dt)
-end
-
 local function goToMainMenu()
-	composer.removeScene("game")
-	composer.gotoScene("menu","fade",500)
-   health = 3
-   onSkewerArray ={}
+	composer.setVariable("toScene", "menu")
+	composer.removeScene("loading")
+	composer.gotoScene("loading","fade",500)
+
+	return true
 end
 
 local function checkBounds()
@@ -129,20 +131,6 @@ local function checkBounds()
 	elseif (player.y > bottomBound) then
 		player.y = bottomBound - 20
 	end
-end
-
-local function createObjects()
-	local names = {"bread", "broccoli", "burger", "lettuce", "tomato"} --Will be randomly accessed
-	local name = names[math.random(#names)]
-	--I added the getWidth and getHeight methods to the spritesheet.lua file. Better to use newImageRect
-	local newItem = display.newImageRect(mainLayer, imageSheet, sheetInfo:getFrameIndex(name), sheetInfo:getWidth(name), sheetInfo:getHeight(name))
-	newItem.height = 200
-	newItem.width = 200
-	newItem.myName = name
-	table.insert(looseFoodsTable, newItem)
-	physics.addBody(newItem, "dynamic", {radius=75, bounce=0.0}) --(*Static and static cant collide with each other)
-	newItem.x = rightBound + 100
-	newItem.y = math.random(bottomBound)
 end
 
 local function dragPlayer(event)
@@ -182,8 +170,8 @@ end
 --(*Mightn't need if using new checkCombination method)
 local function isEqualArray(table1, table2)
 	--Since the score value is only stored at end of each combination table, we can ignore it and check the names only
-	if ((#table1-1) == #table2) then
-		for i = 1, (#table1 - 1) do
+	if ((#table1) == #table2) then
+		for i = 1, #table1 do
 			if (table1[i] ~= table2[i]) then
 				return false
 			end
@@ -246,21 +234,6 @@ local function createCombinationsTable()
 	foodCombinations[5] = {"tomato", "tomato", "tomato", "tomato", 200}
 end
 
---debug to test output on console
-local function printTable(table)
-	for i = 1, #table do
-		print(table[i])
-	end
-	print("------------")
-end
-
-local function print2D(twoD)
-	for i = 1, #twoD do
-		printTable(twoD[i])
-	end
-end
----Will remove later--
-
 --[[
 local function checkCombination(namesTable)
 	for i = 1, #foodCombinations do
@@ -286,9 +259,55 @@ local function checkCombination(namesTable)
 	return sum
 end
 
+local function addHeart()
+  if (health <= 3) then
+    lives[heartArrayPos] = display.newImageRect(uiLayer,"heart.png",200,200)
+    lives[heartArrayPos].x = heartXPos 
+    lives[heartArrayPos].y = heartYPos
+    heartXPos = heartXPos + 100
+    heartArrayPos = heartArrayPos + 1
+  end 
+end
+    
+
+local function checkPowerUp()
+	if(isEqualArray(onSkewerArray,{"tomato","tomato","tomato"}))then
+		print("adding one health!")
+		if(health<3)then
+      addHeart()
+			local healthNewText = display.newText(uiLayer, "+1 health", player.x+100, player.y, native.systemFont, 80)
+			timer.performWithDelay(2000, function() transition.fadeOut(healthNewText, {time = 500}) end, 1)
+			health = health + 1
+		end
+	elseif(isEqualArray(onSkewerArray,{"bread", "burger", "bread"}))then
+		print("Extra chunky")
+		transition.scaleBy(player, {xScale = 1, yScale = 1})
+		--I have not changed the hotboexes to fit the bigger model
+		local playerShapeXL = {2*-200,2*111,  2*-41,2*111,   2*-41,2*-89,   2*-200,2*-89}
+		local skewerShapeXL = {2*-40,2*50,  2*240,2*50,  2*240,2*31,  2*-40,2*31}
+		physics.removeBody(player)
+		physics.addBody(player,"kinematic", {shape = playerShapeXL, isSensor = true},
+														{shape = skewerShapeXL, isSensor = true})
+		timer.performWithDelay(10000, function()
+			if(composer.getSceneName == "game") then
+				transition.scaleBy(player, {xScale = -1, yScale = -1})
+				physics.removeBody(player)
+				physics.addBody(player,"kinematic", {shape = playerShape, isSensor = true},
+																{shape = skewerShape, isSensor = true})
+			end
+		end)
+	elseif(isEqualArray(onSkewerArray, {"broccoli","broccoli","broccoli"}))then
+		print("Go green")
+		player:setFillColor(0, 1, 0.2)
+		timer.performWithDelay(30000,function() if(composer.getSceneName == "game") then player:setFillColor(1, 1, 1)end end)
+	end
+
+end
+
 local function eatSkewer(event)
 	if(#onSkewerArray>0)then
 			clearSkewer()
+      checkPowerUp()
 			audio.play(eatAudio)
 			unTrackPlayer()
 			local points = checkCombination(onSkewerArray)
@@ -337,16 +356,23 @@ end
 local function updateText()
  scoreText.text = "Score: " .. score
  if (health == 2) then
-    display.remove(lives[2])
+    display.remove(lives[3])
+    heartXPos = heartXPos - 100
+    heartArrayPos = heartArrayPos - 1
  elseif(health == 1) then
-    display.remove(lives[1])
+    display.remove(lives[2])
+    heartXPos = heartXPos - 100
+    heartArrayPos = heartArrayPos - 1
  elseif ( health == 0) then
-   display.remove(lives[0])
+   display.remove(lives[1])
+   heartXPos = heartXPos - 100
+   heartArrayPos = heartArrayPos - 1
  end
 end
 
 local function gameLoop()
-	createObjects()
+	table.insert(looseFoodsTable, objects:createObjects(mainLayer, rightBound, bottomBound))
+	foodScrollSpeed = foodScrollSpeed + 0.5
 end
 ----------------------------------------------------------------------------
 ----------------------------------------------------------------------------
@@ -464,6 +490,10 @@ function scene:create( event )
 	local sceneGroup = self.view
 	-- Code here runs when the scene is first created but has not yet appeared on screen
 	physics.pause()
+	leftBound = -(display.viewableContentWidth)
+	rightBound = display.actualContentWidth - display.contentWidth
+	topBound = 0
+	bottomBound = display.actualContentHeight
 
 	backLayer = display.newGroup()
 	sceneGroup:insert(backLayer)
@@ -490,18 +520,10 @@ function scene:create( event )
 	bg2.fill = bgImage2
 	bg2.x = display.contentCenterX + display.actualContentWidth
 	bg2.y = display.contentCenterY
-
-  lives[0] = display.newImageRect(uiLayer,"heart.png",200,200)
-  lives[0].x = -700
-  lives[0].y = 150
-
-  lives[1] = display.newImageRect(uiLayer,"heart.png",200,200)
-  lives[1].x = -600
-  lives[1].y = 150
-
-  lives[2] = display.newImageRect(uiLayer,"heart.png",200,200)
-  lives[2].x = -500
-  lives[2].y = 150
+  
+  for i = 1, 3 do
+    addHeart()
+  end
 
 	player = display.newImageRect(mainLayer, "player.png", 480, 222)
 	player.x = display.contentCenterX - 1000
@@ -531,13 +553,6 @@ function scene:create( event )
 	menuButton.isVisible = false
 
 	createCombinationsTable()
-	--init()
-	--Debug to print test output to console, will remove later
-	print2D(foodCombinations)
-
-	local good = {"lettuce", "lettuce", "lettuce", "lettuce"}
-	print(checkCombination(good))
-	--------------------------------------------------------------
 
 	player:addEventListener("touch", dragPlayer)
 	player:addEventListener("tap", eatSkewer)
@@ -567,7 +582,7 @@ function scene:show( event )
 		--Runtime:addEventListener("enterFrame", enterFrame)
 		--Runtime:addEventListener("enterFrame", moveSprite)
 		Runtime:addEventListener("key", keyPressed)
-		gameLoopTimer = timer.performWithDelay(2000, gameLoop, 0)
+		gameLoopTimer = timer.performWithDelay(gameLoopCycle, gameLoop, 0)
 	end
 end
 
@@ -580,12 +595,11 @@ function scene:hide( event )
 
 	if ( phase == "will" ) then
 		-- Code here runs when the scene is on screen (but is about to go off screen)
+		physics.pause()
+		timer.cancel(gameLoopTimer)
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen
-		Runtime:removeEventListener("collision",onCollision)
-		Runtime:removeEventListener("enterFrame", checkBounds)
-		Runtime:removeEventListener("enterFrame", moveObject)
-		Runtime:removeEventListener("key", keyPressed)
+		print("done")
 	end
 end
 
@@ -595,8 +609,10 @@ function scene:destroy( event )
 
 	local sceneGroup = self.view
 	-- Code here runs prior to the removal of scene's view
-	physics.pause()
-	timer.cancel(gameLoopTimer)
+	Runtime:removeEventListener("collision",onCollision)
+	Runtime:removeEventListener("enterFrame", checkBounds)
+	Runtime:removeEventListener("enterFrame", moveObject)
+	Runtime:removeEventListener("key", keyPressed)
 end
 
 

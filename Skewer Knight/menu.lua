@@ -19,7 +19,8 @@ local playButton
 local function onPlayBtnRelease()
 	playButton.emboss = false
 	-- go to level1.lua scene
-	composer.gotoScene( "game", "fade", 500 )
+	composer.removeScene("game")
+	timer.performWithDelay(50,function() composer.gotoScene( "game", "fade", 500 ) end)
 
 	return true	-- indicates successful touch
 end
@@ -27,6 +28,7 @@ end
 function scene:create( event )
 	local sceneGroup = self.view
 
+	composer.removeScene("loading")
 	-- Called when the scene's view does not exist.
 	--
 	-- INSERT code here to initialize the scene

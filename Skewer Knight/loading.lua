@@ -13,7 +13,7 @@ local fromScene = composer.getVariable("fromScene")
 composer.removeScene(sceneToGo)
 print(fromScene)
 composer.removeScene(fromScene)
-timer.performWithDelay(100, function() composer.gotoScene(sceneToGo) end)
+--timer.performWithDelay(100, function() composer.gotoScene(sceneToGo) end)
 
 
 
@@ -26,7 +26,10 @@ function scene:create( event )
 
 	local sceneGroup = self.view
 	-- Code here runs when the scene is first created but has not yet appeared on screen
-
+  
+  local loadingText = display.newText(sceneGroup, "Loading", display.contentCenterX, display.contentCenterY, native.systemFont, 80)
+  
+  timer.performWithDelay(800, function() composer.gotoScene(sceneToGo) end)
 end
 
 

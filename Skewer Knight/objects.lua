@@ -18,4 +18,14 @@ function objects:createObjects(layer, rightBound, bottomBound)
   return newItem
 end
 
+function objects:spawnObject(layer, x, y, height, width, objectName)
+  local object = display.newImageRect(layer, imageSheet, sheetInfo:getFrameIndex(objectName), sheetInfo:getWidth(objectName), sheetInfo:getHeight(objectName))
+  object.height = height
+  object.width = width
+  object.myName = objectName
+  object.x = x
+  object.y = y
+  return object
+end 
+
 return objects

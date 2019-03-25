@@ -3,6 +3,8 @@ local composer = require( "composer" )
 
 local scene = composer.newScene()
 
+local objects = require("objects")
+
 -- -----------------------------------------------------------------------------------
 -- Code outside of the scene event functions below will only be executed ONCE unless
 -- the scene is removed entirely (not recycled) via "composer.removeScene()"
@@ -99,13 +101,15 @@ local function displayCombos()
   
   if (combinationsTable[1] ~= nil) then 
     for i = 1, #combinationsTable do
-      for j = 1, #combinationsTable[i]-1 do
-        combo = combo .. combinationsTable[i][j].. "-"
+      for j = 1, #combinationsTable[i] do
+        --combo = combo .. combinationsTable[i][j].. "-"
+        objects:spawnObject(uiLayer, x, y, 100, 100, combinationsTable[i][j])
+        x = x + 100
       end
-      combo = combo .. combinationsTable[i][#combinationsTable[i]]
-      text = display.newText(uiLayer, combo, x, y, system.nativeFont, 50)
-      combo = ""
-      x = x + 100
+      --combo = combo .. combinationsTable[i][#combinationsTable[i]]
+      --text = display.newText(uiLayer, combo, x, y, system.nativeFont, 50)
+      --combo = ""
+      x = 100
       y = y + 100
 		end
 	end

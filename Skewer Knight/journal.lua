@@ -24,6 +24,12 @@ local function goToMainMenu()
 	composer.gotoScene("loading", "fade", 500)
 end
 
+local function goBackToGame()
+  composer.setVariable("scene", "game")
+  composer.setVariable("fromScene", "journal")
+  composer.gotoScene("loading", "fade", 500)
+end
+
 local function printTable(table)
 	for i = 1, #table do
 		print(table[i])
@@ -116,7 +122,6 @@ local function displayCombos()
 end
 
 local function deleteFile()
-	print(os.remove(filePath))
 	combinationsTable = {}
   saveCombos()
 	composer.setVariable("fromScene", "journal")
@@ -144,11 +149,13 @@ function scene:create( event )
 	background.x = display.contentCenterX
 	background.y = display.ContentCenterY
 
-	local menuBtn = display.newText(uiLayer, "Menu", -100, display.contentHeight - 125, native.systemFont, 80)
+	local menuBtn = display.newText(uiLayer, "Menu", -250, display.contentHeight - 125, native.systemFont, 80)
 	local resetBtn = display.newText(uiLayer, "Reset Records", 1000, display.contentHeight - 125, native.systemFont, 80)
+  local gameBtn = display.newText(uiLayer, "Back to Game", 300, display.contentHeight - 125, native.systemFont, 80)
 
 	menuBtn:addEventListener("tap", goToMainMenu)
  	resetBtn:addEventListener("tap", deleteFile)
+  gameBtn:addEventListener("tap", goBackToGame)
   
   if (composer.getVariable("skewerArray") ~= nil) then
     print("Not equal to nil")

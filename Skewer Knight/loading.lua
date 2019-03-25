@@ -10,9 +10,16 @@ local scene = composer.newScene()
 local sceneToGo = composer.getVariable("scene")
 local fromScene = composer.getVariable("fromScene")
 
-composer.removeScene(sceneToGo)
+if (fromScene ~= "game" and sceneToGo == "journal") then
+  composer.removeScene(fromScene)
+elseif (fromScene == "journal" and sceneToGo == "menu") then
+  composer.removeScene(fromScene)
+  composer.removeScene("game")
+elseif (fromScene == "journal" and sceneToGo == "journal") then
+  composer.removeScene("journal")
+end
+
 print(fromScene)
-composer.removeScene(fromScene)
 --timer.performWithDelay(100, function() composer.gotoScene(sceneToGo) end)
 
 

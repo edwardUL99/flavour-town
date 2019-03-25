@@ -1,6 +1,6 @@
 local composer = require( "composer" ) --This is very IMPORTANT
 local scene = composer.newScene()
-local sheetInfo = require("spritesheet") --Introduces the functions required to grab sprites from sheet
+local sheetInfo = require("images.spritesheet") --Introduces the functions required to grab sprites from sheet
 local objects = require("objects")
 local physics = require( "physics" )
 --local json = require("json")
@@ -10,7 +10,7 @@ physics.start()
 system.activate( "multitouch" )
 
 physics.setGravity(0,0)
-local imageSheet = graphics.newImageSheet("spritesheet.png", sheetInfo:getSheet())
+local imageSheet = graphics.newImageSheet("Images/spritesheet.png", sheetInfo:getSheet())
 ----------------------------------------------------------------------------
 --VARIABLES BELOW
 ----------------------------------------------------------------------------
@@ -29,6 +29,7 @@ local runtime = 0
 --------------------
 --Arrays & tables--
 local looseFoodsTable = {}
+local foodCombos = {}
 local maxLooseFoods = 10
 local spawnRate = 1
 local onSkewerArray = {}
@@ -56,7 +57,7 @@ local menuButton
 local journalButton
 local bg1
 local bg2 --two SCROLLING backgrounds, to make it look like player is moving)
-local bgImage2 = {type = "image", filename ="background.jpg"}
+local bgImage2 = {type = "image", filename ="images/background.jpg"}
 local foodScrollSpeed = 15
 local bgScrollSpeed = 5
 --------------------
@@ -296,7 +297,7 @@ end
 
 local function addHeart()
   if (health <= 3) then
-    lives[heartArrayPos] = display.newImageRect(uiLayer,"heart.png",200,200)
+    lives[heartArrayPos] = display.newImageRect(uiLayer,"images/heart.png",200,200)
     lives[heartArrayPos].x = heartXPos 
     lives[heartArrayPos].y = heartYPos
     heartXPos = heartXPos + 100
@@ -357,7 +358,8 @@ end
 
 local function eatSkewer(event)
 	if(#onSkewerArray>0)then
-		composer.setVariable("skewerArray", onSkewerArray)
+    table.insert(foodCombos, onSkewerArray)
+		composer.setVariable("skewerArray", foodCombos)
 		clearSkewer()
 		audio.play(eatAudio)
 		unTrackPlayer()
@@ -555,7 +557,7 @@ function scene:create( event )
     addHeart()
   end
 
-	player = display.newImageRect(mainLayer, "player.png", 480, 222)
+	player = display.newImageRect(mainLayer, "Images/player.png", 480, 222)
 	player.x = display.contentCenterX - 1000
 	player.y = display.contentCenterY
 	physics.addBody(player, "static",   {shape = playerShape, isSensor=true},
@@ -565,12 +567,12 @@ function scene:create( event )
 	--Score is text for prototype
 	scoreText = display.newText(uiLayer, "Score: " .. score, display.contentCenterX + 1000, display.contentCenterY - 500, native.systemFont, 80)
 
-	pauseButton = display.newImageRect(uiLayer, "pause.png", 200, 200)
+	pauseButton = display.newImageRect(uiLayer, "Images/pause.png", 200, 200)
 	pauseButton.x = rightBound - 200
 	pauseButton.y = bottomBound - 100
 	pauseButton.isVisible = true
 
-	playButton = display.newImageRect(uiLayer, "play.png", 200, 200)
+	playButton = display.newImageRect(uiLayer, "Images/play.png", 200, 200)
 	playButton.x = rightBound - 200
 	playButton.y = bottomBound - 100
 	playButton.isVisible = false

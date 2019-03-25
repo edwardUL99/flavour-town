@@ -12,6 +12,7 @@ local objects = require("objects")
 local json = require("json")
 
 local combinationsTable = {}
+local displayObjects = {}
 local backLayer
 local uiLayer
 local alreadyLoaded = false
@@ -98,25 +99,48 @@ local function containsCombo(combo)
 	return false
 end
 
+local function createDisplayObject(x, y, object)
+  local newDisplay = display.newImageRect(uiLayer, "Images/comboBack.png", 500, 300)
+  newDisplay.x = x
+  newDisplay.y = y
+  table.insert(displayObjects, newDisplay)
+  
+  x = x - 100
+  for i = 1, #object do
+    objects:spawnObject(uiLayer, x, y, 100, 100, object[i])
+    x = x + 100
+  end
+end
 
 local function displayCombos()
-	local x = 100
-	local y = 100
+	local x = -600
+	local y = 150
+  local maxPerRow = 5
+  local displayed = 0
 	local combo = ""
 	local text
   
   if (combinationsTable[1] ~= nil) then 
     for i = 1, #combinationsTable do
       for j = 1, #combinationsTable[i] do
-        --combo = combo .. combinationsTable[i][j].. "-"
-        objects:spawnObject(uiLayer, x, y, 100, 100, combinationsTable[i][j])
-        x = x + 100
+        --for k = 1, #combinationsTable[i][j] do
+          --combo = combo .. combinationsTable[i][j].. "-"
+          --objects:spawnObject(uiLayer, x, y, 100, 100, combinationsTable[i][j][k])
+          createDisplayObject(x, y, combinationsTable[i][j])
+          displayed = displayed + 1
+          print(displayed)
+          if (displayed == maxPerRow) then
+            x = -600
+            y = y + 350
+            displayed = 0
+          else 
+        --end
+          x = x + 500
+        end
       end
       --combo = combo .. combinationsTable[i][#combinationsTable[i]]
       --text = display.newText(uiLayer, combo, x, y, system.nativeFont, 50)
       --combo = ""
-      x = 100
-      y = y + 100
 		end
 	end
 end
@@ -144,8 +168,8 @@ function scene:create( event )
   combinationsTable = {}
 
   loadTables()
-
-	local background = display.newImageRect(backLayer, "backdrop.png", display.actualContentWidth, display.actualContentHeight + 3000)
+  
+	local background = display.newImageRect(backLayer, "Images/backdrop.png", display.actualContentWidth, display.actualContentHeight + 3000)
 	background.x = display.contentCenterX
 	background.y = display.ContentCenterY
 

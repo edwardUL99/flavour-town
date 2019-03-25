@@ -11,12 +11,18 @@ local sceneToGo = composer.getVariable("scene")
 local fromScene = composer.getVariable("fromScene")
 
 if (fromScene ~= "game" and sceneToGo == "journal") then
+  print("first if")
   composer.removeScene(fromScene)
 elseif (fromScene == "journal" and sceneToGo == "menu") then
+  print("second if")
   composer.removeScene(fromScene)
   composer.removeScene("game")
 elseif (fromScene == "journal" and sceneToGo == "journal") then
+  print("third if")
   composer.removeScene("journal")
+else
+  print("last if")
+  composer.removeScene(fromScene)
 end
 
 print(fromScene)
@@ -36,7 +42,7 @@ function scene:create( event )
   
   local loadingText = display.newText(sceneGroup, "Loading", display.contentCenterX, display.contentCenterY, native.systemFont, 80)
   
-  timer.performWithDelay(800, function() composer.gotoScene(sceneToGo) end)
+  timer.performWithDelay(1500, function() composer.gotoScene(sceneToGo) end)
 end
 
 

@@ -1,7 +1,7 @@
 local objects = {}
 
-local sheetInfo = require("spritesheet")
-local imageSheet = graphics.newImageSheet("spritesheet.png", sheetInfo:getSheet())
+local sheetInfo = require("Images.spritesheet")
+local imageSheet = graphics.newImageSheet("Images/spritesheet.png", sheetInfo:getSheet())
 
 
 function objects:createObjects(layer, rightBound, bottomBound)

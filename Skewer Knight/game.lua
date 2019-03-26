@@ -60,6 +60,7 @@ local bg2 --two SCROLLING backgrounds, to make it look like player is moving)
 local bgImage2 = {type = "image", filename ="images/background.jpg"}
 local foodScrollSpeed = 15
 local bgScrollSpeed = 5
+local skewerOffset = 0
 --------------------
 --Boundaries variables--
 local leftBound = -(display.viewableContentWidth)
@@ -99,7 +100,7 @@ local function trackPlayer()
 	if (not paused) then
 		for i = #foodsToMove, 1, -1 do
 			foodsToMove[i].x = player.x + (75*(i-1))
-			foodsToMove[i].y = player.y
+			foodsToMove[i].y = player.y + skewerOffset
 		end
 	end
 end
@@ -143,6 +144,9 @@ local function goToJournal()
 end
 
 local function checkBounds()
+	if(player == nil)then
+		return
+	end
 	if (player.x > rightBound) then
 		player.x = rightBound - 20
 	elseif (player.x < leftBound) then
@@ -204,8 +208,8 @@ local function isEqualArray(table1, table2)
     for i = 1, #table2 do
       if (table1[i] ~= table2[i]) then
         return false
-      end 
-    end 
+      end
+    end
     return true
   end
 	return false
@@ -271,14 +275,14 @@ local function createCombinationsTable()
 	foodCombinations[3] = {"burger", "burger", "burger", 1000}
 	foodCombinations[4] = {"lettuce", "lettuce", "lettuce", -100}
 	foodCombinations[5] = {"tomato", "tomato", "tomato", 200}]]--
-  
+
   foodCombinations[1] = {"sushi", "sushi", "sushi", 500}
 	foodCombinations[2] = {"cheese", "cheese", "cheese", 50}
 	foodCombinations[3] = {"bacon", "bacon", "bacon", 1000}
 	foodCombinations[4] = {"broccoli", "broccoli", "broccoli", -100}
 	foodCombinations[5] = {"tomato", "tomato", "tomato", 200}
   foodCombinations[6] = {"carrot", "carrot", "carrot", 100}
-  
+
   composer.setVariable("defCombos", foodCombinations)
 end
 
@@ -329,7 +333,7 @@ local function checkCombination(namesTable)
 	end
 	return checkCombinationDefault(namesTable)
 end
-  
+
 local function addHeart()
   if (health <= 3) then
     lives[heartArrayPos] = display.newImageRect(uiLayer,"Images/heart.png",200,200)
@@ -348,19 +352,24 @@ local function checkPowerUp()
 			timer.performWithDelay(2000, function() transition.fadeOut(healthNewText, {time = 500}) end, 1)
 			health = health + 1
 		end
-	elseif(isEqualArray(onSkewerArray,{"bread", "burger", "bread"}))then
+	elseif(isEqualArray(onSkewerArray,{"bacon","bacon","bacon"}))then
+		if(skewerOffset ~= 0)then -- prevents player from increasing in size more than once
+			return
+		end
 		print("Extra chunky")
 		transition.scaleBy(player, {xScale = 1, yScale = 1})
-		--I have not changed the hotboexes to fit the bigger model
+		skewerOffset = skewerOffset + 50
 		local playerShapeXL = {2*-200,2*111,  2*-41,2*111,   2*-41,2*-89,   2*-200,2*-89}
 		local skewerShapeXL = {2*-40,2*50,  2*240,2*50,  2*240,2*31,  2*-40,2*31}
 		physics.removeBody(player)
 		physics.addBody(player,"kinematic", {shape = playerShapeXL, isSensor = true},
 														{shape = skewerShapeXL, isSensor = true})
-		timer.performWithDelay(10000, function()
-			if(composer.getSceneName == "game") then
+		--reduces body shape back to normal
+		timerPowerUp = timer.performWithDelay(10000, function()
+			if(player ~= nil) then
 				transition.scaleBy(player, {xScale = -1, yScale = -1})
 				physics.removeBody(player)
+				skewerOffset = skewerOffset - 50
 				physics.addBody(player,"kinematic", {shape = playerShape, isSensor = true},
 																{shape = skewerShape, isSensor = true})
 			end
@@ -368,11 +377,9 @@ local function checkPowerUp()
 	elseif(isEqualArray(onSkewerArray, {"broccoli","broccoli","broccoli"}))then
 		print("Go green")
 		player:setFillColor(0, 1, 0.2)
-		timer.performWithDelay(30000,function() if(composer.getSceneName == "game") then player:setFillColor(1, 1, 1)end end)
 	end
 
 end
-
 local function updateText()
  scoreText.text = "Score: " .. score
  if (health == 2) then
@@ -392,17 +399,17 @@ end
 
 local function eatSkewer(event)
 	if(#onSkewerArray>0)then
-    
+
     if (isDefCombo(onSkewerArray)) then
       table.insert(foodCombos, onSkewerArray)
       composer.setVariable("skewerArray", foodCombos)
     end
-    
+
 		clearSkewer()
 		audio.play(eatAudio)
 		unTrackPlayer()
     checkPowerUp()
-		
+
     local points = checkCombination(onSkewerArray)
 		score = score + points
 		local pointsText = display.newText(uiLayer, "+".. points, player.x+200, player.y+100, display.systemFont, 60)
@@ -432,6 +439,9 @@ end
 
 local function pause()
  timer.pause(gameLoopTimer)
+ if(timerPowerUp ~= nil)then
+ 	timer.pause(timerPowerUp)
+ end
  paused = true
  pauseText.isVisible = true
  pauseButton.isVisible = false
@@ -443,6 +453,7 @@ end
 
 local function resume()
 	timer.resume(gameLoopTimer)
+	timer.resume(timerPowerUp)
 	paused = false
 	pauseText.isVisible = false
 	playButton.isVisible = false
@@ -456,6 +467,9 @@ local function gameLoop()
 	for i = 1, spawnRate do
 		table.insert(looseFoodsTable, objects:createObjects(mainLayer, rightBound, bottomBound))
 	end
+--	if(spawnRate<5 and spawnRate*6 - foodScrollSpeed < 0)then
+--		spawnRate = spawnRate + 1
+--	end
 	if(foodScrollSpeed < 30)then
 		foodScrollSpeed = foodScrollSpeed + 0.5
 	end
@@ -475,6 +489,9 @@ end
 
 local function moveSprite(event)
 ----Will be used when joystick is added
+if(player == nil)then
+	return
+end
 	player.x = player.x + motionx
 	player.y = player.y + motiony
 end
@@ -511,7 +528,7 @@ local function restorePlayer()
 end
 
 local function onCollision(event) --(*Is lettuce considered an enemy food? I'll assume it is for now)
-	if (event.phase == "began") then
+	if (event.phase == "began" and player ~= nil) then
 		local collidedObject = event.object2
 		if (collidedObject.myName == "player") then
 			collidedObject = event.object1
@@ -522,14 +539,18 @@ local function onCollision(event) --(*Is lettuce considered an enemy food? I'll 
          print(health)
          --Changes colour of player to red, then changes it back after 500ms
          player:setFillColor(1, 0.2, 0.2)
-         timer.performWithDelay(500, function() player:setFillColor(1, 1, 1) end, 1)
+         timer.performWithDelay(500, function() if (player ~= nil) then player:setFillColor(1, 1, 1) end end, 1)
          audio.play(hurtAudio)
          updateText()
 				 display.remove(collidedObject)
+				 --player dies
 				 if (health < 1) then
 	 				player.alpha = 0
 	 				unTrackPlayer()
 	 				timer.performWithDelay(2000, goToMainMenu)
+					display.remove(player)
+					player = nil
+
 	 			end
       else
          print("Things stabbed!")
@@ -537,7 +558,6 @@ local function onCollision(event) --(*Is lettuce considered an enemy food? I'll 
 				 timer.performWithDelay(50, function()
 				 														collidedObject.isBodyActive = false
 																		table.insert(foodsToMove, collidedObject) end)
-   			--updateSkewer()
         print(collidedObject.myName .. " " .. "called from collision function")
       end
       for i = #looseFoodsTable, 1, -1 do

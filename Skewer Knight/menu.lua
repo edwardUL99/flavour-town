@@ -55,11 +55,11 @@ function scene:create( event )
 	-- create a widget button (which will load game.lua on release)
 	local options =
 	{
-		label="Play Now",
+		label="Play",
 		fontSize = 80,
 		shape = "roundedRect",
-		width=320,
-		height=150,
+		width=250,
+		height=125,
 		fillColor = { default = { 0.25, 0.25, 0.25, 1}, over = {0.5, 0.5, 0.5, 1} },
 		strokeColor = { default = {1, 1, 1}, over = {1, 0, 0} },
 		strokeWidth = 2
@@ -76,8 +76,8 @@ function scene:create( event )
 	label="Journal",
 	fontSize = 80,
 	shape = "roundedRect",
-	width=320,
-	height=150,
+	width=260,
+	height=125,
 	fillColor = { default = { 0.25, 0.25, 0.25, 1}, over = {0.5, 0.5, 0.5, 1} },
 	strokeColor = { default = {1, 1, 1}, over = {1, 0, 0} },
 	strokeWidth = 2

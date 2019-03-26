@@ -19,7 +19,7 @@ local backLayer
 local uiLayer
 
 local filePath = system.pathForFile("combo.json", system.DocumentsDirectory)
-local scoresPath = system.pathForFile("score.json"), system.DocumentsDirectory)
+local scoresPath = system.pathForFile("score.json", system.DocumentsDirectory)
 
 local function goToMainMenu()
   composer.setVariable("scene", "menu")
@@ -47,7 +47,7 @@ local function print2D(twoD)
 end
 
 local function loadScore()
-  local file = io.open(filePath, "r")
+  local file = io.open(scoresPath, "r")
 
   if file then
     local contents = file:read("*a")
@@ -55,13 +55,13 @@ local function loadScore()
     highScore = json.decode(contents)
   end
 
-  if (highScore == nil or highScore == {}) then
+  if (highScore == nil or #highScore == 0 ) then
     highScore = {0}
   end
 end
 
 local function saveScore()
-  local file = io.open(filePath, "w")
+  local file = io.open(scoresPath, "w")
 
 	if file then
 		file:write(json.encode(highScore))
@@ -139,7 +139,7 @@ end
 
 local function displayCombos()
 	local x = -600
-	local y = 150
+	local y = 250
   local maxPerRow = 5
   local displayed = 0
 	local combo = ""
@@ -172,7 +172,9 @@ end
 
 local function deleteFile()
 	combinationsTable = {}
+  highScore = {}
   saveCombos()
+  saveScore()
 	composer.setVariable("fromScene", "journal")
 	composer.setVariable("scene", "journal")
 	composer.gotoScene("loading")
@@ -203,8 +205,6 @@ function scene:create( event )
 	local resetBtn = display.newText(uiLayer, "Reset Records", 1000, display.contentHeight - 125, native.systemFont, 80)
   local gameBtn = display.newText(uiLayer, "Back to Game", 300, display.contentHeight - 125, native.systemFont, 80)
 
-  local highScore = display.newText(uiLayer, "High Score: " .. highScore[1], 1000, 125, native.systemFont, 80)
-
 	menuBtn:addEventListener("tap", goToMainMenu)
  	resetBtn:addEventListener("tap", deleteFile)
   gameBtn:addEventListener("tap", goBackToGame)
@@ -213,13 +213,16 @@ function scene:create( event )
     table.insert(combinationsTable, composer.getVariable("skewerArray"))
     composer.variables["skewerArray"] = nil
   end
-
+  
   if (composer.getVariable("score") ~= nil) then
+    local score = composer.getVariable("score")
     if (score > highScore[1]) then
       highScore[1] = score
     end
     composer.variables["score"] = nil
   end
+  
+  local highScoreText = display.newText(uiLayer, "High Score: " .. highScore[1], 1250, 90, native.systemFont, 80)
 
  	displayCombos()
   saveScore()

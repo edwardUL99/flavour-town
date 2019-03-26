@@ -13,11 +13,13 @@ local json = require("json")
 
 local combinationsTable = {}
 local displayObjects = {}
+local highScore = {}
+local lastScore = 0
 local backLayer
 local uiLayer
-local alreadyLoaded = false
 
 local filePath = system.pathForFile("combo.json", system.DocumentsDirectory)
+local scoresPath = system.pathForFile("score.json"), system.DocumentsDirectory)
 
 local function goToMainMenu()
   composer.setVariable("scene", "menu")
@@ -44,16 +46,39 @@ local function print2D(twoD)
 	end
 end
 
+local function loadScore()
+  local file = io.open(filePath, "r")
+
+  if file then
+    local contents = file:read("*a")
+    io.close(file)
+    highScore = json.decode(contents)
+  end
+
+  if (highScore == nil or highScore == {}) then
+    highScore = {0}
+  end
+end
+
+local function saveScore()
+  local file = io.open(filePath, "w")
+
+	if file then
+		file:write(json.encode(highScore))
+		io.close(file)
+	end
+end
+
+
 local function loadTables()
 	local file = io.open(filePath, "r")
 
 	if file then
-		print("File Read")
 		local contents = file:read("*a")
 		io.close(file)
 		combinationsTable = json.decode(contents)
 	end
-  
+
   if (combinationsTable == nil or #combinationsTable == 0) then
     combinationsTable = {}
   end
@@ -104,7 +129,7 @@ local function createDisplayObject(x, y, object)
   newDisplay.x = x
   newDisplay.y = y
   table.insert(displayObjects, newDisplay)
-  
+
   x = x - 100
   for i = 1, #object do
     objects:spawnObject(uiLayer, x, y, 100, 100, object[i])
@@ -119,8 +144,8 @@ local function displayCombos()
   local displayed = 0
 	local combo = ""
 	local text
-  
-  if (combinationsTable[1] ~= nil) then 
+
+  if (combinationsTable[1] ~= nil) then
     for i = 1, #combinationsTable do
       for j = 1, #combinationsTable[i] do
         --for k = 1, #combinationsTable[i][j] do
@@ -133,7 +158,7 @@ local function displayCombos()
             x = -600
             y = y + 350
             displayed = 0
-          else 
+          else
         --end
           x = x + 500
         end
@@ -168,7 +193,8 @@ function scene:create( event )
   combinationsTable = {}
 
   loadTables()
-  
+  loadScore()
+
 	local background = display.newImageRect(backLayer, "Images/backdrop.png", display.actualContentWidth, display.actualContentHeight + 3000)
 	background.x = display.contentCenterX
 	background.y = display.ContentCenterY
@@ -177,17 +203,26 @@ function scene:create( event )
 	local resetBtn = display.newText(uiLayer, "Reset Records", 1000, display.contentHeight - 125, native.systemFont, 80)
   local gameBtn = display.newText(uiLayer, "Back to Game", 300, display.contentHeight - 125, native.systemFont, 80)
 
+  local highScore = display.newText(uiLayer, "High Score: " .. highScore[1], 1000, 125, native.systemFont, 80)
+
 	menuBtn:addEventListener("tap", goToMainMenu)
  	resetBtn:addEventListener("tap", deleteFile)
   gameBtn:addEventListener("tap", goBackToGame)
-  
+
   if (composer.getVariable("skewerArray") ~= nil) then
-    print("Not equal to nil")
     table.insert(combinationsTable, composer.getVariable("skewerArray"))
     composer.variables["skewerArray"] = nil
   end
 
+  if (composer.getVariable("score") ~= nil) then
+    if (score > highScore[1]) then
+      highScore[1] = score
+    end
+    composer.variables["score"] = nil
+  end
+
  	displayCombos()
+  saveScore()
  	saveCombos()
 
 	--deleteFile()

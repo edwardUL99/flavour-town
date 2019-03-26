@@ -135,6 +135,7 @@ end
 local function goToJournal()
 	composer.setVariable("scene", "journal")
 	composer.setVariable("fromScene", "game")
+	composer.setVariable("score", score)
 	composer.gotoScene("loading", "fade", 500)
 
 	return true
@@ -298,11 +299,11 @@ end
 local function addHeart()
   if (health <= 3) then
     lives[heartArrayPos] = display.newImageRect(uiLayer,"images/heart.png",200,200)
-    lives[heartArrayPos].x = heartXPos 
+    lives[heartArrayPos].x = heartXPos
     lives[heartArrayPos].y = heartYPos
     heartXPos = heartXPos + 100
     heartArrayPos = heartArrayPos + 1
-  end 
+  end
 end
 
 local function checkPowerUp()

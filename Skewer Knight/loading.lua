@@ -10,20 +10,7 @@ local scene = composer.newScene()
 local sceneToGo = composer.getVariable("scene")
 local fromScene = composer.getVariable("fromScene")
 
-if (fromScene ~= "game" and sceneToGo == "journal") then
-  print("first if")
-  composer.removeScene(fromScene)
-elseif (fromScene == "journal" and sceneToGo == "menu") then
-  print("second if")
-  composer.removeScene(fromScene)
-  composer.removeScene("game")
-elseif (fromScene == "journal" and sceneToGo == "journal") then
-  print("third if")
-  composer.removeScene("journal")
-else
-  print("last if")
-  composer.removeScene(fromScene)
-end
+composer.removeScene(fromScene)
 
 print(fromScene)
 --timer.performWithDelay(100, function() composer.gotoScene(sceneToGo) end)
@@ -39,9 +26,9 @@ function scene:create( event )
 
 	local sceneGroup = self.view
 	-- Code here runs when the scene is first created but has not yet appeared on screen
-  
+
   local loadingText = display.newText(sceneGroup, "Loading", display.contentCenterX, display.contentCenterY, native.systemFont, 80)
-  
+
   timer.performWithDelay(1500, function() composer.gotoScene(sceneToGo) end)
 end
 

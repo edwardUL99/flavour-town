@@ -127,6 +127,7 @@ local function goToMainMenu()
 	--composer.removeScene("game")
 	composer.setVariable("scene", "menu")
 	composer.setVariable("fromScene", "game")
+  composer.setVariable("score", score)
 	composer.gotoScene("loading","fade",500)
 
 	return true
@@ -199,7 +200,14 @@ local function isEqualArray(table1, table2)
 			end
 		end
 		return true
-	end
+	elseif (#table1 == 4 and #table2 == 3) then
+    for i = 1, #table2 do
+      if (table1[i] ~= table2[i]) then
+        return false
+      end 
+    end 
+    return true
+  end
 	return false
 end
 
@@ -243,17 +251,35 @@ local function clearSkewer()
 	display.remove(foodPos4)
 end
 
+local function isDefCombo(combo)
+  for i = 1, #foodCombinations do
+    if (isEqualArray(foodCombinations[i], combo)) then
+      return true
+    end
+  end
+  return false
+end
+
 --(*Mightn't need if using new checkCombination method)
 local function createCombinationsTable()
 	for i = 1, amountOfCombos do --Creating 2D array
 		foodCombinations[i] = {}
 	end
 	--The score values for each combination is in the last position i.e #foodCombinations[i] where i is some number 1-5
-	foodCombinations[1] = {"bread", "bread", "bread", "bread", 500}
-	foodCombinations[2] = {"broccoli", "broccoli", "broccoli", "broccoli", 50}
-	foodCombinations[3] = {"burger", "burger", "burger", "burger", 1000}
-	foodCombinations[4] = {"lettuce", "lettuce", "lettuce", "lettuce", -100}
-	foodCombinations[5] = {"tomato", "tomato", "tomato", "tomato", 200}
+	--[[foodCombinations[1] = {"bread", "bread", "bread", 500}
+	foodCombinations[2] = {"broccoli", "broccoli", "broccoli", 50}
+	foodCombinations[3] = {"burger", "burger", "burger", 1000}
+	foodCombinations[4] = {"lettuce", "lettuce", "lettuce", -100}
+	foodCombinations[5] = {"tomato", "tomato", "tomato", 200}]]--
+  
+  foodCombinations[1] = {"sushi", "sushi", "sushi", 500}
+	foodCombinations[2] = {"cheese", "cheese", "cheese", 50}
+	foodCombinations[3] = {"bacon", "bacon", "bacon", 1000}
+	foodCombinations[4] = {"broccoli", "broccoli", "broccoli", -100}
+	foodCombinations[5] = {"tomato", "tomato", "tomato", 200}
+  foodCombinations[6] = {"carrot", "carrot", "carrot", 100}
+  
+  composer.setVariable("defCombos", foodCombinations)
 end
 
 --debug to test output on console
@@ -271,17 +297,7 @@ local function print2D(twoD)
 end
 ---Will remove later--
 
---[[
-local function checkCombination(namesTable)
-	for i = 1, #foodCombinations do
-		if (isEqualArray(foodCombinations[i], namesTable)) then
-			return foodCombinations[i][#foodCombinations[i]]
-	--[[	end
-	end
-	return #onSkewerArray*50
-end]]--
-
-local function checkCombination(namesTable)
+local function checkCombinationDefault(namesTable)
 	--[[local foodScores = {
 		["bread"] = 125,
 		["burger"] = 250,
@@ -304,9 +320,19 @@ local function checkCombination(namesTable)
 	return sum
 end
 
+
+local function checkCombination(namesTable)
+	for i = 1, #foodCombinations do
+		if (isEqualArray(foodCombinations[i], namesTable)) then
+			return foodCombinations[i][#foodCombinations[i]]
+    end
+	end
+	return checkCombinationDefault(namesTable)
+end
+  
 local function addHeart()
   if (health <= 3) then
-    lives[heartArrayPos] = display.newImageRect(uiLayer,"images/heart.png",200,200)
+    lives[heartArrayPos] = display.newImageRect(uiLayer,"Images/heart.png",200,200)
     lives[heartArrayPos].x = heartXPos
     lives[heartArrayPos].y = heartYPos
     heartXPos = heartXPos + 100
@@ -316,7 +342,6 @@ end
 
 local function checkPowerUp()
 	if(isEqualArray(onSkewerArray,{"tomato","tomato","tomato"}))then
-		print("adding one health!")
 		if(health<3)then
       addHeart()
 			local healthNewText = display.newText(uiLayer, "+1 health", player.x+100, player.y, native.systemFont, 80)
@@ -367,13 +392,18 @@ end
 
 local function eatSkewer(event)
 	if(#onSkewerArray>0)then
-    table.insert(foodCombos, onSkewerArray)
-		composer.setVariable("skewerArray", foodCombos)
+    
+    if (isDefCombo(onSkewerArray)) then
+      table.insert(foodCombos, onSkewerArray)
+      composer.setVariable("skewerArray", foodCombos)
+    end
+    
 		clearSkewer()
 		audio.play(eatAudio)
 		unTrackPlayer()
     checkPowerUp()
-		local points = checkCombination(onSkewerArray)
+		
+    local points = checkCombination(onSkewerArray)
 		score = score + points
 		local pointsText = display.newText(uiLayer, "+".. points, player.x+200, player.y+100, display.systemFont, 60)
 		timer.performWithDelay(2000, function() transition.fadeOut(pointsText, {time = 500}) end, 1)

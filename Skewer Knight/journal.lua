@@ -70,7 +70,7 @@ local function saveScore()
 end
 
 
-local function loadTables()
+local function loadCombos()
 	local file = io.open(filePath, "r")
 
 	if file then
@@ -104,22 +104,13 @@ end
 
 local function isEqualArray(table1, table2)
 	--Since the score value is only stored at end of each combination table, we can ignore it and check the names only
-	if (#table1 == #table2) then
-		for i = 1, #table1 do
+	if (#table1 - 1 == #table2) then
+		for i = 1, #table2 do
 			if (table1[i] ~= table2[i]) then
 				return false
 			end
 		end
 		return true
-	end
-	return false
-end
-
-local function containsCombo(combo)
-	for i = 1, #combinationsTable do
-    if (isEqualArray(combinationsTable[i], combo)) then
-      return true
-    end
 	end
 	return false
 end
@@ -194,7 +185,7 @@ function scene:create( event )
 	sceneGroup:insert(uiLayer)
   combinationsTable = {}
 
-  loadTables()
+  loadCombos()
   loadScore()
 
 	local background = display.newImageRect(backLayer, "Images/backdrop.png", display.actualContentWidth, display.actualContentHeight + 3000)

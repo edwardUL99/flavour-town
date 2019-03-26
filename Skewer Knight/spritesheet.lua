@@ -1,7 +1,7 @@
 --
 -- created with TexturePacker - https://www.codeandweb.com/texturepacker
 --
--- $TexturePacker:SmartUpdate:81ee5f465e40320d943fe47d8e487f8b:0389c017d81de7ef748b1cb1094e5e49:c46243f411ca86fe596665ab352bd775$
+-- $TexturePacker:SmartUpdate:1dc8820a44ab470e88489a9fe836f7bf:74a32c161e96ccd7bb0d2379b259613d:c46243f411ca86fe596665ab352bd775$
 --
 -- local sheetInfo = require("mysheet")
 -- local myImageSheet = graphics.newImageSheet( "mysheet.png", sheetInfo:getSheet() )
@@ -13,81 +13,94 @@ local SheetInfo = {}
 SheetInfo.sheet =
 {
     frames = {
-
+    
         {
-            -- sushi
-            x=56,
-            y=27,
-            width=200,
-            height=200,
+            -- bacon
+            x=235,
+            y=709,
+            width=122,
+            height=272,
 
-            sourceX = 38,
-            sourceY = 29,
-            sourceWidth = 155,
-            sourceHeight = 114,
+            sourceX = 49,
+            sourceY = 39,
+            sourceWidth = 200,
+            sourceHeight = 350
         },
         {
-            -- tomato
-            x=174,
-            y=317,
-            width=45,
-            height=54,
+            -- brocolli
+            x=1,
+            y=385,
+            width=252,
+            height=262,
 
-            sourceX = 43,
-            sourceY = 28,
-            sourceWidth = 155,
-            sourceHeight = 114
+            sourceX = 19,
+            sourceY = 19,
+            sourceWidth = 290,
+            sourceHeight = 300
         },
         {
             -- carrot
-            x=212,
-            y=573,
-            width=91,
-            height=84,
+            x=1,
+            y=883,
+            width=222,
+            height=172,
 
-            sourceX = 33,
-            sourceY = 13,
-            sourceWidth = 155,
-            sourceHeight = 114
+            sourceX = 9,
+            sourceY = 19,
+            sourceWidth = 270,
+            sourceHeight = 200
         },
         {
-            --cheese
-            x=148,
-            y=801,
-            width=55,
-            height=62,
+            -- cheese
+            x=2,
+            y=1,
+            width=502,
+            height=382,
 
-            sourceX = 36,
-            sourceY = 17,
-            sourceWidth = 155,
-            sourceHeight = 114
+            sourceX = 48,
+            sourceY = 8,
+            sourceWidth = 550,
+            sourceHeight = 390
         },
         {
-            -- bacon
-            x=431,
-            y=45,
-            width=69,
-            height=70,
+            -- sushi
+            x=255,
+            y=385,
+            width=192,
+            height=322,
 
-            sourceX = 36,
-            sourceY = 7,
-            sourceWidth = 155,
-            sourceHeight = 114
+            sourceX = 39,
+            sourceY = 19,
+            sourceWidth = 270,
+            sourceHeight = 360
+        },
+        {
+            -- tomato
+            x=1,
+            y=649,
+            width=232,
+            height=232,
+
+            sourceX = 9,
+            sourceY = 19,
+            sourceWidth = 260,
+            sourceHeight = 290
         },
     },
 
-    sheetContentWidth = 128,
-    sheetContentHeight = 220
+    sheetContentWidth = 504,
+    sheetContentHeight = 1056
 }
 
 SheetInfo.frameIndex =
 {
 
-    ["sushi"] = 1,
-    ["tomato"] = 2,
+    ["bacon"] = 1,
+    ["broccoli"] = 2,
     ["carrot"] = 3,
     ["cheese"] = 4,
-    ["bacon"] = 5,
+    ["sushi"] = 5,
+    ["tomato"] = 6,
 }
 
 function SheetInfo:getSheet()

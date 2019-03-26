@@ -282,13 +282,21 @@ local function checkCombination(namesTable)
 end]]--
 
 local function checkCombination(namesTable)
-	local foodScores = {
+	--[[local foodScores = {
 		["bread"] = 125,
 		["burger"] = 250,
 		["broccoli"] = 25,
 		["lettuce"] = -25,
 		["tomato"] = 50,
-	}
+	} ]]--
+  local foodScores = {
+    ["bacon"] = 250,
+    ["broccoli"] = 25,
+    ["carrot"] = 75,
+    ["cheese"] = 80,
+    ["sushi"] = 150,
+    ["tomato"] = 50,
+  }
 	local sum = 0
 	for i = 1, #namesTable do
 		sum = sum + foodScores[namesTable[i]]
@@ -594,7 +602,7 @@ function scene:create( event )
 	print2D(foodCombinations)
 
 	local good = {"lettuce", "lettuce", "lettuce", "lettuce"}
-	print(checkCombination(good))
+	--print(checkCombination(good))
 	--------------------------------------------------------------
 
 	player:addEventListener("touch", dragPlayer)

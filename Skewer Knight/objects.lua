@@ -1,12 +1,14 @@
 local objects = {}
 
-local sheetInfo = require("Images.spritesheet")
-local imageSheet = graphics.newImageSheet("Images/spritesheet.png", sheetInfo:getSheet())
+local sheetInfo = require("spritesheet")
+local imageSheet = graphics.newImageSheet("spritesheet.png", sheetInfo:getSheet())
 
 
 function objects:createObjects(layer, rightBound, bottomBound)
-	local names = {"bread", "broccoli", "burger", "lettuce", "tomato"} --Will be randomly accessed
+	--local names = {"bread", "broccoli", "burger", "lettuce", "tomato"} --Will be randomly accessed
+  local names = {"bacon", "broccoli", "tomato", "sushi", "cheese"}
 	local name = names[math.random(#names)]
+  print(name)
 	--I added the getWidth and getHeight methods to the spritesheet.lua file. Better to use newImageRect
 	local newItem = display.newImageRect(layer, imageSheet, sheetInfo:getFrameIndex(name), sheetInfo:getWidth(name), sheetInfo:getHeight(name))
 	newItem.height = 200

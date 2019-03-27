@@ -97,7 +97,7 @@ local function moveBg(dt)
 end
 
 local function trackPlayer()
-	if (not paused) then
+	if (not paused and player ~= nil) then
 		for i = #foodsToMove, 1, -1 do
 			foodsToMove[i].x = player.x + (75*(i-1))
 			foodsToMove[i].y = player.y + skewerOffset
@@ -453,9 +453,9 @@ end
 
 local function resume()
 	timer.resume(gameLoopTimer)
-  if (timerPowerUp ~= nil) then
-    timer.resume(timerPowerUp)
-  end
+	if(timerPowerUp ~= nil)then
+		timer.resume(timerPowerUp)
+	end
 	paused = false
 	pauseText.isVisible = false
 	playButton.isVisible = false
@@ -468,7 +468,7 @@ end
 local function gameLoop()
   gameLoopCount = gameLoopCount + 1
   table.insert(looseFoodsTable, objects:createObjects(mainLayer, rightBound, bottomBound))
-  
+
   if (gameLoopCount % 5 == 0 and gameLoopCycle > 100) then
     gameLoopCycle = gameLoopCycle - 100
     timer.cancel(gameLoopTimer)
@@ -594,7 +594,7 @@ function scene:create( event )
 
 	uiLayer = display.newGroup()
 	sceneGroup:insert(uiLayer)
-  
+
   mainLayer = display.newGroup()
 	sceneGroup:insert(mainLayer)
 
@@ -602,7 +602,7 @@ function scene:create( event )
 	background.x = display.contentCenterX
 	background.y = display.contentCenterY]]--
 	--
-  
+
 	-- Add First bg image
 	--bg1 = display.newRect(0, 0, display.actualContentWidth, display.actualContentHeight )
 	bg1 = display.newRect(backLayer, 0, 0, display.actualContentWidth,display.actualContentHeight)
@@ -615,7 +615,7 @@ function scene:create( event )
 	bg2.fill = bgImage2
 	bg2.x = display.contentCenterX + display.actualContentWidth
 	bg2.y = display.contentCenterY
-  
+
  for i = 1, 3 do
     addHeart()
   end

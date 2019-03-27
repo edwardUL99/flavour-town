@@ -24,13 +24,17 @@ local scoreText
 local paused = false
 local died = false
 local gameLoopTimer
+<<<<<<< HEAD
 local gameLoopCycle = 1500 --Time between each game loop
+=======
+local gameLoopCycle = 2000 --Time between each game loop
+local gameLoopCount = 0
+>>>>>>> dc7ea30c16546e9e7b7723b6c7c573f63331ad19
 local runtime = 0
 --------------------
 --Arrays & tables--
 local looseFoodsTable = {}
 local foodCombos = {}
-local maxLooseFoods = 10
 local spawnRate = 1
 local onSkewerArray = {}
 local foodsToMove = {}
@@ -43,9 +47,9 @@ local hurtAudio = audio.loadSound("Oof.mp3")
 local eatAudio = audio.loadSound("OmNomNom.wav")
 --------------------
 --Graphics variables--
-local heartXPos = -700
+local heartXPos = -800
 local heartYPos = 150
-local heartArrayPos = 1
+local heartArrayPos = 0
 local player
 local playerShape = {-200,111,  -41,111,   -41,-89,   -200,-89}
 local skewerShape = {-40,50,  240,50,  240,31,  -40,31}
@@ -336,11 +340,11 @@ end
 
 local function addHeart()
   if (health <= 3) then
+    heartXPos = heartXPos + 100
+    heartArrayPos = heartArrayPos + 1
     lives[heartArrayPos] = display.newImageRect(uiLayer,"Images/heart.png",200,200)
     lives[heartArrayPos].x = heartXPos
     lives[heartArrayPos].y = heartYPos
-    heartXPos = heartXPos + 100
-    heartArrayPos = heartArrayPos + 1
   end
 end
 
@@ -466,12 +470,15 @@ local function resume()
 end
 
 local function gameLoop()
-	for i = 1, spawnRate do
-		table.insert(looseFoodsTable, objects:createObjects(mainLayer, rightBound, bottomBound))
-	end
---	if(spawnRate<5 and spawnRate*6 - foodScrollSpeed < 0)then
---		spawnRate = spawnRate + 1
---	end
+  gameLoopCount = gameLoopCount + 1
+  table.insert(looseFoodsTable, objects:createObjects(mainLayer, rightBound, bottomBound))
+
+  if (gameLoopCount % 5 == 0 and gameLoopCycle > 100) then
+    gameLoopCycle = gameLoopCycle - 100
+    timer.cancel(gameLoopTimer)
+    gameLoopTimer = timer.performWithDelay(gameLoopCycle, gameLoop, 0)
+  end
+
 	if(foodScrollSpeed < 30)then
 		foodScrollSpeed = foodScrollSpeed + 0.5
 	end

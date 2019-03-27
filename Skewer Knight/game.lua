@@ -1,6 +1,6 @@
 local composer = require( "composer" ) --This is very IMPORTANT
 local scene = composer.newScene()
-local sheetInfo = require("images.spritesheet") --Introduces the functions required to grab sprites from sheet
+local sheetInfo = require("Images.spritesheet") --Introduces the functions required to grab sprites from sheet
 local objects = require("objects")
 local physics = require( "physics" )
 --local json = require("json")
@@ -31,7 +31,7 @@ local runtime = 0
 --Arrays & tables--
 local looseFoodsTable = {}
 local foodCombos = {}
-local spawnRate = 3
+local spawnRate = 1
 local onSkewerArray = {}
 local foodsToMove = {}
 local maxOnSkewer = 3
@@ -57,7 +57,7 @@ local menuButton
 local journalButton
 local bg1
 local bg2 --two SCROLLING backgrounds, to make it look like player is moving)
-local bgImage2 = {type = "image", filename ="images/background.jpg"}
+local bgImage2 = {type = "image", filename ="Images/background.jpg"}
 local foodScrollSpeed = 15
 local bgScrollSpeed = 5
 local skewerOffset = 0
@@ -467,13 +467,19 @@ end
 
 local function gameLoop()
   gameLoopCount = gameLoopCount + 1
-  table.insert(looseFoodsTable, objects:createObjects(mainLayer, rightBound, bottomBound))
+	for i = 1, spawnRate do
+  	table.insert(looseFoodsTable, objects:createObjects(mainLayer, rightBound, bottomBound))
+	end
 
-  if (gameLoopCount % 5 == 0 and gameLoopCycle > 100) then
+  if (gameLoopCount % 15 == 0 and gameLoopCycle > 100) then
     gameLoopCycle = gameLoopCycle - 100
     timer.cancel(gameLoopTimer)
     gameLoopTimer = timer.performWithDelay(gameLoopCycle, gameLoop, 0)
   end
+
+	if (gameLoopCount % 25 == 0 and spawnRate < 4) then
+		spawnRate = spawnRate + 1
+	end
 
 	if(foodScrollSpeed < 30)then
 		foodScrollSpeed = foodScrollSpeed + 0.5
@@ -521,15 +527,25 @@ local function arrowPressed(event)
 	return false
 end
 
-local function restorePlayer()
-	player.isBodyActive = false
-
-	transition.to(player, {alpha=1, time=4000,
-		onComplete = function()
-			player.isBodyActive = true
+local function indexOf(table, object)
+	for i = 1, #table do
+		if (table[i] == object) then
+			return i
 		end
-	})
-	Runtime:addEventListener("enterFrame", checkBounds)
+	end
+	return -1
+end
+
+local function isFood(object)
+	if (object.myName == "cheese"
+			or object.myName == "sushi"
+			or object.myName == "broccoli"
+			or object.myName == "carrot"
+			or object.myName == "tomato"
+			or object.myName == "bacon") then
+				return true
+	end
+	return false
 end
 
 local function onCollision(event) --(*Is lettuce considered an enemy food? I'll assume it is for now)
@@ -538,15 +554,20 @@ local function onCollision(event) --(*Is lettuce considered an enemy food? I'll 
 		if (collidedObject.myName == "player") then
 			collidedObject = event.object1
 		end
-      if(event.element1 == 1) then --event.element1 == 1, when the body of the player collides with the food
-         print("Player hit!")
+      if (event.element1 == 1 and (event.object1.myName == "player" or event.object2.myName == "player")) then --event.element1 == 1, when the body of the player collides with the food
+         print(event.object1.myName .. " " .. "hit at" .. " " .. player.x .. " " .. "and" .. " " .. player.y .. " " .. "by" .. " " .. collidedObject.myName .. " " .. "at" .. " " .. collidedObject.x .. " " .. "and" .. " " .. collidedObject.y .. "!")
          health = health - 1
          --Changes colour of player to red, then changes it back after 500ms
          player:setFillColor(1, 0.2, 0.2)
          timer.performWithDelay(500, function() if (player ~= nil) then player:setFillColor(1, 1, 1) end end, 1)
          audio.play(hurtAudio)
          updateText()
-				 timer.performWithDelay(50, function() display.remove(collidedObject) end)
+				 display.remove(collidedObject)
+
+				 if (indexOf(looseFoodsTable, collidedObject) ~= -1) then
+					 table.remove(looseFoodsTable, indexOf(looseFoodsTable, collidedObject))
+				 end
+
 				 --player dies
 				 if (health < 1) then
 	 				player.alpha = 0
@@ -554,20 +575,24 @@ local function onCollision(event) --(*Is lettuce considered an enemy food? I'll 
 	 				timer.performWithDelay(2000, goToMainMenu)
 					display.remove(player)
 					player = nil
-
 	 			end
-      else
+      elseif ((event.object1.myName == "player" and isFood(event.object2))) then
          print("Things stabbed!")
          table.insert(onSkewerArray, collidedObject.myName)
 				 timer.performWithDelay(50, function()
 				 														collidedObject.isBodyActive = false
 																		table.insert(foodsToMove, collidedObject) end)
-      end
+		  else
+				display.remove(collidedObject)
+				table.remove(looseFoodsTable, indexOf(looseFoodsTable, collidedObject))
+			end
+
       for i = #looseFoodsTable, 1, -1 do
          if (looseFoodsTable[i] == collidedObject) then
             table.remove(looseFoodsTable, i)
 					end
       end
+
 		if (#onSkewerArray == maxOnSkewer) then
 			timer.performWithDelay(50, function()
 																 collidedObject.isBodyActive = false

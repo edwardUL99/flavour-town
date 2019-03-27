@@ -13,9 +13,10 @@ function objects:createObjects(layer, rightBound, bottomBound)
     newItem.height = 200
     newItem.width = 200
     newItem.myName = name
-    physics.addBody(newItem, "dynamic", {radius=75, bounce=0.0}) --(*Static and static cant collide with each other)
+    physics.addBody(newItem, "dynamic") --(*Static and static cant collide with each other)
     newItem.x = rightBound + 100
     newItem.y = math.random(bottomBound)
+
     return newItem
 end
 

@@ -27,6 +27,6 @@ function objects:spawnObject(layer, x, y, height, width, objectName)
   object.x = x
   object.y = y
   return object
-end 
+end
 
 return objects

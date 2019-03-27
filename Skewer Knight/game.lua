@@ -24,7 +24,7 @@ local scoreText
 local paused = false
 local died = false
 local gameLoopTimer
-local gameLoopCycle = 2000 --Time between each game loop
+local gameLoopCycle = 1500 --Time between each game loop
 local runtime = 0
 --------------------
 --Arrays & tables--
@@ -97,7 +97,7 @@ local function moveBg(dt)
 end
 
 local function trackPlayer()
-	if (not paused) then
+	if (not paused and player ~= nil) then
 		for i = #foodsToMove, 1, -1 do
 			foodsToMove[i].x = player.x + (75*(i-1))
 			foodsToMove[i].y = player.y + skewerOffset
@@ -453,7 +453,9 @@ end
 
 local function resume()
 	timer.resume(gameLoopTimer)
-	timer.resume(timerPowerUp)
+	if(timerPowerUp ~= nil)then
+		timer.resume(timerPowerUp)
+	end
 	paused = false
 	pauseText.isVisible = false
 	playButton.isVisible = false

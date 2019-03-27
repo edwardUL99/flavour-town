@@ -31,7 +31,7 @@ local runtime = 0
 --Arrays & tables--
 local looseFoodsTable = {}
 local foodCombos = {}
-local spawnRate = 1
+local spawnRate = 3
 local onSkewerArray = {}
 local foodsToMove = {}
 local maxOnSkewer = 3
@@ -453,7 +453,9 @@ end
 
 local function resume()
 	timer.resume(gameLoopTimer)
-	timer.resume(timerPowerUp)
+  if (timerPowerUp ~= nil) then
+    timer.resume(timerPowerUp)
+  end
 	paused = false
 	pauseText.isVisible = false
 	playButton.isVisible = false
@@ -466,7 +468,7 @@ end
 local function gameLoop()
   gameLoopCount = gameLoopCount + 1
   table.insert(looseFoodsTable, objects:createObjects(mainLayer, rightBound, bottomBound))
-
+  
   if (gameLoopCount % 5 == 0 and gameLoopCycle > 100) then
     gameLoopCycle = gameLoopCycle - 100
     timer.cancel(gameLoopTimer)
@@ -539,13 +541,12 @@ local function onCollision(event) --(*Is lettuce considered an enemy food? I'll 
       if(event.element1 == 1) then --event.element1 == 1, when the body of the player collides with the food
          print("Player hit!")
          health = health - 1
-         print(health)
          --Changes colour of player to red, then changes it back after 500ms
          player:setFillColor(1, 0.2, 0.2)
          timer.performWithDelay(500, function() if (player ~= nil) then player:setFillColor(1, 1, 1) end end, 1)
          audio.play(hurtAudio)
          updateText()
-				 display.remove(collidedObject)
+				 timer.performWithDelay(50, function() display.remove(collidedObject) end)
 				 --player dies
 				 if (health < 1) then
 	 				player.alpha = 0
@@ -561,7 +562,6 @@ local function onCollision(event) --(*Is lettuce considered an enemy food? I'll 
 				 timer.performWithDelay(50, function()
 				 														collidedObject.isBodyActive = false
 																		table.insert(foodsToMove, collidedObject) end)
-        print(collidedObject.myName .. " " .. "called from collision function")
       end
       for i = #looseFoodsTable, 1, -1 do
          if (looseFoodsTable[i] == collidedObject) then
@@ -592,16 +592,17 @@ function scene:create( event )
 	backLayer = display.newGroup()
 	sceneGroup:insert(backLayer)
 
-	mainLayer = display.newGroup()
-	sceneGroup:insert(mainLayer)
-
 	uiLayer = display.newGroup()
 	sceneGroup:insert(uiLayer)
+  
+  mainLayer = display.newGroup()
+	sceneGroup:insert(mainLayer)
 
 	--[[local background = display.newImageRect(backLayer, "background.jpg", display.actualContentWidth,display.actualContentHeight)
 	background.x = display.contentCenterX
 	background.y = display.contentCenterY]]--
 	--
+  
 	-- Add First bg image
 	--bg1 = display.newRect(0, 0, display.actualContentWidth, display.actualContentHeight )
 	bg1 = display.newRect(backLayer, 0, 0, display.actualContentWidth,display.actualContentHeight)
@@ -614,7 +615,7 @@ function scene:create( event )
 	bg2.fill = bgImage2
 	bg2.x = display.contentCenterX + display.actualContentWidth
 	bg2.y = display.contentCenterY
-
+  
  for i = 1, 3 do
     addHeart()
   end

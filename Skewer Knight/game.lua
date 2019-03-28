@@ -637,11 +637,11 @@ function scene:create( event )
 	backLayer = display.newGroup()
 	sceneGroup:insert(backLayer)
 
-	uiLayer = display.newGroup()
-	sceneGroup:insert(uiLayer)
-
   mainLayer = display.newGroup()
 	sceneGroup:insert(mainLayer)
+
+	uiLayer = display.newGroup()
+	sceneGroup:insert(uiLayer)
 
 	--[[local background = display.newImageRect(backLayer, "background.jpg", display.actualContentWidth,display.actualContentHeight)
 	background.x = display.contentCenterX

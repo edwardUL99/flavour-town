@@ -17,6 +17,7 @@ local imageSheet = graphics.newImageSheet("Images/spritesheet.png", sheetInfo:ge
 ---UI related variables--
 local health = 3
 local score = 0
+local pointsDoubled = false
 local lives = {}
 local scoreText
 --------------------
@@ -344,6 +345,11 @@ local function addHeart()
   end
 end
 
+local function onComplete()
+  local overText = display.newText(uiLayer, "x2 Points multiplier over", player.x+100, player.y, native.systemFont, 80)
+  timer.performWithDelay(2000, function() transition.fadeOut(overText, {time = 500}) end)
+end
+
 local function checkPowerUp()
 	if(isEqualArray(onSkewerArray,{"tomato","tomato","tomato"}))then
 		if(health<3)then
@@ -377,7 +383,15 @@ local function checkPowerUp()
 	elseif(isEqualArray(onSkewerArray, {"broccoli","broccoli","broccoli"}))then
 		print("Go green")
 		player:setFillColor(0, 1, 0.2)
-	end
+	elseif (isEqualArray(onSkewerArray, {"sushi", "sushi", "sushi"})) then
+    pointsDoubled = true
+    local doubledText = display.newText(uiLayer, "x2 Points multiplier", player.x+100, player.y, native.systemFont, 80)
+    timer.performWithDelay(2000, function() transition.fadeOut(doubledText, {time = 500}) end, 1)
+    timerPowerUp = timer.performWithDelay(10000, function() pointsDoubled = false 
+                                                            onComplete()
+                                                  end)
+  end
+    
 
 end
 local function updateText()
@@ -408,9 +422,15 @@ local function eatSkewer(event)
 		clearSkewer()
 		audio.play(eatAudio)
 		unTrackPlayer()
+    
     checkPowerUp()
-
+    
     local points = checkCombination(onSkewerArray)
+    
+    if (pointsDoubled) then
+      points = points * 2
+    end
+    
 		score = score + points
 		local pointsText = display.newText(uiLayer, "+".. points, player.x+200, player.y+100, display.systemFont, 60)
 		timer.performWithDelay(2000, function() transition.fadeOut(pointsText, {time = 500}) end, 1)
@@ -477,7 +497,7 @@ local function gameLoop()
     gameLoopTimer = timer.performWithDelay(gameLoopCycle, gameLoop, 0)
   end
 
-	if (gameLoopCount % 25 == 0 and spawnRate < 4) then
+  if (gameLoopCount % 25 == 0 and spawnRate < 4) then
 		spawnRate = spawnRate + 1
 	end
 
@@ -653,7 +673,7 @@ function scene:create( event )
 	player.myName = "player"
 
 	--Score is text for prototype
-	scoreText = display.newText(uiLayer, "Score: " .. score, display.contentCenterX + 1000, display.contentCenterY - 500, native.systemFont, 80)
+	scoreText = display.newText(uiLayer, "Score: " .. score, display.contentCenterX + 900, display.contentCenterY - 500, native.systemFont, 80)
 
 	pauseButton = display.newImageRect(uiLayer, "Images/pause.png", 200, 200)
 	pauseButton.x = rightBound - 200

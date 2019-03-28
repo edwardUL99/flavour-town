@@ -4,10 +4,10 @@ local sheetInfo = require("spritesheet")
 local imageSheet = graphics.newImageSheet("spritesheet.png", sheetInfo:getSheet())
 
 
-function objects:createObjects(layer, rightBound, bottomBound)
+function objects:createObjects(layer, rightBound, bottomBound, topBound)
 	--local names = {"bread", "broccoli", "burger", "lettuce", "tomato"} --Will be randomly accessed
     local names = {"bacon", "broccoli", "tomato", "sushi", "cheese", "carrot"}
-    local name = "sushi"--names[math.random(#names)]
+    local name = names[math.random(#names)]
     --I added the getWidth and getHeight methods to the spritesheet.lua file. Better to use newImageRect
     local newItem = display.newImageRect(layer, imageSheet, sheetInfo:getFrameIndex(name), sheetInfo:getWidth(name), sheetInfo:getHeight(name))
     newItem.height = 200
@@ -15,7 +15,7 @@ function objects:createObjects(layer, rightBound, bottomBound)
     newItem.myName = name
     physics.addBody(newItem, "dynamic") --(*Static and static cant collide with each other)
     newItem.x = rightBound + 100
-    newItem.y = math.random(bottomBound)
+    newItem.y = math.random(topBound,bottomBound)
 
     return newItem
 end

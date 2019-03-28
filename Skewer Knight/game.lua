@@ -66,7 +66,7 @@ local skewerOffset = 0
 --Boundaries variables--
 local leftBound = -(display.viewableContentWidth)
 local rightBound = display.actualContentWidth - display.contentWidth
-local topBound = 0
+local topBound = 250
 local bottomBound = display.actualContentHeight
 --------------------
 --Providing variables for displayGroups to be used later--
@@ -387,11 +387,11 @@ local function checkPowerUp()
     pointsDoubled = true
     local doubledText = display.newText(uiLayer, "x2 Points multiplier", player.x+100, player.y, native.systemFont, 80)
     timer.performWithDelay(2000, function() transition.fadeOut(doubledText, {time = 500}) end, 1)
-    timerPowerUp = timer.performWithDelay(10000, function() pointsDoubled = false 
+    timerPowerUp = timer.performWithDelay(10000, function() pointsDoubled = false
                                                             onComplete()
                                                   end)
   end
-    
+
 
 end
 local function updateText()
@@ -422,15 +422,15 @@ local function eatSkewer(event)
 		clearSkewer()
 		audio.play(eatAudio)
 		unTrackPlayer()
-    
+
     checkPowerUp()
-    
+
     local points = checkCombination(onSkewerArray)
-    
+
     if (pointsDoubled) then
       points = points * 2
     end
-    
+
 		score = score + points
 		local pointsText = display.newText(uiLayer, "+".. points, player.x+200, player.y+100, display.systemFont, 60)
 		timer.performWithDelay(2000, function() transition.fadeOut(pointsText, {time = 500}) end, 1)
@@ -488,7 +488,7 @@ end
 local function gameLoop()
   gameLoopCount = gameLoopCount + 1
 	for i = 1, spawnRate do
-  	table.insert(looseFoodsTable, objects:createObjects(mainLayer, rightBound, bottomBound))
+  	table.insert(looseFoodsTable, objects:createObjects(mainLayer, rightBound, bottomBound, topBound))
 	end
 
   if (gameLoopCount % 15 == 0 and gameLoopCycle > 100) then

@@ -20,13 +20,13 @@ local function onPlayBtnRelease()
 	playButton.emboss = false
 	-- go to level1.lua scene
 	composer.removeScene("game")
-	timer.performWithDelay(50, function() composer.gotoScene( "game", "fade", 500 ) end)
+	timer.performWithDelay(500, function() composer.gotoScene( "game", "fade", 500 ) end)
 
 	return true	-- indicates successful touch
 end
 
 local function goToJournal()
-	composer.removeScene("game")
+	composer.removeScene("journal")
 	timer.performWithDelay(50, function() composer.gotoScene("journal", "fade", 500) end)
 
 	return true
@@ -121,6 +121,7 @@ function scene:hide( event )
 		-- e.g. stop timers, stop animation, unload sounds, etc.)
 	elseif phase == "did" then
 		-- Called when the scene is now off screen
+    composer.removeScene("menu")
 	end
 end
 

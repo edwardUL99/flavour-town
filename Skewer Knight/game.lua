@@ -7,7 +7,6 @@ local physics = require( "physics" )
 --local filePath = system.pathForFile("tables.json", system.DocumentsDirectory)
 
 physics.start()
-system.activate( "multitouch" )
 
 physics.setGravity(0,0)
 local imageSheet = graphics.newImageSheet("Images/spritesheet.png", sheetInfo:getSheet())
@@ -25,6 +24,7 @@ local scoreText
 local paused = false
 local died = false
 local gameLoopTimer
+local timerPowerUp
 local gameLoopCycle = 2000 --Time between each game loop
 local gameLoopCount = 0
 local runtime = 0
@@ -61,7 +61,7 @@ local bg2 --two SCROLLING backgrounds, to make it look like player is moving)
 local bgImage2 = {type = "image", filename ="Images/background.jpg"}
 local foodScrollSpeed = 15
 local bgScrollSpeed = 5
-local skewerOffset = 0
+--local skewerOffset = 0
 --------------------
 --Boundaries variables--
 local leftBound = -(display.viewableContentWidth)
@@ -101,7 +101,7 @@ local function trackPlayer()
 	if (not paused and player ~= nil) then
 		for i = #foodsToMove, 1, -1 do
 			foodsToMove[i].x = player.x + (75*(i-1))
-			foodsToMove[i].y = player.y + skewerOffset
+			foodsToMove[i].y = player.y --+ skewerOffset
 		end
 	end
 end
@@ -118,11 +118,6 @@ local function getDeltaTime() --Delta time ensures we have smooth scrolling accr
 	local dt = (temp-runtime) / (1000/60)
 	runtime = temp
 	return dt
-end
-
-local function enterFrame(event) --( * It will be for the moving background. http://lomza.totem-soft.com/tutorial-scrollable-background-in-corona-sdk/)
-	local dt = getDeltaTime()
-	moveBg(dt)
 end
 
 local function goToMainMenu()
@@ -146,20 +141,19 @@ local function goToJournal()
 end
 
 local function checkBounds()
-	if(player == nil)then
-		return
-	end
-	if (player.x > rightBound) then
-		player.x = rightBound - 20
-	elseif (player.x < leftBound) then
-		player.x = leftBound + 20
-	end
+	if (player ~= nil) then
+    if (player.x > rightBound) then
+      player.x = rightBound - 30
+    elseif (player.x < leftBound) then
+      player.x = leftBound + 70
+    end
 
-	if (player.y < topBound) then
-		player.y = topBound + 20
-	elseif (player.y > bottomBound) then
-		player.y = bottomBound - 20
-	end
+    if (player.y < topBound) then
+      player.y = topBound + 30
+    elseif (player.y > bottomBound) then
+      player.y = bottomBound - 30
+    end
+  end
 end
 
 local function dragPlayer(event)
@@ -181,16 +175,27 @@ local function dragPlayer(event)
 	return true
 end
 
-local function moveObject(event)
+local function moveSprite(event)
+----Will be used when joystick is added
+if(player == nil)then
+	return
+end
+	player.x = player.x + motionx
+	player.y = player.y + motiony
+end
+
+local function enterFrame(event)
 	local dt = getDeltaTime();
 	if (not paused) then
 		moveBg(dt)
 		trackPlayer()
+    checkBounds()
+    moveSprite()
 		for i = #looseFoodsTable, 1, -1 do
 			looseFoodsTable[i].x = looseFoodsTable[i].x - foodScrollSpeed * dt
 			if (looseFoodsTable[i].x < -(display.actualContentWidth)) then
-				display.remove(looseFoodsTable[i])
 				table.remove(looseFoodsTable, i)
+        display.remove(looseFoodsTable[i])
 			end
 		end
 	end
@@ -217,7 +222,10 @@ local function isEqualArray(table1, table2)
 	return false
 end
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 18a2cdf7b2a5727e48f1c27ac6cfa8eae18a6462
 local function isDefCombo(combo)
   for i = 1, #foodCombinations do
     if (isEqualArray(foodCombinations[i], combo)) then
@@ -324,7 +332,7 @@ end
 
 
 local function onComplete()
-  local overText = display.newText(uiLayer, "x2 Points multiplier over", player.x+100, player.y, native.systemFont, 80)
+  local overText = display.newText(uiLayer, "x2 Points multiplier over", player.x+300, player.y, native.systemFont, 80)
   timer.performWithDelay(2000, function() transition.fadeOut(overText, {time = 500}) end)
 end
 
@@ -343,7 +351,7 @@ local function checkPowerUp()
 		end
 		print("Extra chunky")
 		transition.scaleBy(player, {xScale = 1, yScale = 1})
-		skewerOffset = skewerOffset + 50
+		--skewerOffset = skewerOffset + 50
 		local playerShapeXL = {2*-200,2*111,  2*-41,2*111,   2*-41,2*-89,   2*-200,2*-89}
 		local skewerShapeXL = {2*-40,2*50,  2*240,2*50,  2*240,2*31,  2*-40,2*31}
 		--[[physics.removeBody(player)
@@ -351,12 +359,21 @@ local function checkPowerUp()
 	                                       {shape = skewerShapeXL, isSensor=true})
 		--reduces body shape back to normal
 		timerPowerUp = timer.performWithDelay(10000, function()
+<<<<<<< HEAD
 				if(player ~= nil) then
 					transition.scaleBy(player, {xScale = -1, yScale = -1})
 					physics.removeBody(player)
 					skewerOffset = skewerOffset - 50
 					physics.addBody(player, "static",   {shape = playerShape, isSensor=true},
 				                                       {shape = skewerShape, isSensor=true})
+=======
+			if(player ~= nil) then
+				transition.scaleBy(player, {xScale = -1, yScale = -1})
+				physics.removeBody(player)
+				--skewerOffset = skewerOffset - 50
+				physics.addBody(player,"kinematic", {shape = playerShape, isSensor = true},
+																{shape = skewerShape, isSensor = true})
+>>>>>>> 18a2cdf7b2a5727e48f1c27ac6cfa8eae18a6462
 			end
 		end)]]
 	elseif(isEqualArray(onSkewerArray, {"broccoli","broccoli","broccoli"}))then
@@ -370,9 +387,8 @@ local function checkPowerUp()
                                                             onComplete()
                                                   end)
   end
-
-
 end
+
 local function updateText()
  scoreText.text = "Score: " .. score
 end
@@ -384,16 +400,21 @@ local function eatSkewer(event)
       table.insert(foodCombos, onSkewerArray)
       composer.setVariable("skewerArray", foodCombos)
     end
+<<<<<<< HEAD
+=======
+
+>>>>>>> 18a2cdf7b2a5727e48f1c27ac6cfa8eae18a6462
 		audio.play(eatAudio)
 		unTrackPlayer()
 
     checkPowerUp()
-
+    
     local points = checkCombination(onSkewerArray)
 
     if (pointsDoubled) then
       points = points * 2
     end
+<<<<<<< HEAD
 	score = score + points
 	local pointsText = display.newText(uiLayer, "+".. points, player.x+200, player.y+100, display.systemFont, 60)
 	timer.performWithDelay(2000, function() transition.fadeOut(pointsText, {time = 500}) end, 1)
@@ -406,6 +427,21 @@ local function eatSkewer(event)
 	end
 	updateText()
 	end
+=======
+
+		score = score + points
+		local pointsText = display.newText(uiLayer, "+".. points, player.x + 200, player.y + 100, display.systemFont, 60)
+		timer.performWithDelay(2000, function() transition.fadeOut(pointsText, {time = 500}) end, 1)
+		scoreText.text = "Score: " .. score
+
+		--	updateSkewer()
+			onSkewerArray = {}
+			if (points < 0 and health > 0) then
+				health = health - 1
+			end
+			updateText()
+		end
+>>>>>>> 18a2cdf7b2a5727e48f1c27ac6cfa8eae18a6462
 end
 
 local function keyPressed(event)
@@ -421,8 +457,11 @@ local function keyPressed(event)
 end
 
 local function pause()
- timer.pause(gameLoopTimer)
- if(timerPowerUp ~= nil)then
+ if gameLoopTimer then
+  timer.pause(gameLoopTimer)
+ end
+ 
+ if timerPowerUp then
  	timer.pause(timerPowerUp)
  end
  paused = true
@@ -435,8 +474,11 @@ local function pause()
 end
 
 local function resume()
-	timer.resume(gameLoopTimer)
-	if(timerPowerUp ~= nil)then
+  if gameLoopTimer then
+    timer.resume(gameLoopTimer)
+  end
+  
+	if timerPowerUp then
 		timer.resume(timerPowerUp)
 	end
 	paused = false
@@ -479,16 +521,6 @@ end
 ----------------------------------------------------------------------------
 --EMPTY/UNUSED FUNCTIONS BELOW
 ----------------------------------------------------------------------------
-
-
-local function moveSprite(event)
-----Will be used when joystick is added
-if(player == nil)then
-	return
-end
-	player.x = player.x + motionx
-	player.y = player.y + motiony
-end
 
 -- Will be used if we switch to Windows and use arrow keys
 local function arrowPressed(event)
@@ -533,6 +565,7 @@ end
 
 local function onCollision(event) --(*Is lettuce considered an enemy food? I'll assume it is for now)
 	if (event.phase == "began" and player ~= nil) then
+<<<<<<< HEAD
 			local collidedObject = event.object2
 			if (collidedObject.myName == "player") then
 				collidedObject = event.object1
@@ -579,17 +612,63 @@ local function onCollision(event) --(*Is lettuce considered an enemy food? I'll 
          if (looseFoodsTable[i] == collidedObject) then
             table.remove(looseFoodsTable, i)
 					end
+=======
+		local collidedObject = event.object2
+		if (collidedObject.myName == "player") then
+			collidedObject = event.object1
+		end
+    
+    --print(collidedObject.myName)
+    
+    --print(event.object1.myName)
+    --print(event.object2.myName)
+    
+    if (event.element1 == 1 and (event.object1.myName == "player" or event.object2.myName == "player")) then --event.element1 == 1, when the body of the player collides with the food
+      print("Body Collided")
+      health = health - 1
+      --Changes colour of player to red, then changes it back after 500ms
+      player:setFillColor(1, 0.2, 0.2)
+      timer.performWithDelay(500, function() if (player ~= nil) then player:setFillColor(1, 1, 1) end end, 1)
+      audio.play(hurtAudio)
+      updateText()
+      
+      if (indexOf(looseFoodsTable, collidedObject) ~= -1) then
+        table.remove(looseFoodsTable, indexOf(looseFoodsTable, collidedObject))
+         display.remove(collidedObject)
+>>>>>>> 18a2cdf7b2a5727e48f1c27ac6cfa8eae18a6462
       end
 
-		if (#onSkewerArray == maxOnSkewer) then
-			timer.performWithDelay(50, function()
-																 collidedObject.isBodyActive = false
+      --player dies
+      if (health < 1) then
+        player.alpha = 0
+        timer.performWithDelay(50, function() player.isBodyActive = false end)
+        unTrackPlayer()
+        timer.performWithDelay(2000, goToMainMenu)
+      end
+      
+      print(isFood(event.object2))
+    elseif ((event.object1.myName == "player" and isFood(event.object2))) then
+      print("Things stabbed!")
+      table.remove(looseFoodsTable, indexOf(looseFoodsTable, collidedObject))
+      table.insert(onSkewerArray, collidedObject.myName)
+      timer.performWithDelay(50, function()
+                                collidedObject.isBodyActive = false
+                                table.insert(foodsToMove, collidedObject) end)
+    else
+      print(collidedObject.myName)
+      table.remove(looseFoodsTable, indexOf(looseFoodsTable, collidedObject))
+    end
+    if (#onSkewerArray == maxOnSkewer) then
+      table.remove(looseFoodsTable, indexOf(looseFoodsTable, collidedObject))
+      print(collidedObject.myName)
+      timer.performWithDelay(50, function()
+                                 collidedObject.isBodyActive = false
 																 table.insert(foodsToMove, collidedObject)
-															 	 eatSkewer() end)
-		end
-	end
+                                 eatSkewer()
+                               end)
+    end
+  end
 end
-
 ----------------------------------------------------------------------------
 ----------------------------------------------------------------------------
 -- Scene event functions
@@ -597,7 +676,6 @@ end
 
 -- create()
 function scene:create( event )
-
 	local sceneGroup = self.view
 	-- Code here runs when the scene is first created but has not yet appeared on screen
 	physics.pause()
@@ -628,17 +706,17 @@ function scene:create( event )
 	bg2.fill = bgImage2
 	bg2.x = display.contentCenterX + display.actualContentWidth
 	bg2.y = display.contentCenterY
-
- for i = 1, 3 do
-    addHeart()
-  end
-
-	player = display.newImageRect(mainLayer, "Images/player.png", 480, 222)
+  
+  player = display.newImageRect(mainLayer, "Images/player.png", 480, 222)
 	player.x = display.contentCenterX - 1000
 	player.y = display.contentCenterY
 	physics.addBody(player, "static",   {shape = playerShape, isSensor=true},
                                        {shape = skewerShape, isSensor=true})
 	player.myName = "player"
+
+  for i = 1, 3 do
+    addHeart()
+  end
 
 	--Score is text for prototype
 	scoreText = display.newText(uiLayer, "Score: " .. score, display.contentCenterX + 900, display.contentCenterY - 500, native.systemFont, 80)
@@ -656,21 +734,14 @@ function scene:create( event )
 	pauseText = display.newText(uiLayer, "Paused", 100, 100, display.systemFont, 60)
 	pauseText.isVisible = false
 
-	eatButton = display.newText(uiLayer, "Eat", leftBound + 100, bottomBound - 100, display.systemFont, 80)
+	eatButton = display.newImageRect(uiLayer, "Images/eatButton.png", 200, 200)
+  eatButton.x = leftBound + 100
+  eatButton.y = bottomBound - 100
 	menuButton = display.newText(uiLayer, "Menu", leftBound + 100, bottomBound - 100, display.systemFont, 80)
 	menuButton.isVisible = false
 
 	journalButton = display.newText(uiLayer, "Journal", leftBound + 400, bottomBound - 100, display.systemFont, 80)
 	journalButton.isVisible = false
-
-	createCombinationsTable()
-	--init()
-	--Debug to print test output to console, will remove later
-	print2D(foodCombinations)
-
-	local good = {"lettuce", "lettuce", "lettuce", "lettuce"}
-	--print(checkCombination(good))
-	--------------------------------------------------------------
 
 	player:addEventListener("touch", dragPlayer)
 	player:addEventListener("tap", eatSkewer)
@@ -690,15 +761,12 @@ function scene:show( event )
 
 	if ( phase == "will" ) then
 		-- Code here runs when the scene is still off screen (but is about to come on screen)
-
+  
 	elseif ( phase == "did" ) then
-		-- Code here runs when the scene is entirely on screen
+    print("Scene shown")
 		physics.start()
-		Runtime:addEventListener("collision", onCollision)
-		Runtime:addEventListener("enterFrame", checkBounds)
-		Runtime:addEventListener("enterFrame", moveObject)
-		--Runtime:addEventListener("enterFrame", enterFrame)
-		Runtime:addEventListener("enterFrame", moveSprite)
+    Runtime:addEventListener("collision", onCollision)
+		Runtime:addEventListener("enterFrame", enterFrame)
 		Runtime:addEventListener("key", keyPressed)
 		Runtime:addEventListener("key", arrowPressed)
 		gameLoopTimer = timer.performWithDelay(gameLoopCycle, gameLoop, 0)
@@ -714,8 +782,12 @@ function scene:hide( event )
 
 	if ( phase == "will" ) then
 		-- Code here runs when the scene is on screen (but is about to go off screen)
+    Runtime:removeEventListener("enterFrame", enterFrame)
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen
+    print("hidden")
+    
+    composer.removeScene("game")
 	end
 end
 
@@ -725,13 +797,17 @@ function scene:destroy( event )
 
 	local sceneGroup = self.view
 	-- Code here runs prior to the removal of scene's view
-	physics.pause()
+  print("removed")
+  Runtime:removeEventListener("collision",onCollision)
+  Runtime:removeEventListener("key", keyPressed)
+  audio.dispose(eatAudio)
+  audio.dispose(hurtAudio)
+  physics.pause()
 	timer.cancel(gameLoopTimer)
-	Runtime:removeEventListener("collision",onCollision)
-	Runtime:removeEventListener("enterFrame", checkBounds)
-	Runtime:removeEventListener("enterFrame", moveObject)
-	Runtime:removeEventListener("enterFrame", moveSprite)
-	Runtime:removeEventListener("key", keyPressed)
+  
+  if timerPowerUp then
+    timer.cancel(timerPowerUp)
+  end
 end
 
 

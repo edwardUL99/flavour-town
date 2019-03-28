@@ -107,7 +107,7 @@ local function trackPlayer()
 end
 
 local function unTrackPlayer()
-	for i = #foodsToMove, 1, -1 do
+	for i = #foodsToMove, 0, -1 do
 		display.remove(foodsToMove[i])
 		table.remove(foodsToMove, i)
 	end
@@ -127,6 +127,7 @@ end
 
 local function goToMainMenu()
 	--composer.removeScene("game")
+	onSkewerArray = {}
 	composer.setVariable("scene", "menu")
 	composer.setVariable("fromScene", "game")
   composer.setVariable("score", score)
@@ -217,45 +218,6 @@ local function isEqualArray(table1, table2)
 end
 
 
---[[local function updateSkewer()
- --Will provide code to update the food contents on the skewer
- local i = #onSkewerArray
- if (i==nil) then i=0 end
- print("There are " .. #onSkewerArray .. " foods on the skewer.")
-if(#onSkewerArray == 1) then
-	local foodPos1 = display.newImageRect(mainLayer, imageSheet, sheetInfo:getFrameIndex(onSkewerArray[i]), sheetInfo:getWidth(onSkewerArray[i]), sheetInfo:getHeight(onSkewerArray[i]))
-	foodPos1.x = display.contentCenterX - (1200 - 55*1)
-	foodPos1.y = display.contentCenterY + 600
-	foodPos1.height = 50
-	foodPos1.width = 50
-elseif (#onSkewerArray == 2) then
-	local foodPos2 = display.newImageRect(mainLayer, imageSheet, sheetInfo:getFrameIndex(onSkewerArray[i]), sheetInfo:getWidth(onSkewerArray[i]), sheetInfo:getHeight(onSkewerArray[i]))
-	foodPos2.x = display.contentCenterX - (1200 - 55*2)
-	foodPos2.y = display.contentCenterY + 600
-	foodPos2.height = 50
-	foodPos2.width = 50
-elseif (#onSkewerArray == 3) then
-	local foodPos3 = display.newImageRect(mainLayer, imageSheet, sheetInfo:getFrameIndex(onSkewerArray[i]), sheetInfo:getWidth(onSkewerArray[i]), sheetInfo:getHeight(onSkewerArray[i]))
-	foodPos3.x = display.contentCenterX - (1200 - 55*3)
-	foodPos3.y = display.contentCenterY + 600
-	foodPos3.height = 50
-	foodPos3.width = 50
-elseif (#onSkewerArray == 4) then
-	local foodPos4 = display.newImageRect(mainLayer, imageSheet, sheetInfo:getFrameIndex(onSkewerArray[i]), sheetInfo:getWidth(onSkewerArray[i]), sheetInfo:getHeight(onSkewerArray[i]))
-	foodPos4.x = display.contentCenterX - (1200 - 55*4)
-	foodPos4.y = display.contentCenterY + 600
-	foodPos4.height = 50
-	foodPos4.width = 50
-end
-end
---]]
-local function clearSkewer()
-	display.remove(foodPos1)
-	display.remove(foodPos2)
-	display.remove(foodPos3)
-	display.remove(foodPos4)
-end
-
 local function isDefCombo(combo)
   for i = 1, #foodCombinations do
     if (isEqualArray(foodCombinations[i], combo)) then
@@ -336,14 +298,30 @@ local function checkCombination(namesTable)
 end
 
 local function addHeart()
-  if (health <= 3) then
     heartXPos = heartXPos + 100
     heartArrayPos = heartArrayPos + 1
     lives[heartArrayPos] = display.newImageRect(uiLayer,"Images/heart.png",200,200)
     lives[heartArrayPos].x = heartXPos
     lives[heartArrayPos].y = heartYPos
-  end
+	 print("Adding heart at position " .. heartArrayPos)
 end
+
+local function removeHeart()
+	if (health == 2) then
+      display.remove(lives[3])
+      heartXPos = heartXPos - 100
+      heartArrayPos = 2
+   elseif(health == 1) then
+      display.remove(lives[2])
+      heartXPos = heartXPos - 100
+      heartArrayPos = 1
+   elseif ( health == 0) then
+     display.remove(lives[1])
+     heartXPos = heartXPos - 100
+     heartArrayPos = 0
+   end
+end
+
 
 local function onComplete()
   local overText = display.newText(uiLayer, "x2 Points multiplier over", player.x+100, player.y, native.systemFont, 80)
@@ -353,12 +331,13 @@ end
 local function checkPowerUp()
 	if(isEqualArray(onSkewerArray,{"tomato","tomato","tomato"}))then
 		if(health<3)then
-      addHeart()
 			local healthNewText = display.newText(uiLayer, "+1 health", player.x+100, player.y, native.systemFont, 80)
 			timer.performWithDelay(2000, function() transition.fadeOut(healthNewText, {time = 500}) end, 1)
 			health = health + 1
+			addHeart()
+			print("Player health is " .. health)
 		end
-	elseif(isEqualArray(onSkewerArray,{"bacon","bacon","bacon"}))then
+	elseif(isEqualArray(onSkewerArray, onSkewerArray--[[{"bacon", "bacon", "bacon"}]]))then
 		if(skewerOffset ~= 0)then -- prevents player from increasing in size more than once
 			return
 		end
@@ -367,19 +346,19 @@ local function checkPowerUp()
 		skewerOffset = skewerOffset + 50
 		local playerShapeXL = {2*-200,2*111,  2*-41,2*111,   2*-41,2*-89,   2*-200,2*-89}
 		local skewerShapeXL = {2*-40,2*50,  2*240,2*50,  2*240,2*31,  2*-40,2*31}
-		physics.removeBody(player)
-		physics.addBody(player,"kinematic", {shape = playerShapeXL, isSensor = true},
-														{shape = skewerShapeXL, isSensor = true})
+		--[[physics.removeBody(player)
+		physics.addBody(player, "static",   {shape = playerShapeXL, isSensor=true},
+	                                       {shape = skewerShapeXL, isSensor=true})
 		--reduces body shape back to normal
 		timerPowerUp = timer.performWithDelay(10000, function()
-			if(player ~= nil) then
-				transition.scaleBy(player, {xScale = -1, yScale = -1})
-				physics.removeBody(player)
-				skewerOffset = skewerOffset - 50
-				physics.addBody(player,"kinematic", {shape = playerShape, isSensor = true},
-																{shape = skewerShape, isSensor = true})
+				if(player ~= nil) then
+					transition.scaleBy(player, {xScale = -1, yScale = -1})
+					physics.removeBody(player)
+					skewerOffset = skewerOffset - 50
+					physics.addBody(player, "static",   {shape = playerShape, isSensor=true},
+				                                       {shape = skewerShape, isSensor=true})
 			end
-		end)
+		end)]]
 	elseif(isEqualArray(onSkewerArray, {"broccoli","broccoli","broccoli"}))then
 		print("Go green")
 		player:setFillColor(0, 1, 0.2)
@@ -396,19 +375,6 @@ local function checkPowerUp()
 end
 local function updateText()
  scoreText.text = "Score: " .. score
- if (health == 2) then
-    display.remove(lives[3])
-    heartXPos = heartXPos - 100
-    heartArrayPos = heartArrayPos - 1
- elseif(health == 1) then
-    display.remove(lives[2])
-    heartXPos = heartXPos - 100
-    heartArrayPos = heartArrayPos - 1
- elseif ( health == 0) then
-   display.remove(lives[1])
-   heartXPos = heartXPos - 100
-   heartArrayPos = heartArrayPos - 1
- end
 end
 
 local function eatSkewer(event)
@@ -418,8 +384,6 @@ local function eatSkewer(event)
       table.insert(foodCombos, onSkewerArray)
       composer.setVariable("skewerArray", foodCombos)
     end
-
-		clearSkewer()
 		audio.play(eatAudio)
 		unTrackPlayer()
 
@@ -430,19 +394,18 @@ local function eatSkewer(event)
     if (pointsDoubled) then
       points = points * 2
     end
-
-		score = score + points
-		local pointsText = display.newText(uiLayer, "+".. points, player.x+200, player.y+100, display.systemFont, 60)
-		timer.performWithDelay(2000, function() transition.fadeOut(pointsText, {time = 500}) end, 1)
-		scoreText.text = "Score: " .. score
-
-		--	updateSkewer()
-			onSkewerArray = {}
-			if (points < 0 and health > 0) then
-				health = health - 1
-			end
-			updateText()
-		end
+	score = score + points
+	local pointsText = display.newText(uiLayer, "+".. points, player.x+200, player.y+100, display.systemFont, 60)
+	timer.performWithDelay(2000, function() transition.fadeOut(pointsText, {time = 500}) end, 1)
+	scoreText.text = "Score: " .. score
+	--	updateSkewer()
+	onSkewerArray = {}
+	foodsToMove = {}
+	if (points < 0 and health > 0) then
+		health = health - 1
+	end
+	updateText()
+	end
 end
 
 local function keyPressed(event)
@@ -570,18 +533,22 @@ end
 
 local function onCollision(event) --(*Is lettuce considered an enemy food? I'll assume it is for now)
 	if (event.phase == "began" and player ~= nil) then
-		local collidedObject = event.object2
-		if (collidedObject.myName == "player") then
-			collidedObject = event.object1
-		end
-      if (event.element1 == 1 and (event.object1.myName == "player" or event.object2.myName == "player")) then --event.element1 == 1, when the body of the player collides with the food
-         print(event.object1.myName .. " " .. "hit at" .. " " .. player.x .. " " .. "and" .. " " .. player.y .. " " .. "by" .. " " .. collidedObject.myName .. " " .. "at" .. " " .. collidedObject.x .. " " .. "and" .. " " .. collidedObject.y .. "!")
-         health = health - 1
-         --Changes colour of player to red, then changes it back after 500ms
-         player:setFillColor(1, 0.2, 0.2)
-         timer.performWithDelay(500, function() if (player ~= nil) then player:setFillColor(1, 1, 1) end end, 1)
-         audio.play(hurtAudio)
-         updateText()
+			local collidedObject = event.object2
+			if (collidedObject.myName == "player") then
+				collidedObject = event.object1
+			end
+			print()
+	      if (event.element1 == 1 and (event.object1.myName == "player" or event.object2.myName == "player")) then --event.element1 == 1, when the body of the player collides with the food
+				print("object1 is "..event.object1.myName.. " object2 is " ..  event.object2.myName)
+	         print(event.object1.myName .. " " .. "hit at" .. " " .. player.x .. " " .. "and" .. " " .. player.y .. " " .. "by" .. " " .. collidedObject.myName .. " " .. "at" .. " " .. collidedObject.x .. " " .. "and" .. " " .. collidedObject.y .. "!")
+	         health = health - 1
+				print("Player health is " .. health)
+	         --Changes colour of player to red, then changes it back after 500ms
+	         player:setFillColor(1, 0.2, 0.2)
+	         timer.performWithDelay(500, function() if (player ~= nil) then player:setFillColor(1, 1, 1) end end, 1)
+	         audio.play(hurtAudio)
+				removeHeart()
+	         updateText()
 				 display.remove(collidedObject)
 
 				 if (indexOf(looseFoodsTable, collidedObject) ~= -1) then
@@ -597,12 +564,13 @@ local function onCollision(event) --(*Is lettuce considered an enemy food? I'll 
 					player = nil
 	 			end
       elseif ((event.object1.myName == "player" and isFood(event.object2))) then
-         print("Things stabbed!")
+         print("Things stabbed! It was a " .. collidedObject.myName )
          table.insert(onSkewerArray, collidedObject.myName)
-				 timer.performWithDelay(50, function()
-				 														collidedObject.isBodyActive = false
-																		table.insert(foodsToMove, collidedObject) end)
-		  else
+			print("There is ".. #onSkewerArray .. " on the skewer array")
+			 timer.performWithDelay(50, function()
+			 														collidedObject.isBodyActive = false
+																	table.insert(foodsToMove, collidedObject) end)
+	  else
 				display.remove(collidedObject)
 				table.remove(looseFoodsTable, indexOf(looseFoodsTable, collidedObject))
 			end

@@ -24,13 +24,14 @@ local scoresPath = system.pathForFile("score.json", system.DocumentsDirectory)
 local function goToMainMenu()
   composer.setVariable("scene", "menu")
   composer.setVariable("fromScene", "journal")
-	composer.gotoScene("loading", "fade", 500)
+	composer.gotoScene("loading", {time=800, effect="crossFade"})
 end
 
 local function goBackToGame()
   composer.setVariable("scene", "game")
   composer.setVariable("fromScene", "journal")
-  composer.gotoScene("loading", "fade", 500)
+  composer.removeScene("game")
+  composer.gotoScene("loading", {time=800, effect="crossFade"})
 end
 
 local function printTable(table)
@@ -251,6 +252,7 @@ function scene:hide( event )
 
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen
+    composer.removeScene("journal")
 	end
 end
 

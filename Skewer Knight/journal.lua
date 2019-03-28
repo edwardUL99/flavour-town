@@ -30,7 +30,6 @@ end
 local function goBackToGame()
   composer.setVariable("scene", "game")
   composer.setVariable("fromScene", "journal")
-  composer.removeScene("game")
   composer.gotoScene("loading", {time=800, effect="crossFade"})
 end
 

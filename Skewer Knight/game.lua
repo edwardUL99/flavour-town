@@ -140,7 +140,7 @@ local function goToJournal()
 end
 
 local function checkBounds()
-	if(player ~= nil) then
+	if (player ~= nil) then
     if (player.x > rightBound) then
       player.x = rightBound - 30
     elseif (player.x < leftBound) then
@@ -556,9 +556,9 @@ local function onCollision(event) --(*Is lettuce considered an enemy food? I'll 
       --player dies
       if (health < 1) then
         player.alpha = 0
+        timer.performWithDelay(50, function() player.isBodyActive = false end)
         unTrackPlayer()
         timer.performWithDelay(2000, goToMainMenu)
-        display.remove(player)
       end
       
       print(isFood(event.object2))
@@ -697,19 +697,11 @@ function scene:hide( event )
 
 	if ( phase == "will" ) then
 		-- Code here runs when the scene is on screen (but is about to go off screen)
-    timer.cancel(gameLoopTimer)
-  
-    if timerPowerUp then
-      timer.cancel(timerPowerUp)
-    end
+    Runtime:removeEventListener("enterFrame", enterFrame)
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen
-    Runtime:removeEventListener("collision",onCollision)
-    Runtime:removeEventListener("enterFrame", enterFrame)
-    Runtime:removeEventListener("key", keyPressed)
-    audio.dispose(eatAudio)
-    audio.dispose(hurtAudio)
-    physics.pause()
+    print("hidden")
+    
     composer.removeScene("game")
 	end
 end
@@ -720,7 +712,17 @@ function scene:destroy( event )
 
 	local sceneGroup = self.view
 	-- Code here runs prior to the removal of scene's view
-	
+  print("removed")
+  Runtime:removeEventListener("collision",onCollision)
+  Runtime:removeEventListener("key", keyPressed)
+  audio.dispose(eatAudio)
+  audio.dispose(hurtAudio)
+  physics.pause()
+	timer.cancel(gameLoopTimer)
+  
+  if timerPowerUp then
+    timer.cancel(timerPowerUp)
+  end
 end
 
 

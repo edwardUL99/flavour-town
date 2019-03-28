@@ -208,6 +208,9 @@ function scene:create( event )
   if (composer.getVariable("score") ~= nil) then
     local score = composer.getVariable("score")
     if (score > highScore[1]) then
+      local newHighScore = display.newText(uiLayer, "New High Score: " .. " " .. score .. "!", 500, display.contentCenterY, native.systemFont, 80)
+      newHighScore:setFillColor(0.75, 1, 0.5)
+			timer.performWithDelay(2000, function() transition.fadeOut(newHighScore, {time = 500}) end, 1)
       highScore[1] = score
     end
     composer.variables["score"] = nil

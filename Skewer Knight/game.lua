@@ -387,11 +387,11 @@ local function checkPowerUp()
     pointsDoubled = true
     local doubledText = display.newText(uiLayer, "x2 Points multiplier", player.x+100, player.y, native.systemFont, 80)
     timer.performWithDelay(2000, function() transition.fadeOut(doubledText, {time = 500}) end, 1)
-    timerPowerUp = timer.performWithDelay(10000, function() pointsDoubled = false 
+    timerPowerUp = timer.performWithDelay(10000, function() pointsDoubled = false
                                                             onComplete()
                                                   end)
   end
-    
+
 
 end
 local function updateText()
@@ -422,15 +422,15 @@ local function eatSkewer(event)
 		clearSkewer()
 		audio.play(eatAudio)
 		unTrackPlayer()
-    
+
     checkPowerUp()
-    
+
     local points = checkCombination(onSkewerArray)
-    
+
     if (pointsDoubled) then
       points = points * 2
     end
-    
+
 		score = score + points
 		local pointsText = display.newText(uiLayer, "+".. points, player.x+200, player.y+100, display.systemFont, 60)
 		timer.performWithDelay(2000, function() transition.fadeOut(pointsText, {time = 500}) end, 1)
@@ -637,11 +637,11 @@ function scene:create( event )
 	backLayer = display.newGroup()
 	sceneGroup:insert(backLayer)
 
-	uiLayer = display.newGroup()
-	sceneGroup:insert(uiLayer)
-
   mainLayer = display.newGroup()
 	sceneGroup:insert(mainLayer)
+
+	uiLayer = display.newGroup()
+	sceneGroup:insert(uiLayer)
 
 	--[[local background = display.newImageRect(backLayer, "background.jpg", display.actualContentWidth,display.actualContentHeight)
 	background.x = display.contentCenterX

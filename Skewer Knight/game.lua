@@ -194,7 +194,7 @@ local function enterFrame(event)
 			looseFoodsTable[i].x = looseFoodsTable[i].x - foodScrollSpeed * dt
 			if (looseFoodsTable[i].x < -(display.actualContentWidth)) then
 				table.remove(looseFoodsTable, i)
-        display.remove(looseFoodsTable[i])
+        timer.performWithDelay(100, display.remove(looseFoodsTable[i]))
 			end
 		end
 	end
@@ -341,9 +341,9 @@ local function checkPowerUp()
 
 		end
 	elseif(isEqualArray(onSkewerArray,{"bacon","bacon","bacon"}))then
-		if(skewerOffset ~= 0)then -- prevents player from increasing in size more than once
+		--[[if(skewerOffset ~= 0)then -- prevents player from increasing in size more than once
 			return
-		end
+		end]]--
 		print("Extra chunky")
 		transition.scaleBy(player, {xScale = 1, yScale = 1})
 		--skewerOffset = skewerOffset + 50
@@ -555,8 +555,8 @@ local function onCollision(event) --(*Is lettuce considered an enemy food? I'll 
 
       if (indexOf(looseFoodsTable, collidedObject) ~= -1) then
         table.remove(looseFoodsTable, indexOf(looseFoodsTable, collidedObject))
-         display.remove(collidedObject)
       end
+      display.remove(collidedObject)
 
       --player dies
       if (health < 1) then
@@ -574,13 +574,11 @@ local function onCollision(event) --(*Is lettuce considered an enemy food? I'll 
       timer.performWithDelay(50, function()
                                 collidedObject.isBodyActive = false
                                 table.insert(foodsToMove, collidedObject) end)
-    else
-      print(collidedObject.myName)
-      table.remove(looseFoodsTable, indexOf(looseFoodsTable, collidedObject))
     end
+    
     if (#onSkewerArray == maxOnSkewer) then
       table.remove(looseFoodsTable, indexOf(looseFoodsTable, collidedObject))
-      print(collidedObject.myName)
+      printTable(onSkewerArray)
       timer.performWithDelay(50, function()
                                  collidedObject.isBodyActive = false
 																 table.insert(foodsToMove, collidedObject)

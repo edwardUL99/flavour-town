@@ -3,7 +3,7 @@ local scene = composer.newScene()
 local sheetInfo = require("Images.spritesheet") --Introduces the functions required to grab sprites from sheet
 local objects = require("objects")
 local physics = require( "physics" )
---local json = require("json")
+local json = require("json")
 --local filePath = system.pathForFile("tables.json", system.DocumentsDirectory)
 
 physics.start()
@@ -193,8 +193,9 @@ local function enterFrame(event)
 		for i = #looseFoodsTable, 1, -1 do
 			looseFoodsTable[i].x = looseFoodsTable[i].x - foodScrollSpeed * dt
 			if (looseFoodsTable[i].x < -(display.actualContentWidth)) then
+        local foodToRemove = looseFoodsTable[i]
 				table.remove(looseFoodsTable, i)
-        timer.performWithDelay(100, display.remove(looseFoodsTable[i]))
+        display.remove(foodToRemove)
 			end
 		end
 	end
@@ -221,13 +222,13 @@ local function isEqualArray(table1, table2)
 	return false
 end
 
-local function isDefCombo(combo)
+local function comboIndex(combo)
   for i = 1, #foodCombinations do
     if (isEqualArray(foodCombinations[i], combo)) then
-      return true
+      return i
     end
   end
-  return false
+  return -1
 end
 
 --(*Mightn't need if using new checkCombination method)
@@ -235,7 +236,7 @@ local function createCombinationsTable()
 	for i = 1, amountOfCombos do --Creating 2D array
 		foodCombinations[i] = {}
 	end
-	--The score values for each combination is in the last position i.e #foodCombinations[i] where i is some number 1-5
+	--The score values for each combination is in the last position i.e #foodCombinations[i] where i is some number 1-4
 	--[[foodCombinations[1] = {"bread", "bread", "bread", 500}
 	foodCombinations[2] = {"broccoli", "broccoli", "broccoli", 50}
 	foodCombinations[3] = {"burger", "burger", "burger", 1000}
@@ -327,7 +328,9 @@ local function removeHeart()
 end
 
 local function onComplete()
-  local overText = display.newText(uiLayer, "x2 Points multiplier over", player.x+300, player.y, native.systemFont, 80)
+  if player then 
+    local overText = display.newText(uiLayer, "x2 Points multiplier over", player.x+300, player.y, native.systemFont, 80)
+  end
   timer.performWithDelay(2000, function() transition.fadeOut(overText, {time = 500}) end)
 end
 
@@ -381,9 +384,26 @@ end
 
 local function eatSkewer(event)
 	if(#onSkewerArray>0)then
+    local points = checkCombination(onSkewerArray)
 
-    if (isDefCombo(onSkewerArray)) then
-      table.insert(foodCombos, onSkewerArray)
+    if (pointsDoubled) then
+      points = points * 2
+    end
+			
+    if (points < 0 and health > 0) then
+      health = health - 1
+    end
+    updateText()
+    
+    score = score + points
+		local pointsText = display.newText(uiLayer, "+".. points, player.x + 200, player.y + 100, native.systemFont, 60)
+		timer.performWithDelay(2000, function() transition.fadeOut(pointsText, {time = 500}) end, 1)
+		scoreText.text = "Score: " .. score
+
+    local indexComboTable = comboIndex(onSkewerArray)
+    print(indexComboTable)
+    if (indexComboTable ~= -1) then
+      table.insert(foodCombos, foodCombinations[indexComboTable])
       composer.setVariable("skewerArray", foodCombos)
     end
 
@@ -391,25 +411,7 @@ local function eatSkewer(event)
 		unTrackPlayer()
 
     checkPowerUp()
-
-    local points = checkCombination(onSkewerArray)
-
-    if (pointsDoubled) then
-      points = points * 2
-    end
-
-		score = score + points
-		local pointsText = display.newText(uiLayer, "+".. points, player.x + 200, player.y + 100, display.systemFont, 60)
-		timer.performWithDelay(2000, function() transition.fadeOut(pointsText, {time = 500}) end, 1)
-		scoreText.text = "Score: " .. score
-
-		--	updateSkewer()
-			onSkewerArray = {}
-			if (points < 0 and health > 0) then
-				health = health - 1
-			end
-			updateText()
-		end
+  end
 end
 
 local function keyPressed(event)
@@ -566,7 +568,6 @@ local function onCollision(event) --(*Is lettuce considered an enemy food? I'll 
         timer.performWithDelay(2000, goToMainMenu)
       end
 
-      print(isFood(event.object2))
     elseif ((event.object1.myName == "player" and isFood(event.object2))) then
       print("Things stabbed!")
       table.remove(looseFoodsTable, indexOf(looseFoodsTable, collidedObject))
@@ -578,7 +579,6 @@ local function onCollision(event) --(*Is lettuce considered an enemy food? I'll 
     
     if (#onSkewerArray == maxOnSkewer) then
       table.remove(looseFoodsTable, indexOf(looseFoodsTable, collidedObject))
-      printTable(onSkewerArray)
       timer.performWithDelay(50, function()
                                  collidedObject.isBodyActive = false
 																 table.insert(foodsToMove, collidedObject)
@@ -660,6 +660,8 @@ function scene:create( event )
 
 	journalButton = display.newText(uiLayer, "Journal", leftBound + 400, bottomBound - 100, display.systemFont, 80)
 	journalButton.isVisible = false
+  
+  createCombinationsTable()
 
 	player:addEventListener("touch", dragPlayer)
 	player:addEventListener("tap", eatSkewer)
@@ -700,11 +702,22 @@ function scene:hide( event )
 
 	if ( phase == "will" ) then
 		-- Code here runs when the scene is on screen (but is about to go off screen)
+    timer.cancel(gameLoopTimer)
+    if timerPowerUp then
+      timer.cancel(timerPowerUp)
+    end
+    
     Runtime:removeEventListener("enterFrame", enterFrame)
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen
     print("hidden")
-
+  
+    Runtime:removeEventListener("collision",onCollision)
+    Runtime:removeEventListener("key", keyPressed)
+    Runtime:addEventListener("key", arrowPressed)
+    audio.dispose(eatAudio)
+    audio.dispose(hurtAudio)
+    physics.pause()
     composer.removeScene("game")
 	end
 end
@@ -716,16 +729,7 @@ function scene:destroy( event )
 	local sceneGroup = self.view
 	-- Code here runs prior to the removal of scene's view
   print("removed")
-  Runtime:removeEventListener("collision",onCollision)
-  Runtime:removeEventListener("key", keyPressed)
-  audio.dispose(eatAudio)
-  audio.dispose(hurtAudio)
-  physics.pause()
-	timer.cancel(gameLoopTimer)
 
-  if timerPowerUp then
-    timer.cancel(timerPowerUp)
-  end
 end
 
 

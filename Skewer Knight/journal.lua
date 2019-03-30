@@ -24,13 +24,13 @@ local scoresPath = system.pathForFile("score.json", system.DocumentsDirectory)
 local function goToMainMenu()
   composer.setVariable("scene", "menu")
   composer.setVariable("fromScene", "journal")
-	composer.gotoScene("loading", {time=800, effect="crossFade"})
+	timer.performWithDelay(500, function() composer.gotoScene( "loading", "fade", 500 ) end)
 end
 
 local function goBackToGame()
   composer.setVariable("scene", "game")
   composer.setVariable("fromScene", "journal")
-  composer.gotoScene("loading", {time=800, effect="crossFade"})
+  timer.performWithDelay(500, function() composer.gotoScene( "loading", "fade", 500 ) end)
 end
 
 local function printTable(table)
@@ -104,7 +104,7 @@ end
 
 local function isEqualArray(table1, table2)
 	--Since the score value is only stored at end of each combination table, we can ignore it and check the names only
-	if (#table1 - 1 == #table2) then
+	if (#table1 == #table2) then
 		for i = 1, #table2 do
 			if (table1[i] ~= table2[i]) then
 				return false
@@ -115,17 +115,32 @@ local function isEqualArray(table1, table2)
 	return false
 end
 
+local function containsArray(array)
+  for i = 1, #combinationsTable do
+    for j = 1, #combinationsTable[i] do
+      for k = 1, #array do
+        if (isEqualArray(combinationsTable[i][j], array[k])) then
+          return true
+        end
+      end
+    end 
+  end
+end
+
 local function createDisplayObject(x, y, object)
   local newDisplay = display.newImageRect(uiLayer, "Images/comboBack.png", 500, 300)
+  local savedX = x
   newDisplay.x = x
   newDisplay.y = y
   table.insert(displayObjects, newDisplay)
 
   x = x - 100
-  for i = 1, #object do
+  for i = 1, #object-1 do
     objects:spawnObject(uiLayer, x, y, 100, 100, object[i])
     x = x + 100
   end
+  
+  local pointsText = display.newText(uiLayer, object[#object], savedX, y + 75, native.systemFont, 50)
 end
 
 local function displayCombos()
@@ -135,31 +150,29 @@ local function displayCombos()
   local displayed = 0
 	local combo = ""
 	local text
-
-  if (combinationsTable[1] ~= nil) then
-    for i = 1, #combinationsTable do
-      for j = 1, #combinationsTable[i] do
-        --for k = 1, #combinationsTable[i][j] do
-          --combo = combo .. combinationsTable[i][j].. "-"
-          --objects:spawnObject(uiLayer, x, y, 100, 100, combinationsTable[i][j][k])
-          createDisplayObject(x, y, combinationsTable[i][j])
-          displayed = displayed + 1
-          print(displayed)
-          if (displayed == maxPerRow) then
-            x = -600
-            y = y + 350
-            displayed = 0
-          else
+  
+  for i = 1, #combinationsTable do
+    for j = 1, #combinationsTable[i] do
+      --for k = 1, #combinationsTable[i][j] do
+        --combo = combo .. combinationsTable[i][j].. "-"
+        --objects:spawnObject(uiLayer, x, y, 100, 100, combinationsTable[i][j][k])
+      createDisplayObject(x, y, combinationsTable[i][j])
+      displayed = displayed + 1
+      if (displayed == maxPerRow) then
+        x = -600
+        y = y + 350
+        displayed = 0
+      else
         --end
-          x = x + 500
-        end
+        x = x + 500
       end
+    end
       --combo = combo .. combinationsTable[i][#combinationsTable[i]]
-      --text = display.newText(uiLayer, combo, x, y, system.nativeFont, 50)
+    --text = display.newText(uiLayer, combo, x, y, system.nativeFont, 50)
       --combo = ""
 		end
 	end
-end
+  
 
 local function deleteFile()
 	combinationsTable = {}
@@ -201,7 +214,11 @@ function scene:create( event )
   gameBtn:addEventListener("tap", goBackToGame)
 
   if (composer.getVariable("skewerArray") ~= nil) then
-    table.insert(combinationsTable, composer.getVariable("skewerArray"))
+      for i = 1, #composer.getVariable("skewerArray") do
+        if (not containsArray(combinationsTable, composer.getVariable("skewerArray")[i])) then
+          table.insert(combinationsTable, composer.getVariable("skewerArray"))
+        end
+      end
     composer.variables["skewerArray"] = nil
   end
   

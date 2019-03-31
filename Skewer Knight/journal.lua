@@ -86,6 +86,13 @@ end
 
 local function saveCombos()
 	local file = io.open(filePath, "w")
+  
+  for i = 1, #combinationsTable do
+    print(i .. " " .. "iteration")
+    if (#combinationsTable[i] == 0) then
+      table.remove(combinationsTable, i)
+    end 
+  end
 
 	if file then
 		file:write(json.encode(combinationsTable))
@@ -127,6 +134,18 @@ local function countSameCombos(combo)
   return count
 end
 
+local function comboIndex(combo)
+  for i = #combinationsTable, 1, -1 do
+    for j = #combinationsTable[i], 1, -1 do
+      if (isEqualArray(combinationsTable[i][j], combo)) then
+        return i, j
+      end 
+    end 
+  end
+  return nil
+end
+      
+
 local function createDisplayObject(x, y, object)
   local newDisplay = display.newImageRect(uiLayer, "Images/comboBack.png", 500, 300)
   local savedX = x
@@ -143,6 +162,24 @@ local function createDisplayObject(x, y, object)
   local pointsText = display.newText(uiLayer, object[#object], savedX, y + 75, native.systemFont, 50)
 end
 
+local function removeDuplicates(object)
+  local objectCount = countSameCombos(object)
+  local row, col = comboIndex(object)
+  if (row ~= nil and col ~= nil) then
+    for i = #combinationsTable, 1, -1 do
+      for j = #combinationsTable[i], 1, -1 do
+        if ((row == i and col == j) and objectCount > 1) then
+          table.remove(combinationsTable[i], j)
+          objectCount = countSameCombos(object)
+        end
+      end
+      if (combinationsTable[i] == nil or combinationsTable[i] == {}) then
+          table.remove(combinationsTable, i)
+      end
+    end 
+  end 
+end
+
 local function displayCombos()
 	local x = -600
 	local y = 250
@@ -156,8 +193,9 @@ local function displayCombos()
       --for k = 1, #combinationsTable[i][j] do
         --combo = combo .. combinationsTable[i][j].. "-"
         --objects:spawnObject(uiLayer, x, y, 100, 100, combinationsTable[i][j][k])
-        if (not alreadyDisplayed) then
-          createDisplayObject(x, y, combinationsTable[i][j])
+          local object = combinationsTable[i][j]
+          removeDuplicates(object)
+          createDisplayObject(x, y, object)
           displayed = displayed + 1
           if (displayed == maxPerRow) then
             x = -600
@@ -167,21 +205,12 @@ local function displayCombos()
             --end
             x = x + 500
           end
-        end
-
-        if (countSameCombos(combinationsTable[i][j]) > 1) then
-          alreadyDisplayed = true
-          break
-        else
-          alreadyDisplayed = false
-        end
-    end
       --combo = combo .. combinationsTable[i][#combinationsTable[i]]
     --text = display.newText(uiLayer, combo, x, y, system.nativeFont, 50)
       --combo = ""
 		end
 	end
-
+end
 
 local function deleteFile()
 	combinationsTable = {}

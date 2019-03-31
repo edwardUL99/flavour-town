@@ -115,16 +115,16 @@ local function isEqualArray(table1, table2)
 	return false
 end
 
-local function containsArray(array)
+local function countSameCombos(combo)
+  local count = 0
   for i = 1, #combinationsTable do
     for j = 1, #combinationsTable[i] do
-      for k = 1, #array do
-        if (isEqualArray(combinationsTable[i][j], array[k])) then
-          return true
-        end
+      if (isEqualArray(combinationsTable[i][j], combo)) then
+        count = count + 1
       end
-    end 
+    end
   end
+  return count
 end
 
 local function createDisplayObject(x, y, object)
@@ -139,7 +139,7 @@ local function createDisplayObject(x, y, object)
     objects:spawnObject(uiLayer, x, y, 100, 100, object[i])
     x = x + 100
   end
-  
+
   local pointsText = display.newText(uiLayer, object[#object], savedX, y + 75, native.systemFont, 50)
 end
 
@@ -148,31 +148,40 @@ local function displayCombos()
 	local y = 250
   local maxPerRow = 5
   local displayed = 0
+  local alreadyDisplayed = false
 	local combo = ""
-	local text
-  
+
   for i = 1, #combinationsTable do
     for j = 1, #combinationsTable[i] do
       --for k = 1, #combinationsTable[i][j] do
         --combo = combo .. combinationsTable[i][j].. "-"
         --objects:spawnObject(uiLayer, x, y, 100, 100, combinationsTable[i][j][k])
-      createDisplayObject(x, y, combinationsTable[i][j])
-      displayed = displayed + 1
-      if (displayed == maxPerRow) then
-        x = -600
-        y = y + 350
-        displayed = 0
-      else
-        --end
-        x = x + 500
-      end
+        if (not alreadyDisplayed) then
+          createDisplayObject(x, y, combinationsTable[i][j])
+          displayed = displayed + 1
+          if (displayed == maxPerRow) then
+            x = -600
+            y = y + 350
+            displayed = 0
+          else
+            --end
+            x = x + 500
+          end
+        end
+
+        if (countSameCombos(combinationsTable[i][j]) > 1) then
+          alreadyDisplayed = true
+          break
+        else
+          alreadyDisplayed = false
+        end
     end
       --combo = combo .. combinationsTable[i][#combinationsTable[i]]
     --text = display.newText(uiLayer, combo, x, y, system.nativeFont, 50)
       --combo = ""
 		end
 	end
-  
+
 
 local function deleteFile()
 	combinationsTable = {}
@@ -196,7 +205,6 @@ function scene:create( event )
 	sceneGroup:insert(backLayer)
 	uiLayer = display.newGroup()
 	sceneGroup:insert(uiLayer)
-  combinationsTable = {}
 
   loadCombos()
   loadScore()
@@ -209,35 +217,33 @@ function scene:create( event )
 	local resetBtn = display.newText(uiLayer, "Reset Records", 1000, display.contentHeight - 125, native.systemFont, 80)
   local gameBtn = display.newText(uiLayer, "Back to Game", 300, display.contentHeight - 125, native.systemFont, 80)
 
-	menuBtn:addEventListener("tap", goToMainMenu)
- 	resetBtn:addEventListener("tap", deleteFile)
-  gameBtn:addEventListener("tap", goBackToGame)
-
   if (composer.getVariable("skewerArray") ~= nil) then
-      for i = 1, #composer.getVariable("skewerArray") do
-        if (not containsArray(combinationsTable, composer.getVariable("skewerArray")[i])) then
-          table.insert(combinationsTable, composer.getVariable("skewerArray"))
-        end
-      end
-    composer.variables["skewerArray"] = nil
+    local skewer = composer.getVariable("skewerArray")
+    table.insert(combinationsTable, skewer)
   end
-  
+
   if (composer.getVariable("score") ~= nil) then
     local score = composer.getVariable("score")
     if (score > highScore[1]) then
       local newHighScore = display.newText(uiLayer, "New High Score: " .. " " .. score .. "!", 500, display.contentCenterY, native.systemFont, 80)
       newHighScore:setFillColor(0.75, 1, 0.5)
-			timer.performWithDelay(2000, function() transition.fadeOut(newHighScore, {time = 500}) end, 1)
+      timer.performWithDelay(2000, function() transition.fadeOut(newHighScore, {time = 500}) end, 1)
       highScore[1] = score
     end
-    composer.variables["score"] = nil
   end
-  
+
   local highScoreText = display.newText(uiLayer, "High Score: " .. highScore[1], 1250, 90, native.systemFont, 80)
 
- 	displayCombos()
+  displayCombos()
   saveScore()
- 	saveCombos()
+  saveCombos()
+
+  composer.variables["skewerArray"] = nil
+  composer.variables["score"] = nil
+
+	menuBtn:addEventListener("tap", goToMainMenu)
+ 	resetBtn:addEventListener("tap", deleteFile)
+  gameBtn:addEventListener("tap", goBackToGame)
 
 	--deleteFile()
 

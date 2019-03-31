@@ -3,6 +3,17 @@ local objects = {}
 local sheetInfo = require("spritesheet")
 local imageSheet = graphics.newImageSheet("spritesheet.png", sheetInfo:getSheet())
 
+objects.foodsIndices =
+{
+
+    ["bacon"] = 1,
+    ["broccoli"] = 2,
+    ["carrot"] = 3,
+    ["cheese"] = 4,
+    ["sushi"] = 5,
+    ["tomato"] = 6,
+}
+
 
 function objects:createObjects(layer, rightBound, bottomBound, topBound)
 	--local names = {"bread", "broccoli", "burger", "lettuce", "tomato"} --Will be randomly accessed
@@ -28,6 +39,14 @@ function objects:spawnObject(layer, x, y, height, width, objectName)
   object.x = x
   object.y = y
   return object
+end
+
+function objects:foodObject(food)
+  if self.foodsIndices[food] then
+    return self.foodsIndices[food]
+  else
+    return nil
+  end
 end
 
 return objects

@@ -9,11 +9,14 @@ local scene = composer.newScene()
 
 -- include Corona's "widget" library
 local widget = require "widget"
+local json = require("json")
+local filePath = system.pathForFile("firstLaunch.json", system.DocumentsDirectory)
 
 --------------------------------------------
 
 -- forward declarations and other locals
 local playButton
+local isFirstLaunch = {}
 
 -- 'onRelease' event listener for playBtn
 local function onPlayBtnRelease()
@@ -32,6 +35,36 @@ local function goToJournal()
 	return true
 end
 
+local function goToTutorial()
+	composer.removeScene("tutorial")
+	timer.performWithDelay(50, function() composer.gotoScene("tutorial", "fade", 500) end)
+	
+	return true
+end 
+
+local function loadFirstLaunch()
+	local file = io.open(filePath, "r")
+
+	if file then
+		local contents = file:read("*a")
+		io.close(file)
+		isFirstLaunch = json.decode(contents)
+	end
+
+  if (isFirstLaunch == nil or #isFirstLaunch == 0) then
+    isFirstLaunch = {true}
+  end
+end
+
+local function saveFirstLaunch()
+	local file = io.open(filePath, "w")
+
+	if file then
+		file:write(json.encode(isFirstLaunch))
+		io.close(file)
+	end
+end
+
 function scene:create( event )
 	local sceneGroup = self.view
   
@@ -41,6 +74,8 @@ function scene:create( event )
 	-- e.g. add display objects to 'sceneGroup', add touch listeners, etc.
 
 	-- display a background image
+	loadFirstLaunch()
+	
 	local background = display.newImageRect( "Images/background.jpg", display.actualContentWidth, display.actualContentHeight )
 	background.anchorX = 0
 	background.anchorY = 0
@@ -85,6 +120,7 @@ function scene:create( event )
   local journalBtn = widget.newButton(options1)
   journalBtn.x = 1000
   journalBtn.y = display.contentHeight - 125
+  
 
 	-- all display objects must be inserted into group
 	sceneGroup:insert( background )
@@ -107,6 +143,11 @@ function scene:show( event )
 		--
 		-- INSERT code here to make the scene come alive
 		-- e.g. start timers, begin animation, play audio, etc.
+		if (isFirstLaunch[1] == true) then
+			isFirstLaunch[1] = false
+			--goToTutorial()
+			saveFirstLaunch()
+		end
 	end
 end
 

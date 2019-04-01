@@ -11,7 +11,7 @@ local objects = require("objects")
 -- -----------------------------------------------------------------------------------
 local json = require("json")
 
-local combinationsTable = {}
+local combinationsTable
 local displayObjects = {}
 local highScore = {}
 local lastScore = 0
@@ -86,13 +86,16 @@ end
 
 local function saveCombos()
 	local file = io.open(filePath, "w")
-  
-  for i = 1, #combinationsTable do
-    print(i .. " " .. "iteration")
-    if (#combinationsTable[i] == 0) then
-      table.remove(combinationsTable, i)
-    end 
-  end
+	
+	--[[]
+	if combinationsTable then  
+  		for i = 1, #combinationsTable do
+    		print(i .. " " .. "iteration")
+    		if (#combinationsTable[i] == 0) then
+      			table.remove(combinationsTable, i)
+    		end 
+  		end
+  	end]]--
 
 	if file then
 		file:write(json.encode(combinationsTable))
@@ -125,10 +128,8 @@ end
 local function countSameCombos(combo)
   local count = 0
   for i = 1, #combinationsTable do
-    for j = 1, #combinationsTable[i] do
-      if (isEqualArray(combinationsTable[i][j], combo)) then
-        count = count + 1
-      end
+    if (isEqualArray(combinationsTable[i], combo)) then
+      count = count + 1
     end
   end
   return count
@@ -136,10 +137,8 @@ end
 
 local function comboIndex(combo)
   for i = #combinationsTable, 1, -1 do
-    for j = #combinationsTable[i], 1, -1 do
-      if (isEqualArray(combinationsTable[i][j], combo)) then
-        return i, j
-      end 
+    if (isEqualArray(combinationsTable[i], combo)) then
+      return i
     end 
   end
   return nil
@@ -163,22 +162,15 @@ local function createDisplayObject(x, y, object)
 end
 
 local function removeDuplicates(object)
-  local objectCount = countSameCombos(object)
-  local row, col = comboIndex(object)
-  if (row ~= nil and col ~= nil) then
-    for i = #combinationsTable, 1, -1 do
-      for j = #combinationsTable[i], 1, -1 do
-        if ((row == i and col == j) and objectCount > 1) then
-          table.remove(combinationsTable[i], j)
-          objectCount = countSameCombos(object)
-        end
-      end
-      if (combinationsTable[i] == nil or combinationsTable[i] == {}) then
-          table.remove(combinationsTable, i)
-      end
-    end 
-  end 
-end
+  if (object ~= nil) then
+  	local objectCount = countSameCombos(object)
+  	print(objectCount)
+  	while(objectCount > 1) do
+  		table.remove(combinationsTable, comboIndex(object))
+  		objectCount = objectCount - 1
+  	end
+  end
+end 
 
 local function displayCombos()
 	local x = -600
@@ -188,35 +180,34 @@ local function displayCombos()
   local alreadyDisplayed = false
 	local combo = ""
 
-  for i = 1, #combinationsTable do
-    for j = 1, #combinationsTable[i] do
+  for i = #combinationsTable, 1, - 1 do
       --for k = 1, #combinationsTable[i][j] do
         --combo = combo .. combinationsTable[i][j].. "-"
         --objects:spawnObject(uiLayer, x, y, 100, 100, combinationsTable[i][j][k])
-          local object = combinationsTable[i][j]
-          removeDuplicates(object)
-          createDisplayObject(x, y, object)
-          displayed = displayed + 1
-          if (displayed == maxPerRow) then
-            x = -600
-            y = y + 350
-            displayed = 0
-          else
-            --end
-            x = x + 500
-          end
+          local object = combinationsTable[i]
+          if object then
+          	createDisplayObject(x, y, object)
+          	displayed = displayed + 1
+          	if (displayed == maxPerRow) then
+          	  x = -600
+           	  y = y + 350
+              displayed = 0
+            else
+              --end
+              x = x + 500
+            end
+        end
       --combo = combo .. combinationsTable[i][#combinationsTable[i]]
     --text = display.newText(uiLayer, combo, x, y, system.nativeFont, 50)
       --combo = ""
-		end
 	end
 end
 
 local function deleteFile()
-	combinationsTable = {}
-  highScore = {}
-  saveCombos()
-  saveScore()
+	combinationsTable = nil
+  	highScore = {}
+  	saveCombos()
+  	saveScore()
 	composer.setVariable("fromScene", "journal")
 	composer.setVariable("scene", "journal")
 	composer.gotoScene("loading")
@@ -238,6 +229,7 @@ function scene:create( event )
   loadCombos()
   loadScore()
 
+
 	local background = display.newImageRect(backLayer, "Images/backdrop.png", display.actualContentWidth, display.actualContentHeight + 3000)
 	background.x = display.contentCenterX
 	background.y = display.ContentCenterY
@@ -248,7 +240,13 @@ function scene:create( event )
 
   if (composer.getVariable("skewerArray") ~= nil) then
     local skewer = composer.getVariable("skewerArray")
-    table.insert(combinationsTable, skewer)
+    for i = 1, #skewer do
+    	table.insert(combinationsTable, skewer[i])
+    end
+
+    for j = 1, #combinationsTable do
+    	removeDuplicates(combinationsTable[j])
+    end
   end
 
   if (composer.getVariable("score") ~= nil) then

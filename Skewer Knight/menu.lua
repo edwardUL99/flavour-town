@@ -74,7 +74,7 @@ function scene:create( event )
 	-- e.g. add display objects to 'sceneGroup', add touch listeners, etc.
 
 	-- display a background image
-	loadFirstLaunch()
+	--loadFirstLaunch()
 	
 	local background = display.newImageRect( "Images/background.jpg", display.actualContentWidth, display.actualContentHeight )
 	background.anchorX = 0

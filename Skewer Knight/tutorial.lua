@@ -7,7 +7,16 @@ local scene = composer.newScene()
 -- Code outside of the scene event functions below will only be executed ONCE unless
 -- the scene is removed entirely (not recycled) via "composer.removeScene()"
 -- -----------------------------------------------------------------------------------
+local background
+local prevButton
+local nextButton
+local tutorialObjects = {}
+local backLayer
+local uiLayer
 
+local function goToGame()
+	composer.goToScene("game", "fade", 800)
+end
 
 
 
@@ -20,7 +29,23 @@ function scene:create( event )
 
 	local sceneGroup = self.view
 	-- Code here runs when the scene is first created but has not yet appeared on screen
+	backLayer = display.newGroup()
+	sceneGroup:insert(backLayer)
 
+	uiLayer = display.newGroup()
+	sceneGroup:insert(uiLayer)
+
+	background = display.newImageRect(backLayer, "Images/tutorialBackground.png", display.actualContentWidth,display.actualContentHeight)
+	background.x = display.contentCenterX
+	background.y = display.contentCenterY
+
+	nextButton = display.newImageRect(uiLayer, "Images/next.png", 400, 200)
+	nextButton.x = display.contentCenterX + 500
+	nextButton.y = display.contentCenterY + 580
+
+	prevButton = display.newImageRect(uiLayer, "Images/prev.png", 400, 220)
+	prevButton.x = display.contentCenterX - 500
+	prevButton.y = display.contentCenterY + 580
 end
 
 
@@ -51,7 +76,7 @@ function scene:hide( event )
 
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen
-
+		composer.removeScene("tutorial")
 	end
 end
 

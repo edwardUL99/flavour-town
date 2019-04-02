@@ -189,6 +189,7 @@ local function enterFrame(event)
 			looseFoodsTable[i].x = looseFoodsTable[i].x - foodScrollSpeed * dt
 			if (looseFoodsTable[i].x < -(display.actualContentWidth)) then
         local foodToRemove = looseFoodsTable[i]
+				print("food removed")
 				table.remove(looseFoodsTable, i)
         display.remove(foodToRemove)
 			end
@@ -463,7 +464,7 @@ local function gameLoop()
     gameLoopTimer = timer.performWithDelay(gameLoopCycle, gameLoop, 0)
   end
 
-  if (gameLoopCount % 25 == 0 and spawnRate < 4) then
+	if (gameLoopCount % 25 == 0 and spawnRate < 4) then
 		spawnRate = spawnRate + 1
 	end
 
@@ -511,17 +512,20 @@ local function isFood(object)
 	end
 end
 
+local function removeObjectFromTable(object)
+	for i = #looseFoodsTable, 1, -1 do
+		if (looseFoodsTable[i] == object) then
+			table.remove(looseFoodsTable, i)
+		end
+	end
+end
+
 local function onCollision(event) --(*Is lettuce considered an enemy food? I'll assume it is for now)
 	if (event.phase == "began" and player ~= nil) then
 		local collidedObject = event.object2
 		if (collidedObject.myName == "player") then
 			collidedObject = event.object1
 		end
-
-    --print(collidedObject.myName)
-
-    --print(event.object1.myName)
-    --print(event.object2.myName)
 
     if (event.element1 == 1 and (event.object1.myName == "player" or event.object2.myName == "player")) then --event.element1 == 1, when the body of the player collides with the food
       print("Body Collided")
@@ -532,9 +536,7 @@ local function onCollision(event) --(*Is lettuce considered an enemy food? I'll 
       audio.play(hurtAudio)
 			removeHeart()
 
-      if (table.indexOf(looseFoodsTable, collidedObject)) then
-        table.remove(looseFoodsTable, table.indexOf(looseFoodsTable, collidedObject))
-      end
+    	removeObjectFromTable(collidedObject)
       display.remove(collidedObject)
 
       --player dies
@@ -547,14 +549,14 @@ local function onCollision(event) --(*Is lettuce considered an enemy food? I'll 
 
     elseif (event.object1.myName == "player" and isFood(event.object2.myName)) then
       print("Things stabbed!")
-      table.remove(looseFoodsTable, table.indexOf(looseFoodsTable, collidedObject))
+  		removeObjectFromTable(collidedObject)
       table.insert(onSkewerArray, collidedObject.myName)
       timer.performWithDelay(50, function()
                                 collidedObject.isBodyActive = false
                                 table.insert(foodsToMove, collidedObject) end)
 
   	  if (#onSkewerArray == maxOnSkewer) then
-        table.remove(looseFoodsTable, table.indexOf(looseFoodsTable, collidedObject))
+				removeObjectFromTable(collidedObject)
         timer.performWithDelay(50, function()
                                  collidedObject.isBodyActive = false
 																 table.insert(foodsToMove, collidedObject)

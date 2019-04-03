@@ -48,6 +48,10 @@ local skewerShape = {-40,50,  240,50,  240,31,  -40,31}
 local pauseButton
 local playButton
 local pauseText
+local exitButton
+local muteButton
+local muted = false
+local soundButton
 local eatButton
 local menuButton
 local journalButton
@@ -56,7 +60,7 @@ local bg2 --two SCROLLING backgrounds, to make it look like player is moving)
 local bgImage2 = {type = "image", filename ="Images/background.jpg"}
 local foodScrollSpeed = 15
 local bgScrollSpeed = 5
---local skewerOffset = 0
+local skewerOffset = 0
 --------------------
 --Boundaries variables--
 local leftBound = -(display.viewableContentWidth)
@@ -140,12 +144,22 @@ local function checkBounds()
       player.x = rightBound - 30
     elseif (player.x < leftBound) then
       player.x = leftBound + 70
-    end
-
-    if (player.y < topBound) then
+    elseif (player.y < topBound) then
       player.y = topBound + 30
     elseif (player.y > bottomBound) then
       player.y = bottomBound - 30
+    end
+  end
+  
+  if (#foodsToMove > 0) then
+    for i = 1, #foodsToMove do
+      if (foodsToMove[i].y < topBound) then
+        foodsToMove[i].y = topBound + 30
+      elseif (foodsToMove[i].x < leftBound) then
+        foodsToMove[i].x = leftBound + (80*(i-1))
+      elseif (foodsToMove[i].x > rightBound) then
+        foodsToMove[i].x = rightBound - 30
+      end
     end
   end
 end
@@ -159,8 +173,10 @@ local function dragPlayer(event)
 			player.touchOffsetX = event.x - player.x
 			player.touchOffsetY = event.y - player.y
 		elseif ("moved" == phase) then
-			player.x = event.x - player.touchOffsetX
-			player.y = event.y - player.touchOffsetY
+      if (not (player.y < topBound)) then
+        player.x = event.x - player.touchOffsetX
+        player.y = event.y - player.touchOffsetY
+      end
 		elseif ("ended" == phase or "cancelled" == phase) then
 			display.currentStage:setFocus(nil)
 		end
@@ -418,6 +434,22 @@ local function keyPressed(event)
 	end
 end
 
+local function exit()
+	os.exit()
+end
+
+local function mute()
+  if (muted) then
+    muted = false
+    audio.setVolume(1)
+    muteButton.text = "Mute"
+  else 
+    audio.setVolume(0)
+    muted = true
+    muteButton.text = "Unmute"
+  end
+end
+
 local function pause()
  if gameLoopTimer then
   timer.pause(gameLoopTimer)
@@ -433,6 +465,7 @@ local function pause()
  eatButton.isVisible = false
  menuButton.isVisible = true
  journalButton.isVisible = true
+ exitButton.isVisible = true
 end
 
 local function resume()
@@ -450,6 +483,7 @@ local function resume()
 	eatButton.isVisible = true
 	menuButton.isVisible = false
 	journalButton.isVisible = false
+  exitButton.isVisible = false
 end
 
 local function gameLoop()
@@ -586,13 +620,6 @@ function scene:create( event )
 	uiLayer = display.newGroup()
 	sceneGroup:insert(uiLayer)
 
-	--[[local background = display.newImageRect(backLayer, "background.jpg", display.actualContentWidth,display.actualContentHeight)
-	background.x = display.contentCenterX
-	background.y = display.contentCenterY]]--
-	--
-
-	-- Add First bg image
-	--bg1 = display.newRect(0, 0, display.actualContentWidth, display.actualContentHeight )
 	bg1 = display.newRect(backLayer, 0, 0, display.actualContentWidth,display.actualContentHeight)
 	bg1.fill = bgImage2
 	bg1.x = display.contentCenterX
@@ -622,7 +649,10 @@ function scene:create( event )
 	pauseButton.x = rightBound - 200
 	pauseButton.y = bottomBound - 100
 	pauseButton.isVisible = true
-
+  
+  muteButton = display.newText (uiLayer,"Mute", 1230, 1300, native.systemFont, 80)
+  muteButton:addEventListener("tap", mute)
+  
 	playButton = display.newImageRect(uiLayer, "Images/play.png", 200, 200)
 	playButton.x = rightBound - 200
 	playButton.y = bottomBound - 100
@@ -636,6 +666,9 @@ function scene:create( event )
   eatButton.y = bottomBound - 100
 	menuButton = display.newText(uiLayer, "Menu", leftBound + 100, bottomBound - 100, display.systemFont, 80)
 	menuButton.isVisible = false
+  
+  exitButton = display.newText(uiLayer, "Exit", 400, 600, display.systemFont, 80)
+	exitButton.isVisible=false
 
 	journalButton = display.newText(uiLayer, "Journal", leftBound + 400, bottomBound - 100, display.systemFont, 80)
 	journalButton.isVisible = false
@@ -646,6 +679,7 @@ function scene:create( event )
 	player:addEventListener("tap", eatSkewer)
 	pauseButton:addEventListener("tap", pause)
 	menuButton:addEventListener("tap", goToMainMenu)
+  exitButton:addEventListener("tap", exit)
 	playButton:addEventListener("tap", resume)
 	eatButton:addEventListener("tap", eatSkewer)
 	journalButton:addEventListener("tap", goToJournal)

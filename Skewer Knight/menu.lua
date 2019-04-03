@@ -18,30 +18,6 @@ local filePath = system.pathForFile("firstLaunch.json", system.DocumentsDirector
 local playButton
 local isFirstLaunch = {}
 
--- 'onRelease' event listener for playBtn
-local function onPlayBtnRelease()
-	playButton.emboss = false
-	-- go to level1.lua scene
-	composer.removeScene("game")
-	timer.performWithDelay(500, function() composer.gotoScene( "game", "fade", 500 ) end)
-
-	return true	-- indicates successful touch
-end
-
-local function goToJournal()
-	composer.removeScene("journal")
-	timer.performWithDelay(50, function() composer.gotoScene("journal", "fade", 500) end)
-
-	return true
-end
-
-local function goToTutorial()
-	composer.removeScene("tutorial")
-	timer.performWithDelay(50, function() composer.gotoScene("tutorial", "fade", 500) end)
-	
-	return true
-end 
-
 local function loadFirstLaunch()
 	local file = io.open(filePath, "r")
 
@@ -65,6 +41,33 @@ local function saveFirstLaunch()
 	end
 end
 
+local function goToTutorial()
+  composer.gotoScene("tutorial", "fade", 500)
+	
+	return true
+end 
+
+-- 'onRelease' event listener for playBtn
+local function onPlayBtnRelease()
+	playButton.emboss = false
+	-- go to level1.lua scene
+  if (isFirstLaunch[1] == true) then
+    isFirstLaunch[1] = false
+    saveFirstLaunch()
+    goToTutorial()
+  else 
+    composer.removeScene("game")
+    timer.performWithDelay(500, function() composer.gotoScene( "game", "fade", 500 ) end)
+  end-- indicates successful touch
+end
+
+local function goToJournal()
+	composer.removeScene("journal")
+	timer.performWithDelay(50, function() composer.gotoScene("journal", "fade", 500) end)
+
+	return true
+end
+
 function scene:create( event )
 	local sceneGroup = self.view
   
@@ -74,7 +77,7 @@ function scene:create( event )
 	-- e.g. add display objects to 'sceneGroup', add touch listeners, etc.
 
 	-- display a background image
-	--loadFirstLaunch()
+	loadFirstLaunch()
 	
 	local background = display.newImageRect( "Images/background.jpg", display.actualContentWidth, display.actualContentHeight )
 	background.anchorX = 0
@@ -143,11 +146,6 @@ function scene:show( event )
 		--
 		-- INSERT code here to make the scene come alive
 		-- e.g. start timers, begin animation, play audio, etc.
-		if (isFirstLaunch[1] == true) then
-			isFirstLaunch[1] = false
-			--goToTutorial()
-			saveFirstLaunch()
-		end
 	end
 end
 

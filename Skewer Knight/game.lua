@@ -561,7 +561,7 @@ local function onCollision(event) --(*Is lettuce considered an enemy food? I'll 
 			collidedObject = event.object1
 		end
 
-    if (event.element1 == 1 and (event.object1.myName == "player" or event.object2.myName == "player")) then --event.element1 == 1, when the body of the player collides with the food
+    if (event.element1 == 1) then --event.element1 == 1, when the body of the player collides with the food
       print("Body Collided")
       health = health - 1
       --Changes colour of player to red, then changes it back after 500ms
@@ -581,7 +581,7 @@ local function onCollision(event) --(*Is lettuce considered an enemy food? I'll 
         timer.performWithDelay(2000, goToMainMenu)
       end
 
-    elseif (event.object1.myName == "player" and isFood(event.object2.myName)) then
+    elseif (event.object1.myName == "player") then
       print("Things stabbed!")
   		removeObjectFromTable(collidedObject)
       table.insert(onSkewerArray, collidedObject.myName)
@@ -667,7 +667,7 @@ function scene:create( event )
 	menuButton = display.newText(uiLayer, "Menu", leftBound + 100, bottomBound - 100, display.systemFont, 80)
 	menuButton.isVisible = false
   
-  exitButton = display.newText(uiLayer, "Exit", 400, 600, display.systemFont, 80)
+  exitButton = display.newText(uiLayer, "Exit", 1000, 1300, display.systemFont, 80)
 	exitButton.isVisible=false
 
 	journalButton = display.newText(uiLayer, "Journal", leftBound + 400, bottomBound - 100, display.systemFont, 80)

@@ -43,8 +43,8 @@ local heartXPos = -800
 local heartYPos = 150
 local heartArrayPos = 0
 local player
-local playerShape = {-200,111,  -41,111,   -41,-89,   -200,-89}
 local skewerShape = {-40,50,  240,50,  240,31,  -40,31}
+local playerShape = {-200,111,  -41,111,   -41,-89,   -200,-89}
 local pauseButton
 local playButton
 local pauseText
@@ -150,7 +150,7 @@ local function checkBounds()
       player.y = bottomBound - 30
     end
   end
-  
+
   if (#foodsToMove > 0) then
     for i = 1, #foodsToMove do
       if (foodsToMove[i].y < topBound) then
@@ -365,16 +365,16 @@ local function checkPowerUp()
 		local playerShapeXL = {2*-200,2*111,  2*-41,2*111,   2*-41,2*-89,   2*-200,2*-89}
 		local skewerShapeXL = {2*-40,2*50,  2*240,2*50,  2*240,2*31,  2*-40,2*31}
 		physics.removeBody(player)
-		physics.addBody(player,"kinematic", {shape = skewerShapeXL, isSensor = true},
-														{shape = playerShapeXL, isSensor = true})
+		physics.addBody(player,"static", {shape = skewerShapeXL, isSensor = true},
+														{shape = playerShapeXL,isSensor = true})
 		--reduces body shape back to normal
 		timerPowerUp = timer.performWithDelay(10000, function()
 			if(player ~= nil) then
 				transition.scaleBy(player, {xScale = -1, yScale = -1})
 				physics.removeBody(player)
 				skewerOffset = skewerOffset - 50
-				physics.addBody(player,"kinematic", {shape = playerShape, isSensor = true},
-																{shape = skewerShape, isSensor = true})
+				physics.addBody(player,"static", {shape = skewerShape, isSensor = true},
+																{shape = playerShape,isSensor = true})
 			end
 		end)
 	elseif(isEqualArray(onSkewerArray, {"broccoli","broccoli","broccoli"}))then
@@ -443,7 +443,7 @@ local function mute()
     muted = false
     audio.setVolume(1)
     muteButton.text = "Mute"
-  else 
+  else
     audio.setVolume(0)
     muted = true
     muteButton.text = "Unmute"
@@ -554,22 +554,27 @@ local function removeObjectFromTable(object)
 	end
 end
 
+local function playerHit (self,event)
+	print("event.selfElement is " .. event.selfElement)
+end
+
+
+
 local function onCollision(event) --(*Is lettuce considered an enemy food? I'll assume it is for now)
 	print("event.element1 is " .. event.element1) -- is 2
 	print("event.element2 is " .. event.element2) -- is 1
+	print("object1 is "..event.object1.myName)
+	print("object2 is "..event.object2.myName)
+
 	if (event.phase == "began" and player ~= nil) then
 		local collidedObject = event.object2
 		if (collidedObject.myName == "player") then
 			collidedObject = event.object1
 		end
 
-<<<<<<< HEAD
-    if ((event.element1 == 1)
-	 	and (event.object1.myName == "player" or event.object2.myName == "player")) then --event.element1 == 1, when the body of the player collides with the food
-=======
-    if (event.element1 == 1) then --event.element1 == 1, when the body of the player collides with the food
->>>>>>> 0aeb138ecf32a75899bfc778e34cfd8520c25f0d
-      print("Body Collided")
+    if ((event.object1.myName == "player" and event.element1 == 2)
+	 or (event.object2.myName == "player" and event.element2 == 2)) then --event.element1 == 1, when the body of the player collides with the food
+      print("Collision on body")
       health = health - 1
       --Changes colour of player to red, then changes it back after 500ms
       player:setFillColor(1, 0.2, 0.2)
@@ -588,8 +593,8 @@ local function onCollision(event) --(*Is lettuce considered an enemy food? I'll 
         timer.performWithDelay(2000, goToMainMenu)
       end
 
-    elseif (event.object1.myName == "player") then
-      print("Things stabbed!")
+	elseif (event.object1.myName == "player" or event.object2.myName == "player") then
+      print("Collision on skewer")
   		removeObjectFromTable(collidedObject)
       table.insert(onSkewerArray, collidedObject.myName)
       timer.performWithDelay(50, function()
@@ -641,13 +646,16 @@ function scene:create( event )
   player = display.newImageRect(mainLayer, "Images/player.png", 480, 222)
 	player.x = display.contentCenterX - 1000
 	player.y = display.contentCenterY
-	physics.addBody(player, "static",   {shape = playerShape, isSensor=true},
-                                       {shape = skewerShape, isSensor=true})
+	physics.addBody(player, "static",  {shape = skewerShape, isSensor=true},
+													{shape = playerShape, isSensor=true})
 	player.myName = "player"
 
   for i = 1, 3 do
     addHeart()
   end
+
+  player.preCollision = playerHit
+  player:addEventListener("preCollision")
 
 	--Score is text for prototype
 	scoreText = display.newText(uiLayer, "Score: " .. score, display.contentCenterX + 900, display.contentCenterY - 500, native.systemFont, 80)
@@ -656,10 +664,10 @@ function scene:create( event )
 	pauseButton.x = rightBound - 200
 	pauseButton.y = bottomBound - 100
 	pauseButton.isVisible = true
-  
+
   muteButton = display.newText (uiLayer,"Mute", 1230, 1300, native.systemFont, 80)
   muteButton:addEventListener("tap", mute)
-  
+
 	playButton = display.newImageRect(uiLayer, "Images/play.png", 200, 200)
 	playButton.x = rightBound - 200
 	playButton.y = bottomBound - 100
@@ -673,7 +681,7 @@ function scene:create( event )
   eatButton.y = bottomBound - 100
 	menuButton = display.newText(uiLayer, "Menu", leftBound + 100, bottomBound - 100, display.systemFont, 80)
 	menuButton.isVisible = false
-  
+
   exitButton = display.newText(uiLayer, "Exit", 1000, 1300, display.systemFont, 80)
 	exitButton.isVisible=false
 

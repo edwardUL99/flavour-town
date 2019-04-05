@@ -70,29 +70,34 @@ function scene:create( event )
 	prevButton.x = display.contentCenterX - 500
 	prevButton.y = display.contentCenterY + 580
 
-	tutorialObjects[1] = display.newImageRect(uiLayer, "Images/Tutorial/healthScoreTut.png", 1000, 800)
+	tutorialObjects[1] = display.newImageRect(uiLayer, "Images/Tutorial/playerControl.png", 1000, 800)
 	tutorialObjects[1].x = display.contentCenterX
-	tutorialObjects[1].y = display.contentCenterY - 400
+	tutorialObjects[1].y = display.contentCenterY
 
-	tutorialObjects[2] = display.newImageRect(uiLayer, "Images/Tutorial/skewerTut.png", 800, 800)
-	tutorialObjects[2].x = display.contentCenterX - 500
-	tutorialObjects[2].y = display.contentCenterY - 200
+	tutorialObjects[2] = display.newImageRect(uiLayer, "Images/Tutorial/healthScoreTut.png", 1000, 800)
+	tutorialObjects[2].x = display.contentCenterX
+	tutorialObjects[2].y = display.contentCenterY - 400
 	tutorialObjects[2].isVisible = false
 
-	tutorialObjects[3] = display.newImageRect(uiLayer, "Images/Tutorial/bodyTut.png", 800, 800)
-	tutorialObjects[3].x = display.contentCenterX - 750
-	tutorialObjects[3].y = display.contentCenterY - 250
+	tutorialObjects[3] = display.newImageRect(uiLayer, "Images/Tutorial/skewerTut.png", 800, 800)
+	tutorialObjects[3].x = display.contentCenterX - 400
+	tutorialObjects[3].y = display.contentCenterY - 300
 	tutorialObjects[3].isVisible = false
 
-	tutorialObjects[4] = display.newImageRect(uiLayer, "Images/Tutorial/enemyObject.png", 800, 800)
-	tutorialObjects[4].x = display.contentCenterX - 250
-	tutorialObjects[4].y = display.contentCenterY
+	tutorialObjects[4] = display.newImageRect(uiLayer, "Images/Tutorial/bodyTut.png", 800, 800)
+	tutorialObjects[4].x = display.contentCenterX - 750
+	tutorialObjects[4].y = display.contentCenterY - 150
 	tutorialObjects[4].isVisible = false
 
-	tutorialObjects[5] = display.newImageRect(uiLayer, "Images/Tutorial/example.png", 800, 800)
+	tutorialObjects[5] = display.newImageRect(uiLayer, "Images/Tutorial/enemyObject.png", 800, 800)
 	tutorialObjects[5].x = display.contentCenterX
-	tutorialObjects[5].y = display.contentCenterY
+	tutorialObjects[5].y = display.contentCenterY - 150
 	tutorialObjects[5].isVisible = false
+
+	tutorialObjects[6] = display.newImageRect(uiLayer, "Images/Tutorial/example.png", 800, 800)
+	tutorialObjects[6].x = display.contentCenterX
+	tutorialObjects[6].y = display.contentCenterY
+	tutorialObjects[6].isVisible = false
 
 	nextButton:addEventListener("tap", nextBanner)
 	prevButton:addEventListener("tap", prevBanner)

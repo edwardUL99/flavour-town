@@ -56,7 +56,7 @@ local bg2 --two SCROLLING backgrounds, to make it look like player is moving)
 local bgImage2 = {type = "image", filename ="Images/background.jpg"}
 local foodScrollSpeed = 15
 local bgScrollSpeed = 5
---local skewerOffset = 0
+local skewerOffset = 0
 --------------------
 --Boundaries variables--
 local leftBound = -(display.viewableContentWidth)
@@ -96,7 +96,7 @@ local function trackPlayer()
 	if (not paused and player ~= nil) then
 		for i = #foodsToMove, 1, -1 do
 			foodsToMove[i].x = player.x + (75*(i-1))
-			foodsToMove[i].y = player.y --+ skewerOffset
+			foodsToMove[i].y = player.y + skewerOffset
 		end
 	end
 end
@@ -339,24 +339,24 @@ local function checkPowerUp()
 			addHeart()
 
 		end
-	elseif(isEqualArray(onSkewerArray,{"bacon","bacon","bacon"}))then
-		--[[if(skewerOffset ~= 0)then -- prevents player from increasing in size more than once
+	elseif(isEqualArray(onSkewerArray,{"bacon"--[[,"bacon","bacon"]]}))then
+		if(skewerOffset ~= 0)then -- prevents player from increasing in size more than once
 			return
-		end]]--
+		end
 		print("Extra chunky")
 		transition.scaleBy(player, {xScale = 1, yScale = 1})
-		--skewerOffset = skewerOffset + 50
+		skewerOffset = skewerOffset + 50
 		local playerShapeXL = {2*-200,2*111,  2*-41,2*111,   2*-41,2*-89,   2*-200,2*-89}
 		local skewerShapeXL = {2*-40,2*50,  2*240,2*50,  2*240,2*31,  2*-40,2*31}
 		physics.removeBody(player)
-		physics.addBody(player,"kinematic", {shape = playerShapeXL, isSensor = true},
-														{shape = skewerShapeXL, isSensor = true})
+		physics.addBody(player,"kinematic", {shape = skewerShapeXL, isSensor = true},
+														{shape = playerShapeXL, isSensor = true})
 		--reduces body shape back to normal
 		timerPowerUp = timer.performWithDelay(10000, function()
 			if(player ~= nil) then
 				transition.scaleBy(player, {xScale = -1, yScale = -1})
 				physics.removeBody(player)
-				--skewerOffset = skewerOffset - 50
+				skewerOffset = skewerOffset - 50
 				physics.addBody(player,"kinematic", {shape = playerShape, isSensor = true},
 																{shape = skewerShape, isSensor = true})
 			end
@@ -521,13 +521,16 @@ local function removeObjectFromTable(object)
 end
 
 local function onCollision(event) --(*Is lettuce considered an enemy food? I'll assume it is for now)
+	print("event.element1 is " .. event.element1) -- is 2
+	print("event.element2 is " .. event.element2) -- is 1
 	if (event.phase == "began" and player ~= nil) then
 		local collidedObject = event.object2
 		if (collidedObject.myName == "player") then
 			collidedObject = event.object1
 		end
 
-    if (event.element1 == 1 and (event.object1.myName == "player" or event.object2.myName == "player")) then --event.element1 == 1, when the body of the player collides with the food
+    if ((event.element1 == 1)
+	 	and (event.object1.myName == "player" or event.object2.myName == "player")) then --event.element1 == 1, when the body of the player collides with the food
       print("Body Collided")
       health = health - 1
       --Changes colour of player to red, then changes it back after 500ms
@@ -674,7 +677,7 @@ end
 
 
 -- hide()
-function scene:hide( event )
+function scene:hide(event)
 
 	local sceneGroup = self.view
 	local phase = event.phase

@@ -16,6 +16,7 @@ local filePath = system.pathForFile("firstLaunch.json", system.DocumentsDirector
 
 -- forward declarations and other locals
 local playButton
+local tutorialButton
 local isFirstLaunch = {}
 
 local function loadFirstLaunch()
@@ -43,9 +44,9 @@ end
 
 local function goToTutorial()
   composer.gotoScene("tutorial", "fade", 500)
-	
+
 	return true
-end 
+end
 
 -- 'onRelease' event listener for playBtn
 local function onPlayBtnRelease()
@@ -55,7 +56,7 @@ local function onPlayBtnRelease()
     isFirstLaunch[1] = false
     saveFirstLaunch()
     goToTutorial()
-  else 
+  else
     composer.removeScene("game")
     timer.performWithDelay(500, function() composer.gotoScene( "game", "fade", 500 ) end)
   end-- indicates successful touch
@@ -70,7 +71,7 @@ end
 
 function scene:create( event )
 	local sceneGroup = self.view
-  
+
 	-- Called when the scene's view does not exist.
 	--
 	-- INSERT code here to initialize the scene
@@ -78,7 +79,7 @@ function scene:create( event )
 
 	-- display a background image
 	loadFirstLaunch()
-	
+
 	local background = display.newImageRect( "Images/background.jpg", display.actualContentWidth, display.actualContentHeight )
 	background.anchorX = 0
 	background.anchorY = 0
@@ -123,13 +124,33 @@ function scene:create( event )
   local journalBtn = widget.newButton(options1)
   journalBtn.x = 1000
   journalBtn.y = display.contentHeight - 125
-  
+
+	local options2 =
+	{
+		label="Tutorial",
+		fontSize = 80,
+		shape = "roundedRect",
+		width=270,
+		height=125,
+		fillColor = { default = { 0.25, 0.25, 0.25, 1}, over = {0.5, 0.5, 0.5, 1} },
+		strokeColor = { default = {1, 1, 1}, over = {1, 0, 0} },
+		strokeWidth = 2,
+		onPress = goToTutorial
+	}
+
+	tutorialButton = widget.newButton(options2)
+	tutorialButton.x = display.contentCenterX - 550
+	tutorialButton.y = display.contentHeight - 125
+	if (isFirstLaunch[1] == true) then
+		tutorialButton.isVisible = false
+	end
 
 	-- all display objects must be inserted into group
 	sceneGroup:insert( background )
 	sceneGroup:insert( titleLogo )
 	sceneGroup:insert( playButton )
 	sceneGroup:insert(journalBtn)
+	sceneGroup:insert(tutorialButton)
 
 	playButton:addEventListener("tap", onPlayBtnRelease)
 	journalBtn:addEventListener("tap", goToJournal)
@@ -175,6 +196,16 @@ function scene:destroy( event )
 	if playButton then
 		playButton:removeSelf()	-- widgets must be manually removed
 		playButton = nil
+	end
+
+	if journalBtn then
+		journalBtn:removeSelf()
+		journalBtn = nil
+	end
+
+	if tutorialButton then
+		tutorialButton:removeSelf()
+		tutorialButton = nil
 	end
 end
 

@@ -55,6 +55,7 @@ local soundButton
 local eatButton
 local menuButton
 local journalButton
+local displayObjects = {}
 local bg1
 local bg2 --two SCROLLING backgrounds, to make it look like player is moving)
 local bgImage2 = {type = "image", filename ="Images/background.jpg"}
@@ -63,10 +64,10 @@ local bgScrollSpeed = 5
 local skewerOffset = 0
 --------------------
 --Boundaries variables--
-local leftBound = -(display.viewableContentWidth)
-local rightBound = display.actualContentWidth - display.contentWidth
+local leftBound = -(display.viewableContentWidth) + 100
+local rightBound = display.actualContentWidth - display.contentWidth - 300
 local topBound = 250
-local bottomBound = display.actualContentHeight
+local bottomBound = display.actualContentHeight - 100
 --------------------
 --Providing variables for displayGroups to be used later--
 local backLayer
@@ -141,13 +142,13 @@ end
 local function checkBounds()
 	if (player ~= nil) then
     if (player.x > rightBound) then
-      player.x = rightBound - 30
+      player.x = rightBound
     elseif (player.x < leftBound) then
-      player.x = leftBound + 70
+      player.x = leftBound
     elseif (player.y < topBound) then
-      player.y = topBound + 30
+      player.y = topBound
     elseif (player.y > bottomBound) then
-      player.y = bottomBound - 30
+      player.y = bottomBound
     end
   end
 
@@ -187,9 +188,10 @@ end
 
 local function moveSprite(event)
 ----Will be used when joystick is added
-if(player == nil)then
-	return
-end
+	if(player == nil)then
+		return
+	end
+
 	player.x = player.x + motionx
 	player.y = player.y + motiony
 end
@@ -355,7 +357,7 @@ local function checkPowerUp()
 			addHeart()
 
 		end
-	elseif(isEqualArray(onSkewerArray,{"bacon"--[[,"bacon","bacon"]]}))then
+	elseif(isEqualArray(onSkewerArray,{"bacon","bacon","bacon"}))then
 		if(skewerOffset ~= 0)then -- prevents player from increasing in size more than once
 			return
 		end
@@ -450,6 +452,12 @@ local function mute()
   end
 end
 
+local function makeObjectsVisible(visible)
+	for i = 1, #displayObjects do
+		displayObjects[i].isVisible = visible
+	end
+end
+
 local function pause()
  if gameLoopTimer then
   timer.pause(gameLoopTimer)
@@ -459,13 +467,9 @@ local function pause()
  	timer.pause(timerPowerUp)
  end
  paused = true
- pauseText.isVisible = true
- pauseButton.isVisible = false
  playButton.isVisible = true
  eatButton.isVisible = false
- menuButton.isVisible = true
- journalButton.isVisible = true
- exitButton.isVisible = true
+ makeObjectsVisible(true)
 end
 
 local function resume()
@@ -477,13 +481,9 @@ local function resume()
 		timer.resume(timerPowerUp)
 	end
 	paused = false
-	pauseText.isVisible = false
-	playButton.isVisible = false
 	pauseButton.isVisible = true
 	eatButton.isVisible = true
-	menuButton.isVisible = false
-	journalButton.isVisible = false
-  exitButton.isVisible = false
+	makeObjectsVisible(false)
 end
 
 local function gameLoop()
@@ -661,32 +661,38 @@ function scene:create( event )
 	scoreText = display.newText(uiLayer, "Score: " .. score, display.contentCenterX + 900, display.contentCenterY - 500, native.systemFont, 80)
 
 	pauseButton = display.newImageRect(uiLayer, "Images/pause.png", 200, 200)
-	pauseButton.x = rightBound - 200
+	pauseButton.x = rightBound
 	pauseButton.y = bottomBound - 100
 	pauseButton.isVisible = true
 
-  muteButton = display.newText (uiLayer,"Mute", 1230, 1300, native.systemFont, 80)
+  muteButton = display.newText (uiLayer,"Mute", leftBound + 800, bottomBound, native.systemFont, 80)
+	muteButton.isVisible = false
+	table.insert(displayObjects, muteButton)
   muteButton:addEventListener("tap", mute)
 
 	playButton = display.newImageRect(uiLayer, "Images/play.png", 200, 200)
-	playButton.x = rightBound - 200
+	playButton.x = rightBound
 	playButton.y = bottomBound - 100
 	playButton.isVisible = false
 
 	pauseText = display.newText(uiLayer, "Paused", 100, 100, display.systemFont, 60)
 	pauseText.isVisible = false
+	table.insert(displayObjects, pauseText)
 
 	eatButton = display.newImageRect(uiLayer, "Images/eatButton.png", 200, 200)
   eatButton.x = leftBound + 100
   eatButton.y = bottomBound - 100
-	menuButton = display.newText(uiLayer, "Menu", leftBound + 100, bottomBound - 100, display.systemFont, 80)
+	menuButton = display.newText(uiLayer, "Menu", leftBound , bottomBound, display.systemFont, 80)
+	table.insert(displayObjects, menuButton)
 	menuButton.isVisible = false
 
-  exitButton = display.newText(uiLayer, "Exit", 1000, 1300, display.systemFont, 80)
+  exitButton = display.newText(uiLayer, "Exit", leftBound + 1200, bottomBound, display.systemFont, 80)
 	exitButton.isVisible=false
+	table.insert(displayObjects, exitButton)
 
-	journalButton = display.newText(uiLayer, "Journal", leftBound + 400, bottomBound - 100, display.systemFont, 80)
+	journalButton = display.newText(uiLayer, "Journal", leftBound + 400, bottomBound, display.systemFont, 80)
 	journalButton.isVisible = false
+	table.insert(displayObjects, journalButton)
 
   createCombinationsTable()
 

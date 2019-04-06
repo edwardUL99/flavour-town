@@ -245,7 +245,6 @@ function arrayContains( table, string)
 		return false
 end
 
-print(arrayContains({"a"}, "b"))
 
 local function comboIndex(combo)
   for i = 1, #foodCombinations do

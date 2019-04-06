@@ -236,6 +236,17 @@ local function isEqualArray(table1, table2)
 	return false
 end
 
+function arrayContains( table, string)
+	for i = 0, #table, 1 do
+		if(table[i] == string)then
+			return true
+		end
+	end
+		return false
+end
+
+print(arrayContains({"a"}, "b"))
+
 local function comboIndex(combo)
   for i = 1, #foodCombinations do
     if (isEqualArray(foodCombinations[i], combo)) then
@@ -382,6 +393,16 @@ local function checkPowerUp()
 	elseif(isEqualArray(onSkewerArray, {"broccoli","broccoli","broccoli"}))then
 		print("Go green")
 		player:setFillColor(0, 1, 0.2)
+		audio.play(hurtAudio)
+		health = health - 3
+		removeHeart()
+		if (health < 1) then
+        player.alpha = 0
+        timer.performWithDelay(50, function() player.isBodyActive = false end)
+        unTrackPlayer()
+        timer.performWithDelay(2000, goToMainMenu)
+      end
+
 	elseif (isEqualArray(onSkewerArray, {"sushi", "sushi", "sushi"})) then
     pointsDoubled = true
     local doubledText = display.newText(uiLayer, "x2 Points multiplier", player.x+100, player.y, native.systemFont, 80)
@@ -391,6 +412,8 @@ local function checkPowerUp()
                                                   end)
   end
 end
+
+
 
 local function eatSkewer(event)
 	if(#onSkewerArray>0)then

@@ -372,9 +372,6 @@ local function checkPowerUp()
 
 		end
 	elseif(isEqualArray(onSkewerArray,{"bacon","bacon","bacon"}))then
-		if(skewerOffset ~= 0)then -- prevents player from increasing in size more than once
-			return
-		end
 		print("Extra chunky")
 		transition.scaleBy(player, {xScale = 1, yScale = 1})
 		skewerOffset = skewerOffset + 50
@@ -417,6 +414,7 @@ local function checkPowerUp()
 	                                                  end)
 	elseif(arrayContains(onSkewerArray, "tomato") and arrayContains(onSkewerArray, "broccoli") and arrayContains(onSkewerArray, "carrot")) then
 		print("Shrinking player")
+		local smallText = display.newText(uiLayer, "Evasiveness increased!", player.x+100, player.y, native.systemFont, 80)
 		powerUpState = true
 		transition.scaleBy(player, {xScale = -0.5, yScale = -0.5})
 		local playerShapeXS = {0.5*-200,0.5*111,  0.5*-41,0.5*111,   0.5*-41,0.5*-89,   0.5*-200,0.5*-89}

@@ -13,83 +13,83 @@ local SheetInfo = {}
 SheetInfo.sheet =
 {
     frames = {
-    
+
         {
             -- bacon
-            x=235,
-            y=709,
-            width=122,
-            height=272,
+            x=0,
+            y=0,
+            width=200,
+            height=200,
 
-            sourceX = 49,
-            sourceY = 39,
-            sourceWidth = 200,
-            sourceHeight = 350
+            sourceX = 100,
+            sourceY = 100,
+            sourceWidth = 400,
+            sourceHeight = 400
         },
         {
             -- brocolli
-            x=1,
-            y=385,
-            width=252,
-            height=262,
+            x=200,
+            y=0,
+            width=200,
+            height=200,
 
-            sourceX = 19,
-            sourceY = 19,
-            sourceWidth = 290,
-            sourceHeight = 300
+            sourceX = 100,
+            sourceY = 100,
+            sourceWidth = 200,
+            sourceHeight = 200
         },
         {
             -- carrot
-            x=1,
-            y=883,
-            width=222,
-            height=172,
+            x=400,
+            y=0,
+            width=200,
+            height=200,
 
-            sourceX = 9,
-            sourceY = 19,
-            sourceWidth = 270,
+            sourceX = 100,
+            sourceY = 100,
+            sourceWidth = 200,
             sourceHeight = 200
         },
         {
             -- cheese
-            x=2,
-            y=1,
-            width=502,
-            height=382,
+            x=0,
+            y=200,
+            width=200,
+            height=200,
 
-            sourceX = 48,
-            sourceY = 8,
-            sourceWidth = 550,
-            sourceHeight = 390
+            sourceX = 100,
+            sourceY = 100,
+            sourceWidth = 200,
+            sourceHeight = 200
         },
         {
             -- sushi
-            x=255,
-            y=385,
-            width=192,
-            height=322,
+            x=200,
+            y=200,
+            width=200,
+            height=200,
 
-            sourceX = 39,
-            sourceY = 19,
-            sourceWidth = 270,
-            sourceHeight = 360
+            sourceX = 100,
+            sourceY = 100,
+            sourceWidth = 200,
+            sourceHeight = 200
         },
         {
             -- tomato
-            x=1,
-            y=649,
-            width=232,
-            height=232,
+            x=400,
+            y=200,
+            width=200,
+            height=200,
 
-            sourceX = 9,
-            sourceY = 19,
-            sourceWidth = 260,
-            sourceHeight = 290
+            sourceX = 100,
+            sourceY = 100,
+            sourceWidth = 200,
+            sourceHeight = 200
         },
     },
 
-    sheetContentWidth = 504,
-    sheetContentHeight = 1056
+    sheetContentWidth = 600,
+    sheetContentHeight = 400
 }
 
 SheetInfo.frameIndex =

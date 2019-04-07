@@ -62,6 +62,7 @@ local bgImage2 = {type = "image", filename ="Images/background.jpg"}
 local foodScrollSpeed = 15
 local bgScrollSpeed = 5
 local skewerOffset = 0
+local powerUpState = false --to prevent the player from getting more than one power up
 --------------------
 --Boundaries variables--
 local leftBound = -(display.viewableContentWidth) + 100
@@ -359,6 +360,9 @@ local function onComplete()
 end
 
 local function checkPowerUp()
+	if(powerUpState)then
+		return
+	end
 	if(isEqualArray(onSkewerArray,{"tomato","tomato","tomato"}))then
 		if(health<3)then
 			local healthNewText = display.newText(uiLayer, "+1 Health", player.x+100, player.y, native.systemFont, 80)
@@ -374,6 +378,7 @@ local function checkPowerUp()
 		print("Extra chunky")
 		transition.scaleBy(player, {xScale = 1, yScale = 1})
 		skewerOffset = skewerOffset + 50
+		powerUpState = true
 		local playerShapeXL = {2*-200,2*111,  2*-41,2*111,   2*-41,2*-89,   2*-200,2*-89}
 		local skewerShapeXL = {2*-40,2*50,  2*240,2*50,  2*240,2*31,  2*-40,2*31}
 		physics.removeBody(player)
@@ -385,6 +390,7 @@ local function checkPowerUp()
 				transition.scaleBy(player, {xScale = -1, yScale = -1})
 				physics.removeBody(player)
 				skewerOffset = skewerOffset - 50
+				powerUpState = false
 				physics.addBody(player,"static", {shape = skewerShape, isSensor = true},
 																{shape = playerShape,isSensor = true})
 			end
@@ -396,19 +402,37 @@ local function checkPowerUp()
 		health = health - 3
 		removeHeart()
 		if (health < 1) then
-        player.alpha = 0
-        timer.performWithDelay(50, function() player.isBodyActive = false end)
-        unTrackPlayer()
-        timer.performWithDelay(2000, goToMainMenu)
+	       player.alpha = 0
+	       timer.performWithDelay(50, function() player.isBodyActive = false end)
+	       unTrackPlayer()
+	       timer.performWithDelay(2000, goToMainMenu)
       end
 
 	elseif (isEqualArray(onSkewerArray, {"sushi", "sushi", "sushi"})) then
-    pointsDoubled = true
-    local doubledText = display.newText(uiLayer, "x2 Points multiplier", player.x+100, player.y, native.systemFont, 80)
-    timer.performWithDelay(2000, function() transition.fadeOut(doubledText, {time = 500}) end, 1)
-    timerPowerUp = timer.performWithDelay(10000, function() pointsDoubled = false
-                                                            onComplete()
-                                                  end)
+	   pointsDoubled = true
+	   local doubledText = display.newText(uiLayer, "x2 Points multiplier", player.x+100, player.y, native.systemFont, 80)
+	   timer.performWithDelay(2000, function() transition.fadeOut(doubledText, {time = 500}) end, 1)
+	   timerPowerUp = timer.performWithDelay(10000, function() pointsDoubled = false
+	                                                            onComplete()
+	                                                  end)
+	elseif(arrayContains(onSkewerArray, "tomato") and arrayContains(onSkewerArray, "broccoli") and arrayContains(onSkewerArray, "carrot")) then
+		print("Shrinking player")
+		powerUpState = true
+		transition.scaleBy(player, {xScale = -0.5, yScale = -0.5})
+		local playerShapeXS = {0.5*-200,0.5*111,  0.5*-41,0.5*111,   0.5*-41,0.5*-89,   0.5*-200,0.5*-89}
+		local skewerShapeXS = {0.5*-40,0.5*50,  0.5*240,0.5*50,  0.5*240,0.5*31,  0.5*-40,0.5*31}
+		physics.removeBody(player)
+		physics.addBody(player,"static", {shape = skewerShapeXS, isSensor = true},
+														{shape = playerShapeXS,isSensor = true})
+		timerPowerUp = timer.performWithDelay(10000, function()
+		if(player ~= nil) then
+			transition.scaleBy(player, {xScale = 0.5, yScale = 0.5})
+			physics.removeBody(player)
+			physics.addBody(player,"static", {shape = skewerShape, isSensor = true},
+															{shape = playerShape,isSensor = true})
+			powerUpState = false
+		end
+		end)
   end
 end
 

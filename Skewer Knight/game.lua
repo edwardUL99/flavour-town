@@ -512,6 +512,7 @@ local function pause()
  end
  paused = true
  playButton.isVisible = true
+ pauseButton.isVisible = false
  eatButton.isVisible = false
  makeObjectsVisible(true)
 end
@@ -525,6 +526,7 @@ local function resume()
 		timer.resume(timerPowerUp)
 	end
 	paused = false
+	playButton.isVisible = false
 	pauseButton.isVisible = true
 	eatButton.isVisible = true
 	makeObjectsVisible(false)

@@ -12,8 +12,8 @@ settings =
 		default = "landscapeRight",
 		supported = { "landscapeRight", },
 	},
-	
-	window = 
+
+	window =
 	{
 		defaultViewWidth = 1366,
 		defaultViewHeight = 768,

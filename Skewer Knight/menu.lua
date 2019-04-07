@@ -57,9 +57,11 @@ local function onPlayBtnRelease()
     saveFirstLaunch()
     goToTutorial()
   else
-    composer.removeScene("game")
-    timer.performWithDelay(500, function() composer.gotoScene( "game", "fade", 500 ) end)
-  end-- indicates successful touch
+    --composer.removeScene("game")
+    composer.gotoScene( "game", "fade", 500 )
+  end
+
+	return true
 end
 
 local function goToJournal()

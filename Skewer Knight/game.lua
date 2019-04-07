@@ -187,6 +187,7 @@ local function dragPlayer(event)
 	return true
 end
 
+
 local function moveSprite(event)
 ----Will be used when joystick is added
 	if(player == nil)then
@@ -236,16 +237,6 @@ local function isEqualArray(table1, table2)
   end
 	return false
 end
-
-function arrayContains( table, string)
-	for i = 0, #table, 1 do
-		if(table[i] == string)then
-			return true
-		end
-	end
-		return false
-end
-
 
 local function comboIndex(combo)
   for i = 1, #foodCombinations do
@@ -412,7 +403,7 @@ local function checkPowerUp()
 	   timerPowerUp = timer.performWithDelay(10000, function() pointsDoubled = false
 	                                                            onComplete()
 	                                                  end)
-	elseif(arrayContains(onSkewerArray, "tomato") and arrayContains(onSkewerArray, "broccoli") and arrayContains(onSkewerArray, "carrot")) then
+	elseif(isEqualArray(onSkewerArray, {"tomato", "broccoli", "carrot"})) then
 		print("Shrinking player")
 		local smallText = display.newText(uiLayer, "Evasiveness increased!", player.x+100, player.y, native.systemFont, 80)
 		powerUpState = true
@@ -442,10 +433,6 @@ local function eatSkewer(event)
 
     if (pointsDoubled) then
       points = points * 2
-    end
-
-    if (points < 0 and health > 0) then
-      health = health - 1
     end
 
     score = score + points
@@ -576,8 +563,7 @@ local function arrowPressed(event)
 		elseif (event.keyName == "up"or event.keyName =="w") then
 			motiony = -speed
 		end
-	end
-	if (event.phase == "up" and activeButton == nil) then
+	elseif (event.phase == "up" ) then
 		motionx = 0
 		motiony = 0
 	end
@@ -782,8 +768,11 @@ function scene:hide(event)
 
 	if ( phase == "will" ) then
 		-- Code here runs when the scene is on screen (but is about to go off screen)
-    timer.cancel(gameLoopTimer)
-    if timerPowerUp then
+		if gameLoopTimer then
+			timer.cancel(gameLoopTimer)
+		end
+
+		if timerPowerUp then
       timer.cancel(timerPowerUp)
     end
 

@@ -209,7 +209,6 @@ local function enterFrame(event)
 			looseFoodsTable[i].x = looseFoodsTable[i].x - foodScrollSpeed * dt
 			if (looseFoodsTable[i].x < -(display.actualContentWidth)) then
         local foodToRemove = looseFoodsTable[i]
-				print("food removed")
 				table.remove(looseFoodsTable, i)
         display.remove(foodToRemove)
 			end
@@ -428,9 +427,11 @@ local function checkPowerUp()
 			physics.addBody(player,"static", {shape = skewerShape, isSensor = true},
 															{shape = playerShape,isSensor = true})
 			powerUpState = false
+			transition.fadeOut(smallText, {time = 1000})
 		end
 		end)
   end
+	timer.performWithDelay(10500, function() timerPowerUp = nil end)
 end
 
 

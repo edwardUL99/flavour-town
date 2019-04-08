@@ -86,14 +86,14 @@ end
 
 local function saveCombos()
 	local file = io.open(filePath, "w")
-	
+
 	--[[]
-	if combinationsTable then  
+	if combinationsTable then
   		for i = 1, #combinationsTable do
     		print(i .. " " .. "iteration")
     		if (#combinationsTable[i] == 0) then
       			table.remove(combinationsTable, i)
-    		end 
+    		end
   		end
   	end]]--
 
@@ -139,11 +139,11 @@ local function comboIndex(combo)
   for i = #combinationsTable, 1, -1 do
     if (isEqualArray(combinationsTable[i], combo)) then
       return i
-    end 
+    end
   end
   return nil
 end
-      
+
 
 local function createDisplayObject(x, y, object)
   local newDisplay = display.newImageRect(uiLayer, "Images/comboBack.png", 500, 300)
@@ -170,7 +170,7 @@ local function removeDuplicates(object)
   		objectCount = objectCount - 1
   	end
   end
-end 
+end
 
 local function displayCombos()
 	local x = -600
@@ -180,7 +180,7 @@ local function displayCombos()
   local alreadyDisplayed = false
 	local combo = ""
 
-  for i = #combinationsTable, 1, - 1 do
+  for i = 1, #combinationsTable do
       --for k = 1, #combinationsTable[i][j] do
         --combo = combo .. combinationsTable[i][j].. "-"
         --objects:spawnObject(uiLayer, x, y, 100, 100, combinationsTable[i][j][k])

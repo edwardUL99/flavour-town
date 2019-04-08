@@ -220,21 +220,28 @@ end
 --(*Mightn't need if using new checkCombination method)
 local function isEqualArray(table1, table2)
 	--Since the score value is only stored at end of each combination table, we can ignore it and check the names only
+	local pointsTemp
+	local isCombo = false
+	if (#table1 == 4) then
+		pointsTemp = table1[4]
+		isCombo = true
+		table.remove(table1, 4)
+	end
+
+	table.sort(table1)
+	table.sort(table2)
+	--if both tables are same but different order the table.sort will fix that
 	if (#table1 == #table2) then
 		for i = 1, #table1 do
 			if (table1[i] ~= table2[i]) then
 				return false
 			end
 		end
+		if (isCombo) then
+			table.insert(table1, pointsTemp)
+		end
 		return true
-	elseif (#table1 == 4 and #table2 == 3) then
-    for i = 1, #table2 do
-      if (table1[i] ~= table2[i]) then
-        return false
-      end
-    end
-    return true
-  end
+	end
 	return false
 end
 
@@ -311,6 +318,7 @@ end
 local function checkCombination(namesTable)
 	for i = 1, #foodCombinations do
 		if (isEqualArray(foodCombinations[i], namesTable)) then
+			print(foodCombinations[i][#foodCombinations[i]])
 			return foodCombinations[i][#foodCombinations[i]]
     end
 	end
@@ -443,6 +451,7 @@ local function eatSkewer(event)
     local indexComboTable = comboIndex(onSkewerArray)
     print(indexComboTable)
     if (indexComboTable ~= -1) then
+			printTable(foodCombinations[indexComboTable])
       table.insert(foodCombos, foodCombinations[indexComboTable])
       composer.setVariable("skewerArray", foodCombos)
     end

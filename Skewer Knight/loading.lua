@@ -8,10 +8,6 @@ local scene = composer.newScene()
 -- the scene is removed entirely (not recycled) via "composer.removeScene()"
 -- -----------------------------------------------------------------------------------
 local sceneToGo = composer.getVariable("scene")
-local fromScene = composer.getVariable("fromScene")
-
-composer.removeScene(fromScene)
-composer.removeScene(sceneToGo)
 --timer.performWithDelay(100, function() composer.gotoScene(sceneToGo) end)
 
 timer.performWithDelay(2000, function() composer.gotoScene(sceneToGo) end)

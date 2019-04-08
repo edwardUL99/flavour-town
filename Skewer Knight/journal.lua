@@ -23,13 +23,11 @@ local scoresPath = system.pathForFile("score.json", system.DocumentsDirectory)
 
 local function goToMainMenu()
   composer.setVariable("scene", "menu")
-  composer.setVariable("fromScene", "journal")
 	timer.performWithDelay(500, function() composer.gotoScene( "loading", "fade", 500 ) end)
 end
 
 local function goBackToGame()
   composer.setVariable("scene", "game")
-  composer.setVariable("fromScene", "journal")
   timer.performWithDelay(500, function() composer.gotoScene( "loading", "fade", 500 ) end)
 end
 

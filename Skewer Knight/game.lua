@@ -465,7 +465,7 @@ local function eatSkewer(event)
   end
 end
 
-local function keyPressed(event)
+local function back(event)
 	if (event.phase == "down") then
 		if (event.keyName == "back") then
 			goToMainMenu()
@@ -500,6 +500,7 @@ local function makeObjectsVisible(visible)
 end
 
 local function pause()
+ paused = true
  if gameLoopTimer then
   timer.pause(gameLoopTimer)
  end
@@ -507,7 +508,6 @@ local function pause()
  if timerPowerUp then
  	timer.pause(timerPowerUp)
  end
- paused = true
  playButton.isVisible = true
  pauseButton.isVisible = false
  eatButton.isVisible = false
@@ -515,6 +515,7 @@ local function pause()
 end
 
 local function resume()
+	paused = false
   if gameLoopTimer then
     timer.resume(gameLoopTimer)
   end
@@ -522,7 +523,6 @@ local function resume()
 	if timerPowerUp then
 		timer.resume(timerPowerUp)
 	end
-	paused = false
 	playButton.isVisible = false
 	pauseButton.isVisible = true
 	eatButton.isVisible = true
@@ -562,7 +562,7 @@ end
 ----------------------------------------------------------------------------
 
 -- Will be used if we switch to Windows and use arrow keys
-local function arrowPressed(event)
+local function keyPressed(event)
 	if (event.phase == "down") then
 		if (event.keyName == "left" or event.keyName =="a") then
 			motionx = -speed
@@ -572,6 +572,22 @@ local function arrowPressed(event)
 			motiony = speed
 		elseif (event.keyName == "up"or event.keyName =="w") then
 			motiony = -speed
+		elseif (event.keyName == "m" and (not paused)) then
+			mute()
+		elseif (event.keyName == "m" and paused) then
+			goToMainMenu()
+		elseif (event.keyName == "j" and paused) then
+			goToJournal()
+		elseif (event.keyName == "e" and paused) then
+			exit()
+		elseif (event.keyName == "e" and paused == false) then
+			eatSkewer()
+		elseif (event.keyName == "p") then
+			if not paused then
+				pause()
+			else
+				resume()
+			end
 		end
 	elseif (event.phase == "up" ) then
 		motionx = 0
@@ -763,8 +779,8 @@ function scene:show( event )
 		physics.start()
     Runtime:addEventListener("collision", onCollision)
 		Runtime:addEventListener("enterFrame", enterFrame)
+		Runtime:addEventListener("key", back)
 		Runtime:addEventListener("key", keyPressed)
-		Runtime:addEventListener("key", arrowPressed)
 		gameLoopTimer = timer.performWithDelay(gameLoopCycle, gameLoop, 0)
 	end
 end
@@ -792,7 +808,7 @@ function scene:hide(event)
     print("hidden")
 		Runtime:removeEventListener("collision",onCollision)
 		Runtime:removeEventListener("key", keyPressed)
-		Runtime:addEventListener("key", arrowPressed)
+		Runtime:addEventListener("key", back)
 		audio.dispose(eatAudio)
 		audio.dispose(hurtAudio)
 		physics.pause()

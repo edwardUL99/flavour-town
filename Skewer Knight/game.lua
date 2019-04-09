@@ -216,59 +216,6 @@ local function enterFrame(event)
 	end
 end
 
---(*Mightn't need if using new checkCombination method)
-local function isEqualArray(table1, table2)
-	--Since the score value is only stored at end of each combination table, we can ignore it and check the names only
-	local pointsTemp
-	local isCombo = false
-	if (#table1 == 4) then
-		pointsTemp = table1[4]
-		print("pointsTemp = " .. " " .. pointsTemp)
-		isCombo = true
-		table.remove(table1, 4)
-	end
-
-	table.sort(table1)
-	table.sort(table2)
-	--if both tables are same but different order the table.sort will fix that
-	if (#table1 == #table2) then
-		for i = 1, #table1 do
-			if (table1[i] ~= table2[i]) then
-				return false
-			end
-		end
-		if (isCombo) then
-			table.insert(table1, 4, pointsTemp)
-		end
-		return true
-	end
-	return false
-end
-
-local function comboIndex(combo)
-  for i = 1, #foodCombinations do
-    if (isEqualArray(foodCombinations[i], combo)) then
-      return i
-    end
-  end
-  return -1
-end
-
---(*Mightn't need if using new checkCombination method)
-local function createCombinationsTable()
-	for i = 1, amountOfCombos do --Creating 2D array
-		foodCombinations[i] = {}
-	end
-
-  foodCombinations[1] = {"bacon", "sushi", "tomato", 800}
-	foodCombinations[2] = {"cheese", "cheese", "cheese", 50}
-	foodCombinations[3] = {"bacon", "bacon", "bacon", 1000}
-	foodCombinations[4] = {"broccoli", "broccoli", "broccoli", -100}
-	foodCombinations[5] = {"broccoli", "cheese",  "tomato", 100}
-  foodCombinations[6] = {"carrot", "tomato", "broccoli", 500}
-	foodCombinations[7] = {"bacon", "cheese", "sushi", 750}
-end
-
 --debug to test output on console
 local function printTable(table)
 	for i = 1, #table do
@@ -283,6 +230,58 @@ local function print2D(twoD)
 	end
 end
 ---Will remove later--
+
+local function tableCopy(table)
+	local copy = {}
+	for i = 1, #table do
+		copy[i] = table[i]
+	end
+	return copy
+end
+
+--(*Mightn't need if using new checkCombination method)
+local function isEqualArray(table1, table2)
+	--Since the score value is only stored at end of each combination table, we can ignore it and check the names only
+	local tempTable1 = tableCopy(table1)
+	local tempTable2 = tableCopy(table2)
+
+	table.remove(tempTable1, 4)
+	table.sort(tempTable1)
+	table.sort(tempTable2)
+
+	print(#tempTable1)
+	print(#tempTable2)
+	--if both tables are same but different order the table.sort will fix that
+	if (#tempTable1 == #tempTable2) then
+		for i = 1, #tempTable1 do
+			if (tempTable1[i] ~= tempTable2[i]) then
+				return false
+			end
+		end
+		return true
+	end
+	return false
+end
+
+local function comboIndex(combo)
+  for i = 1, #foodCombinations do
+    if (isEqualArray(foodCombinations[i], combo)) then
+      return i
+    end
+  end
+  return nil
+end
+
+--(*Mightn't need if using new checkCombination method)
+local function createCombinationsTable()
+	foodCombinations[1] = {"bacon", "sushi", "tomato", 800}
+	foodCombinations[2] = {"cheese", "cheese", "cheese", 50}
+	foodCombinations[3] = {"bacon", "bacon", "bacon", 1000}
+	foodCombinations[4] = {"broccoli", "broccoli", "broccoli", -100}
+	foodCombinations[5] = {"broccoli", "cheese",  "tomato", 100}
+  foodCombinations[6] = {"carrot", "tomato", "broccoli", 500}
+	foodCombinations[7] = {"bacon", "cheese", "sushi", 750}
+end
 
 local function checkCombinationDefault(namesTable)
 	--[[local foodScores = {
@@ -347,6 +346,7 @@ local function onComplete()
     local overText = display.newText(uiLayer, "x2 Points multiplier over", player.x+300, player.y, native.systemFont, 80)
   end
   timer.performWithDelay(2000, function() transition.fadeOut(overText, {time = 500}) end)
+	timerPowerUp = nil
 end
 
 local function checkPowerUp()
@@ -362,7 +362,6 @@ local function checkPowerUp()
 
 		end
 	elseif(isEqualArray(onSkewerArray,{"bacon","bacon","bacon"}))then
-		print("Extra chunky")
 		transition.scaleBy(player, {xScale = 1, yScale = 1})
 		skewerOffset = skewerOffset + 50
 		powerUpState = true
@@ -380,10 +379,10 @@ local function checkPowerUp()
 				powerUpState = false
 				physics.addBody(player,"static", {shape = skewerShape, isSensor = true},
 																{shape = playerShape,isSensor = true})
+				timerPowerUp = nil
 			end
 		end)
 	elseif(isEqualArray(onSkewerArray, {"broccoli","broccoli","broccoli"}))then
-		print("Go green")
 		player:setFillColor(0, 1, 0.2)
 		audio.play(hurtAudio)
 		health = health - 3
@@ -403,9 +402,9 @@ local function checkPowerUp()
 	                                                            onComplete()
 	                                                  end)
 	elseif(isEqualArray(onSkewerArray, {"tomato", "broccoli", "carrot"})) then
-		print("Shrinking player")
 		local smallText = display.newText(uiLayer, "Evasiveness increased!", player.x+100, player.y, native.systemFont, 80)
 		powerUpState = true
+		transition.fadeOut(smallText, {time = 1000})
 		transition.scaleBy(player, {xScale = -0.5, yScale = -0.5})
 		local playerShapeXS = {0.5*-200,0.5*111,  0.5*-41,0.5*111,   0.5*-41,0.5*-89,   0.5*-200,0.5*-89}
 		local skewerShapeXS = {0.5*-40,0.5*50,  0.5*240,0.5*50,  0.5*240,0.5*31,  0.5*-40,0.5*31}
@@ -419,16 +418,16 @@ local function checkPowerUp()
 			physics.addBody(player,"static", {shape = skewerShape, isSensor = true},
 															{shape = playerShape,isSensor = true})
 			powerUpState = false
-			transition.fadeOut(smallText, {time = 1000})
+			timerPowerUp = nil
 		end
 		end)
   end
-	timer.performWithDelay(10500, function() timerPowerUp = nil end)
 end
 
 local function eatSkewer(event)
 	if(#onSkewerArray>0)then
     local points = checkCombination(onSkewerArray)
+		printTable(onSkewerArray)
 
 		if comboIndex(onSkewerArray) then
 			local comboText = display.newText(uiLayer, "Food Combo!", player.x + 100, player.y - 100, native.systemFont, 50)
@@ -445,8 +444,7 @@ local function eatSkewer(event)
 		scoreText.text = "Score: " .. score
 
     local indexComboTable = comboIndex(onSkewerArray)
-    print(indexComboTable)
-    if (indexComboTable ~= -1) then
+    if (indexComboTable ~= nil) then
 			printTable(foodCombinations[indexComboTable])
       table.insert(foodCombos, foodCombinations[indexComboTable])
       composer.setVariable("skewerArray", foodCombos)
@@ -544,7 +542,6 @@ local function gameLoop()
 		foodScrollSpeed = foodScrollSpeed + 0.5
 	end
 
-	foodScrollSpeed = foodScrollSpeed + 0.5
 end
 ----------------------------------------------------------------------------
 ----------------------------------------------------------------------------
@@ -613,11 +610,7 @@ end
 
 
 
-local function onCollision(event) --(*Is lettuce considered an enemy food? I'll assume it is for now)
-	print("event.element1 is " .. event.element1) -- is 2
-	print("event.element2 is " .. event.element2) -- is 1
-	print("object1 is "..event.object1.myName)
-	print("object2 is "..event.object2.myName)
+local function onCollision(event)
 
 	if (event.phase == "began" and player ~= nil) then
 		local collidedObject = event.object2

@@ -223,6 +223,7 @@ local function isEqualArray(table1, table2)
 	local isCombo = false
 	if (#table1 == 4) then
 		pointsTemp = table1[4]
+		print("pointsTemp = " .. " " .. pointsTemp)
 		isCombo = true
 		table.remove(table1, 4)
 	end
@@ -237,7 +238,7 @@ local function isEqualArray(table1, table2)
 			end
 		end
 		if (isCombo) then
-			table.insert(table1, pointsTemp)
+			table.insert(table1, 4, pointsTemp)
 		end
 		return true
 	end
@@ -308,13 +309,11 @@ end
 
 
 local function checkCombination(namesTable)
-	for i = 1, #foodCombinations do
-		if (isEqualArray(foodCombinations[i], namesTable)) then
-			print(foodCombinations[i][#foodCombinations[i]])
-			return foodCombinations[i][#foodCombinations[i]]
-    end
+	if comboIndex(namesTable) ~= nil then
+		return foodCombinations[comboIndex(namesTable)][#foodCombinations[comboIndex(namesTable)]]
+	else
+		return checkCombinationDefault(namesTable)
 	end
-	return checkCombinationDefault(namesTable)
 end
 
 local function addHeart()
@@ -427,20 +426,11 @@ local function checkPowerUp()
 	timer.performWithDelay(10500, function() timerPowerUp = nil end)
 end
 
-local function isCombo(combo)
-	for i = 1, #foodCombinations do
-		if (isEqualArray(foodCombinations[i], combo)) then
-			return true
-		end
-	end
-	return false
-end
-
 local function eatSkewer(event)
 	if(#onSkewerArray>0)then
     local points = checkCombination(onSkewerArray)
 
-		if (isCombo(onSkewerArray)) then
+		if comboIndex(onSkewerArray) then
 			local comboText = display.newText(uiLayer, "Food Combo!", player.x + 100, player.y - 100, native.systemFont, 50)
 			transition.fadeOut(comboText, {time = 1000})
 		end
@@ -829,6 +819,7 @@ function scene:destroy( event )
 	-- Code here runs prior to the removal of scene's view
 	print("removed")
 	player = nil
+	foodCombinations = nil
 end
 
 

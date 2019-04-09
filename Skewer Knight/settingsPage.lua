@@ -83,7 +83,9 @@ end
 
 local function removeFields()
 	for i = 1, #textInputs do
-		textInputs[i]:removeSelf()
+		if textInputs[i] then
+			display.remove(textInputs[i])
+		end
 	end
 end
 
@@ -187,6 +189,15 @@ function scene:show( event )
 			local mainMenu = display.newText(mainLayer, "Menu", display.contentCenterX + 1000, display.contentCenterY + 500, native.systemFont, 50)
 			mainMenu:addEventListener("tap", goToMainMenu)
 
+			sceneGroup:insert(leftKeyField)
+			sceneGroup:insert(upKeyField)
+			sceneGroup:insert(rightKeyField)
+			sceneGroup:insert(downKeyField)
+			sceneGroup:insert(eatKeyField)
+			sceneGroup:insert(pauseKeyField)
+			sceneGroup:insert(moveSpeedField)
+			sceneGroup:insert(volumeField)
+
 	end
 end
 
@@ -204,7 +215,7 @@ function scene:hide( event )
 		removeFields()
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen
-		timer.performWithDelay(5000, function() composer.removeScene("settings") end)
+		composer.removeScene("settings")
 	end
 end
 

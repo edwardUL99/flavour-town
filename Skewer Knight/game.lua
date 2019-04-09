@@ -1,6 +1,8 @@
 local composer = require( "composer" ) --This is very IMPORTANT
 local scene = composer.newScene()
 local objects = require("objects")
+local options = require("settings")
+local settings = composer.getVariable("settings")
 local physics = require( "physics" )
 
 physics.start()
@@ -556,13 +558,13 @@ end
 -- Will be used if we switch to Windows and use arrow keys
 local function keyPressed(event)
 	if (event.phase == "down") then
-		if (event.keyName == "left" or event.keyName =="a") then
+		if (event.keyName == "left" or event.keyName == settings["left"]) then
 			motionx = -speed
-		elseif (event.keyName == "right" or event.keyName =="d") then
+		elseif (event.keyName == "right" or event.keyName == settings["right"]) then
 			motionx = speed
-		elseif (event.keyName == "down"or event.keyName =="s") then
+		elseif (event.keyName == "down"or event.keyName == settings["down"]) then
 			motiony = speed
-		elseif (event.keyName == "up"or event.keyName =="w") then
+		elseif (event.keyName == "up"or event.keyName == settings["up"]) then
 			motiony = -speed
 		elseif (event.keyName == "m" and (not paused)) then
 			mute()
@@ -572,9 +574,9 @@ local function keyPressed(event)
 			goToJournal()
 		elseif (event.keyName == "e" and paused) then
 			exit()
-		elseif (event.keyName == "e" and paused == false) then
+		elseif (event.keyName == settings["eat"] and paused == false) then
 			eatSkewer()
-		elseif (event.keyName == "p") then
+		elseif (event.keyName == settings["pause"]) then
 			if not paused then
 				pause()
 			else
@@ -668,6 +670,12 @@ function scene:create( event )
 	local sceneGroup = self.view
 	-- Code here runs when the scene is first created but has not yet appeared on screen
 	physics.pause()
+
+	if (settings == nil) then
+		settings = options
+		speed = settings["moveSpeed"]
+	end
+	speed = settings["moveSpeed"]
 
 	backLayer = display.newGroup()
 	sceneGroup:insert(backLayer)

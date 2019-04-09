@@ -48,6 +48,10 @@ local function goToTutorial()
 	return true
 end
 
+local function goToSettings()
+	composer.gotoScene("settingsPage", "fade", 500)
+end
+
 -- 'onRelease' event listener for playBtn
 local function onPlayBtnRelease()
 	playButton.emboss = false
@@ -147,12 +151,18 @@ function scene:create( event )
 		tutorialButton.isVisible = false
 	end
 
+	local settingsButton = display.newImageRect("Images/settings.png", 150, 150)
+	settingsButton.x = display.contentCenterX + 1000
+	settingsButton.y = display.contentCenterY - 600
+	settingsButton:addEventListener("tap", goToSettings)
+
 	-- all display objects must be inserted into group
 	sceneGroup:insert( background )
 	sceneGroup:insert( titleLogo )
 	sceneGroup:insert( playButton )
 	sceneGroup:insert(journalBtn)
 	sceneGroup:insert(tutorialButton)
+	sceneGroup:insert(settingsButton)
 
 	playButton:addEventListener("tap", onPlayBtnRelease)
 	journalBtn:addEventListener("tap", goToJournal)

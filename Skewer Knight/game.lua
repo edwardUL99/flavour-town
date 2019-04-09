@@ -258,21 +258,14 @@ local function createCombinationsTable()
 	for i = 1, amountOfCombos do --Creating 2D array
 		foodCombinations[i] = {}
 	end
-	--The score values for each combination is in the last position i.e #foodCombinations[i] where i is some number 1-4
-	--[[foodCombinations[1] = {"bread", "bread", "bread", 500}
-	foodCombinations[2] = {"broccoli", "broccoli", "broccoli", 50}
-	foodCombinations[3] = {"burger", "burger", "burger", 1000}
-	foodCombinations[4] = {"lettuce", "lettuce", "lettuce", -100}
-	foodCombinations[5] = {"tomato", "tomato", "tomato", 200}]]--
 
-  foodCombinations[1] = {"sushi", "sushi", "sushi", 500}
+  foodCombinations[1] = {"bacon", "sushi", "tomato", 800}
 	foodCombinations[2] = {"cheese", "cheese", "cheese", 50}
 	foodCombinations[3] = {"bacon", "bacon", "bacon", 1000}
 	foodCombinations[4] = {"broccoli", "broccoli", "broccoli", -100}
-	foodCombinations[5] = {"tomato", "tomato", "tomato", 200}
-  foodCombinations[6] = {"carrot", "carrot", "carrot", 100}
-
-  composer.setVariable("defCombos", foodCombinations)
+	foodCombinations[5] = {"broccoli", "cheese",  "tomato", 100}
+  foodCombinations[6] = {"carrot", "tomato", "broccoli", 500}
+	foodCombinations[7] = {"bacon", "cheese", "sushi", 750}
 end
 
 --debug to test output on console
@@ -434,11 +427,23 @@ local function checkPowerUp()
 	timer.performWithDelay(10500, function() timerPowerUp = nil end)
 end
 
-
+local function isCombo(combo)
+	for i = 1, #foodCombinations do
+		if (isEqualArray(foodCombinations[i], combo)) then
+			return true
+		end
+	end
+	return false
+end
 
 local function eatSkewer(event)
 	if(#onSkewerArray>0)then
     local points = checkCombination(onSkewerArray)
+
+		if (isCombo(onSkewerArray)) then
+			local comboText = display.newText(uiLayer, "Food Combo!", player.x + 100, player.y - 100, native.systemFont, 50)
+			transition.fadeOut(comboText, {time = 1000})
+		end
 
     if (pointsDoubled) then
       points = points * 2

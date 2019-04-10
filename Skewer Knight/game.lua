@@ -66,6 +66,7 @@ local foodScrollSpeed = 15
 local bgScrollSpeed = 5
 local skewerOffset = 0
 local powerUpState = false --to prevent the player from getting more than one power up
+local afterIncrease = false
 --------------------
 --Boundaries variables--
 local leftBound = -(display.viewableContentWidth) + 100
@@ -367,10 +368,12 @@ local function checkPowerUp()
 	elseif(isEqualArray(onSkewerArray,{"bacon","bacon","bacon"}))then
 		skewerOffset = powerUps.baconSizeIncrease(player, skewerOffset)
 		powerUpState = true
+		afterIncrease = false
 		--reduces body shape back to normal
 		timerPowerUp = timer.performWithDelay(10000, function()
 			skewerOffset = powerUps.baconSizeShrink(player, skewerOffset, skewerShape, playerShape)
 			powerUpState = false
+			afterIncrease = true
 			timerPowerUp = nil
 		end)
 	elseif(isEqualArray(onSkewerArray, {"broccoli","broccoli","broccoli"}))then
@@ -592,15 +595,25 @@ end
 
 
 local function onCollision(event)
-
 	if (event.phase == "began" and player ~= nil) then
 		local collidedObject = event.object2
 		if (collidedObject.myName == "player") then
 			collidedObject = event.object1
 		end
 
+		if (event.object1.myName ~= "player") then
+			local temp = event.object1
+			event.object1 = event.object2
+			event.object2 = temp
+		end
+		local numberToCompare = 2
+
+		if (afterIncrease == true) then
+			numberToCompare  = 1
+		end
+
     if ((event.object1.myName == "player" and event.element1 == 2)
-	 	or (event.object2.myName == "player" and event.element2 == 2)) then --event.element1 == 1, when the body of the player collides with the food
+	 	or (event.object1.myName == "player" and event.element2 == numberToCompare)) then --event.element1 == 1, when the body of the player collides with the food
 			print("Collision on body")
       health = health - 1
       --Changes colour of player to red, then changes it back after 500ms

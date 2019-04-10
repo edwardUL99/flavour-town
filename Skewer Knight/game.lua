@@ -664,7 +664,7 @@ function scene:create( event )
 	physics.pause()
 
 	if (settings == nil) then
-		settings = options
+		settings = options.load()
 		speed = settings["moveSpeed"]
 	end
 	speed = settings["moveSpeed"]

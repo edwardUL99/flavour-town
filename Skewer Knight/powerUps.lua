@@ -38,8 +38,8 @@ local function evasivenessRevert(object, defaultSkewerShape, defaultPlayerShape)
   end
 end
 
-powerUps.grow = grow
-powerUps.shrink = shrink
+powerUps.baconSizeIncrease = baconSizeIncrease
+powerUps.baconSizeShrink = baconSizeShrink
 powerUps.evasivenessShrink = evasivenessShrink
 powerUps.evasivenessRevert = evasivenessRevert
 

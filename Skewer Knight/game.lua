@@ -279,13 +279,12 @@ end
 --(*Mightn't need if using new checkCombination method)
 local function createCombinationsTable()
 	foodCombinations[1] = {"bacon", "sushi", "tomato", 800}
-	foodCombinations[2] = {"cheese", "cheese", "cheese", 50}
+	foodCombinations[2] = {"cheese", "cheese", "cheese", 650}
 	foodCombinations[3] = {"bacon", "bacon", "bacon", 1000}
-	foodCombinations[4] = {"broccoli", "broccoli", "broccoli", -100}
-	foodCombinations[5] = {"broccoli", "cheese",  "tomato", 100}
-  foodCombinations[6] = {"carrot", "tomato", "broccoli", 500}
-	foodCombinations[7] = {"bacon", "cheese", "sushi", 750}
-	foodCombinations[8] = {"tomato", "tomato", "tomato", 250}
+	foodCombinations[4] = {"broccoli", "cheese",  "tomato", 100}
+  foodCombinations[5] = {"carrot", "tomato", "broccoli", 500}
+	foodCombinations[6] = {"bacon", "cheese", "sushi", 750}
+	foodCombinations[7] = {"tomato", "tomato", "tomato", 250}
 
 end
 

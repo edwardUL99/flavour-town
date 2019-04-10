@@ -74,7 +74,7 @@ local function loadCombos()
 	if file then
 		local contents = file:read("*a")
 		io.close(file)
-		combinationsTable = json.decode("contents")
+		combinationsTable = json.decode(contents)
 	end
 
   if (combinationsTable == nil or #combinationsTable == 0) then
@@ -84,16 +84,6 @@ end
 
 local function saveCombos()
 	local file = io.open(filePath, "w")
-
-	--[[]
-	if combinationsTable then
-  		for i = 1, #combinationsTable do
-    		print(i .. " " .. "iteration")
-    		if (#combinationsTable[i] == 0) then
-      			table.remove(combinationsTable, i)
-    		end
-  		end
-  	end]]--
 
 	if file then
 		file:write(json.encode(combinationsTable))
@@ -235,7 +225,7 @@ function scene:create( event )
 	local menuBtn = display.newText(uiLayer, "Menu", -250, display.contentHeight - 125, native.systemFont, 80)
 	local resetBtn = display.newText(uiLayer, "Reset Records", 1000, display.contentHeight - 125, native.systemFont, 80)
   local gameBtn = display.newText(uiLayer, "Back to Game", 300, display.contentHeight - 125, native.systemFont, 80)
-  local information = display.newText(uiLayer, "These are the combinations that have special effects.", 300, display.contentHeight- 270, native.systemFont, 50)
+  local information = display.newText(uiLayer, "These are the discovered combinations that have special effects/Extra points", 400, display.contentHeight- 270, native.systemFont, 50)
 
 
   if (composer.getVariable("skewerArray") ~= nil) then

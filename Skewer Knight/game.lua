@@ -30,7 +30,7 @@ local runtime = 0
 --Arrays & tables--
 local looseFoodsTable = {}
 local foodCombos = {}
-local spawnRate = 3
+local spawnRate = 1
 local onSkewerArray = {}
 local foodsToMove = {}
 local maxOnSkewer = 3
@@ -62,7 +62,7 @@ local displayObjects = {}
 local bg1
 local bg2 --two SCROLLING backgrounds, to make it look like player is moving)
 local bgImage2 = {type = "image", filename ="Images/background.jpg"}
-local foodScrollSpeed = 15
+local foodScrollSpeed = 10
 local bgScrollSpeed = 5
 local skewerOffset = 0
 local powerUpState = false --to prevent the player from getting more than one power up
@@ -741,8 +741,6 @@ function scene:create( event )
 	journalButton.isVisible = false
 	table.insert(displayObjects, journalButton)
 
-  createCombinationsTable()
-
 	player:addEventListener("touch", dragPlayer)
 	player:addEventListener("tap", eatSkewer)
 	pauseButton:addEventListener("tap", pause)
@@ -764,6 +762,7 @@ function scene:show( event )
 		-- Code here runs when the scene is still off screen (but is about to come on screen)
 
 	elseif ( phase == "did" ) then
+		createCombinationsTable()
     print("Scene shown")
 		physics.start()
     Runtime:addEventListener("collision", onCollision)

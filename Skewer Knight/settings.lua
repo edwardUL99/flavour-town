@@ -48,9 +48,16 @@ local function save()
   end
 end
 
+local function reset()
+  settings.custom = settings.default
+  save()
+end
+
 settings.load = load
 
 settings.save = save
+
+settings.reset = reset
 
 local function store(settingName, element)
   if settings.custom[settingName] then

@@ -25,6 +25,12 @@ local function goToMainMenu()
 	composer.gotoScene("menu", "fade", 500)
 end
 
+local function default()
+	settingsFunctions.reset()
+	composer.setVariable("scene", "settingsPage")
+	timer.performWithDelay(2000, function() composer.gotoScene("loading", "fade", 800) end)
+end
+
 local function textListener(event)
 		local target = event.target
     if ( event.phase == "ended" or event.phase == "submitted" ) then
@@ -35,7 +41,7 @@ local function textListener(event)
 			if text then
 				target.placeholder = "" .. settings[target.myName]
 			end
-			print(settings[target.myName])
+			native.setKeyboardFocus(nil)
     end
 end
 
@@ -148,6 +154,11 @@ function scene:show( event )
 			local mainMenu = display.newText(mainLayer, "Menu", display.contentCenterX + 1000, display.contentCenterY + 500, native.systemFont, 50)
 			mainMenu:addEventListener("tap", goToMainMenu)
 
+			local resetDefault = display.newText(mainLayer, "Defaults", display.contentCenterX + 800, display.contentCenterY + 500, native.systemFont, 50)
+			resetDefault:addEventListener("tap", default)
+
+			local enter = display.newText(mainLayer, "Press enter after entering key(Type space for spacebar and single character for a-z)", display.contentCenterX + 100, display.contentCenterY + 600, native.systemFont, 50)
+
 			sceneGroup:insert(leftKeyField)
 			sceneGroup:insert(upKeyField)
 			sceneGroup:insert(rightKeyField)
@@ -174,7 +185,7 @@ function scene:hide( event )
 		removeFields()
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen
-		composer.removeScene("settings")
+		composer.removeScene("settingsPage")
 	end
 end
 

@@ -235,6 +235,8 @@ function scene:create( event )
 	local menuBtn = display.newText(uiLayer, "Menu", -250, display.contentHeight - 125, native.systemFont, 80)
 	local resetBtn = display.newText(uiLayer, "Reset Records", 1000, display.contentHeight - 125, native.systemFont, 80)
   local gameBtn = display.newText(uiLayer, "Back to Game", 300, display.contentHeight - 125, native.systemFont, 80)
+  local information = display.newText(uiLayer, "These are the combinations that have special effects.", 300, display.contentHeight- 270, native.systemFont, 50)
+
 
   if (composer.getVariable("skewerArray") ~= nil) then
     local skewer = composer.getVariable("skewerArray")

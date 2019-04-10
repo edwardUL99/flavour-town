@@ -30,7 +30,7 @@ local runtime = 0
 --Arrays & tables--
 local looseFoodsTable = {}
 local foodCombos = {}
-local spawnRate = 1
+local spawnRate = 3
 local onSkewerArray = {}
 local foodsToMove = {}
 local maxOnSkewer = 3
@@ -364,7 +364,7 @@ local function checkPowerUp()
 			addHeart()
 
 		end
-	elseif(isEqualArray(onSkewerArray,{"bacon","bacon","bacon"}))then
+	elseif(isEqualArray(onSkewerArray,{"bacon"--[[,"bacon","bacon"]]}))then
 		skewerOffset = powerUps.baconSizeIncrease(player, skewerOffset)
 		powerUpState = true
 		--reduces body shape back to normal

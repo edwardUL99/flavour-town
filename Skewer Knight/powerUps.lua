@@ -12,10 +12,10 @@ end
 
 local function baconSizeShrink(object, skewerOffset, scale, defaultSkewerShape, defaultPlayerShape)
   if(object ~= nil) then
-    transition.scaleBy(object, {xScale = -1, yScale = -1})
     physics.removeBody(object)
-    skewerOffset = skewerOffset - 50
     physics.addBody(object,"static", {shape = defaultSkewerShape, isSensor = true}, {shape = defaultPlayerShape,isSensor = true})
+    transition.scaleBy(object, {xScale = -1, yScale = -1})
+    skewerOffset = skewerOffset - 50
   end
     return skewerOffset
 end

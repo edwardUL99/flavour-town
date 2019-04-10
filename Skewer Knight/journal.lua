@@ -171,9 +171,9 @@ local function removeDuplicates(object)
 end
 
 local function displayCombos()
-	local x = -500
+	local x = -250
 	local y = 350
-  local maxPerRow = 4
+  local maxPerRow = 3
   local displayed = 0
   local alreadyDisplayed = false
 	local combo = ""
@@ -187,7 +187,7 @@ local function displayCombos()
           	createDisplayObject(x, y, object)
           	displayed = displayed + 1
           	if (displayed == maxPerRow) then
-          	  x = -600
+          	  x = -250
            	  y = y + 350
               displayed = 0
             else

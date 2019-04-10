@@ -2,11 +2,8 @@
 local composer = require( "composer" )
 
 local scene = composer.newScene()
-local settings = require("settings")
+local settingsFunctions = require("settings")
 
-local json = require("json")
-
-local path = system.pathForFile("settings.json", system.DocumentsDirectory)
 -- -----------------------------------------------------------------------------------
 -- Code outside of the scene event functions below will only be executed ONCE unless
 -- the scene is removed entirely (not recycled) via "composer.removeScene()"
@@ -21,42 +18,11 @@ local eatKeyField
 local moveSpeedField
 local volumeField
 local mainLayer
+local settings
 local textInputs = {}
-
-local function settingsTableLength()
-	count = 0
-	for w in pairs(settings) do
-		if settings[w] then
-			count = count + 1
-		end
-	end
-	return count
-end
-
 
 local function goToMainMenu()
 	composer.gotoScene("menu", "fade", 500)
-end
-
-local function loadSettings()
-	local file = io.open(path, "r")
-
-	print(file)
-
-	if file then
-		local contents = file:read("*a")
-		io.close(file)
-		settings = json.decode(contents)
-	end
-end
-
-local function saveSettings()
-	local file = io.open(path, "w")
-
-	if file then
-		file:write(json.encode(settings))
-		io.close(file)
-	end
 end
 
 local function textListener(event)
@@ -65,11 +31,7 @@ local function textListener(event)
         -- Output resulting text from "defaultField"
  			local text = target.text
 			print(target.myName)
-			if (target.myName == "volume" or target.myName == "moveSpeed") then
-				settings[target.myName] = text
-			else
-				settings[target.myName] = text
-			end
+			settingsFunctions.store(target.myName, text)
 			if text then
 				target.placeholder = "" .. settings[target.myName]
 			end
@@ -97,8 +59,8 @@ function scene:create( event )
 	-- Code here runs when the scene is first created but has not yet appeared on screen
 	mainLayer = display.newGroup()
 	sceneGroup:insert(mainLayer)
+	settings = settingsFunctions.load()
 
-	loadSettings()
 	local background = display.newImageRect(mainLayer,"Images/background.jpg", display.actualContentWidth, display.actualContentHeight)
 	background.x = display.contentCenterX
 	background.y = display.contentCenterY
@@ -207,7 +169,7 @@ function scene:hide( event )
 
 	if ( phase == "will" ) then
 		-- Code here runs when the scene is on screen (but is about to go off screen)
-		saveSettings()
+		settingsFunctions.save()
 		composer.setVariable("settings", settings)
 		removeFields()
 	elseif ( phase == "did" ) then

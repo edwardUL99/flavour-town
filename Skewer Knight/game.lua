@@ -633,7 +633,7 @@ local function onCollision(event)
         timer.performWithDelay(50, function()
                                  collidedObject.isBodyActive = false
 																 table.insert(foodsToMove, collidedObject)
-                                 eatSkewer()
+								eatSkewer()
                                end)
 		  end
 		end

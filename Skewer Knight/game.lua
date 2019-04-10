@@ -4,6 +4,7 @@ local objects = require("objects")
 local options = require("settings")
 local settings = composer.getVariable("settings")
 local physics = require( "physics" )
+local powerUps = require("powerUps")
 
 physics.start()
 physics.setGravity(0,0)
@@ -364,25 +365,13 @@ local function checkPowerUp()
 
 		end
 	elseif(isEqualArray(onSkewerArray,{"bacon","bacon","bacon"}))then
-		transition.scaleBy(player, {xScale = 1, yScale = 1})
-		skewerOffset = skewerOffset + 50
+		skewerOffset = powerUps.baconSizeIncrease(player, skewerOffset)
 		powerUpState = true
-		local playerShapeXL = {2*-200,2*111,  2*-41,2*111,   2*-41,2*-89,   2*-200,2*-89}
-		local skewerShapeXL = {2*-40,2*50,  2*240,2*50,  2*240,2*31,  2*-40,2*31}
-		physics.removeBody(player)
-		physics.addBody(player,"static", {shape = skewerShapeXL, isSensor = true},
-														{shape = playerShapeXL,isSensor = true})
 		--reduces body shape back to normal
 		timerPowerUp = timer.performWithDelay(10000, function()
-			if(player ~= nil) then
-				transition.scaleBy(player, {xScale = -1, yScale = -1})
-				physics.removeBody(player)
-				skewerOffset = skewerOffset - 50
-				powerUpState = false
-				physics.addBody(player,"static", {shape = skewerShape, isSensor = true},
-																{shape = playerShape,isSensor = true})
-				timerPowerUp = nil
-			end
+			skewerOffset = powerUps.baconSizeShrink(player, skewerOffset, skewerShape, playerShape)
+			powerUpState = false
+			timerPowerUp = nil
 		end)
 	elseif(isEqualArray(onSkewerArray, {"broccoli","broccoli","broccoli"}))then
 		player:setFillColor(0, 1, 0.2)
@@ -407,21 +396,11 @@ local function checkPowerUp()
 		local smallText = display.newText(uiLayer, "Evasiveness increased!", player.x+100, player.y, native.systemFont, 80)
 		powerUpState = true
 		transition.fadeOut(smallText, {time = 1000})
-		transition.scaleBy(player, {xScale = -0.5, yScale = -0.5})
-		local playerShapeXS = {0.5*-200,0.5*111,  0.5*-41,0.5*111,   0.5*-41,0.5*-89,   0.5*-200,0.5*-89}
-		local skewerShapeXS = {0.5*-40,0.5*50,  0.5*240,0.5*50,  0.5*240,0.5*31,  0.5*-40,0.5*31}
-		physics.removeBody(player)
-		physics.addBody(player,"static", {shape = skewerShapeXS, isSensor = true},
-														{shape = playerShapeXS,isSensor = true})
+		powerUps.evasivenessShrink(player)
 		timerPowerUp = timer.performWithDelay(10000, function()
-		if(player ~= nil) then
-			transition.scaleBy(player, {xScale = 0.5, yScale = 0.5})
-			physics.removeBody(player)
-			physics.addBody(player,"static", {shape = skewerShape, isSensor = true},
-															{shape = playerShape,isSensor = true})
+			powerUps.evasivenessRevert(player, skewerShape, playerShape)
 			powerUpState = false
 			timerPowerUp = nil
-		end
 		end)
   end
 end
@@ -479,7 +458,7 @@ end
 local function mute()
   if (muted) then
     muted = false
-    audio.setVolume(1)
+    audio.setVolume(settings["volume"] * 10 / 100)
     muteButton.text = "Mute"
   else
     audio.setVolume(0)
@@ -621,8 +600,8 @@ local function onCollision(event)
 		end
 
     if ((event.object1.myName == "player" and event.element1 == 2)
-	 or (event.object2.myName == "player" and event.element2 == 2)) then --event.element1 == 1, when the body of the player collides with the food
-      print("Collision on body")
+	 	or (event.object2.myName == "player" and event.element2 == 2)) then --event.element1 == 1, when the body of the player collides with the food
+			print("Collision on body")
       health = health - 1
       --Changes colour of player to red, then changes it back after 500ms
       player:setFillColor(1, 0.2, 0.2)
@@ -676,6 +655,7 @@ function scene:create( event )
 		speed = settings["moveSpeed"]
 	end
 	speed = settings["moveSpeed"]
+	audio.setVolume(settings["volume"] * 10 / 100)
 
 	backLayer = display.newGroup()
 	sceneGroup:insert(backLayer)
@@ -700,8 +680,7 @@ function scene:create( event )
   player = display.newImageRect(mainLayer, "Images/player.png", 480, 222)
 	player.x = display.contentCenterX - 1000
 	player.y = display.contentCenterY
-	physics.addBody(player, "static",  {shape = skewerShape, isSensor=true},
-													{shape = playerShape, isSensor=true})
+	physics.addBody(player, "static",  {shape = skewerShape, isSensor=true},{shape = playerShape, isSensor=true})
 	player.myName = "player"
 
   for i = 1, 3 do

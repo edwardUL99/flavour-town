@@ -48,10 +48,6 @@ local function loadSettings()
 		io.close(file)
 		settings = json.decode(contents)
 	end
-
-	for i, v in pairs(settings) do
-		print(i .. " " .. v)
-	end
 end
 
 local function saveSettings()
@@ -85,6 +81,7 @@ local function removeFields()
 	for i = 1, #textInputs do
 		if textInputs[i] then
 			display.remove(textInputs[i])
+			textInputs[i] = nil
 		end
 	end
 end

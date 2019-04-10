@@ -144,19 +144,19 @@ end
 
 
 local function createDisplayObject(x, y, object)
-  local newDisplay = display.newImageRect(uiLayer, "Images/comboBack.png", 500, 300)
+  local newDisplay = display.newImageRect(uiLayer, "Images/comboBack.png", 650, 400)
   local savedX = x
   newDisplay.x = x
   newDisplay.y = y
   table.insert(displayObjects, newDisplay)
 
-  x = x - 100
+  x = x - 150
   for i = 1, #object-1 do
-    objects:spawnObject(uiLayer, x, y, 100, 100, object[i])
-    x = x + 100
+    objects:spawnObject(uiLayer, x, y, 200, 200, object[i])
+    x = x + 150
   end
 
-  local pointsText = display.newText(uiLayer, object[#object], savedX, y + 75, native.systemFont, 50)
+  local pointsText = display.newText(uiLayer, object[#object], savedX, y + 100, native.systemFont, 50)
 end
 
 local function removeDuplicates(object)
@@ -171,9 +171,9 @@ local function removeDuplicates(object)
 end
 
 local function displayCombos()
-	local x = -600
-	local y = 250
-  local maxPerRow = 5
+	local x = -500
+	local y = 350
+  local maxPerRow = 4
   local displayed = 0
   local alreadyDisplayed = false
 	local combo = ""
@@ -192,7 +192,7 @@ local function displayCombos()
               displayed = 0
             else
               --end
-              x = x + 500
+              x = x + 600
             end
         end
       --combo = combo .. combinationsTable[i][#combinationsTable[i]]
@@ -228,9 +228,9 @@ function scene:create( event )
   loadScore()
 
 
-	local background = display.newImageRect(backLayer, "Images/backdrop.png", display.actualContentWidth, display.actualContentHeight + 3000)
+	local background = display.newImageRect(backLayer, "Images/background.jpg", display.actualContentWidth, display.actualContentHeight)
 	background.x = display.contentCenterX
-	background.y = display.ContentCenterY
+	background.y = display.contentCenterY
 
 	local menuBtn = display.newText(uiLayer, "Menu", -250, display.contentHeight - 125, native.systemFont, 80)
 	local resetBtn = display.newText(uiLayer, "Reset Records", 1000, display.contentHeight - 125, native.systemFont, 80)

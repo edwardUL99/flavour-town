@@ -285,6 +285,8 @@ local function createCombinationsTable()
 	foodCombinations[5] = {"broccoli", "cheese",  "tomato", 100}
   foodCombinations[6] = {"carrot", "tomato", "broccoli", 500}
 	foodCombinations[7] = {"bacon", "cheese", "sushi", 750}
+	foodCombinations[8] = {"tomato", "tomato", "tomato", 250}
+
 end
 
 local function checkCombinationDefault(namesTable)
@@ -365,7 +367,7 @@ local function checkPowerUp()
 			addHeart()
 
 		end
-	elseif(isEqualArray(onSkewerArray,{"bacon"--[[,"bacon","bacon"]]}))then
+	elseif(isEqualArray(onSkewerArray,{"bacon","bacon","bacon"}))then
 		skewerOffset = powerUps.baconSizeIncrease(player, skewerOffset)
 		powerUpState = true
 		afterIncrease = false

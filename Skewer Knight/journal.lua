@@ -74,7 +74,7 @@ local function loadCombos()
 	if file then
 		local contents = file:read("*a")
 		io.close(file)
-		combinationsTable = json.decode(contents)
+		combinationsTable = json.decode("contents")
 	end
 
   if (combinationsTable == nil or #combinationsTable == 0) then

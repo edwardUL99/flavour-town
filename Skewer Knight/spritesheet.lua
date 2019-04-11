@@ -86,6 +86,42 @@ SheetInfo.sheet =
             sourceWidth = 200,
             sourceHeight = 200
         },
+        {
+            -- bread
+            x=0,
+            y=400,
+            width=200,
+            height=200,
+
+            sourceX = 100,
+            sourceY = 100,
+            sourceWidth = 200,
+            sourceHeight = 200
+        },
+        {
+            -- lettuce
+            x=200,
+            y=400,
+            width=200,
+            height=200,
+
+            sourceX = 100,
+            sourceY = 100,
+            sourceWidth = 200,
+            sourceHeight = 200
+        },
+        {
+            -- burger
+            x=400,
+            y=400,
+            width=200,
+            height=200,
+
+            sourceX = 100,
+            sourceY = 100,
+            sourceWidth = 200,
+            sourceHeight = 200
+        },
     },
 
     sheetContentWidth = 600,
@@ -101,6 +137,9 @@ SheetInfo.frameIndex =
     ["cheese"] = 4,
     ["sushi"] = 5,
     ["tomato"] = 6,
+    ["bread"] = 7,
+    ["lettuce"] = 8,
+    ["burger"] = 9,
 }
 
 function SheetInfo:getSheet()

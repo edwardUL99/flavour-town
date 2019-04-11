@@ -278,8 +278,8 @@ end
 
 --(*Mightn't need if using new checkCombination method)
 local function createCombinationsTable()
-	foodCombinations[1] = {"bacon", "sushi", "tomato", 800}
-	foodCombinations[2] = {"cheese", "cheese", "cheese", 650}
+	foodCombinations[1] = {"bacon", "lettuce", "tomato", 800}
+	foodCombinations[2] = {"bread", "cheese", "burger", 950}
 	foodCombinations[3] = {"bacon", "bacon", "bacon", 1000}
 	foodCombinations[4] = {"broccoli", "cheese",  "tomato", 100}
   foodCombinations[5] = {"carrot", "tomato", "broccoli", 500}
@@ -303,6 +303,9 @@ local function checkCombinationDefault(namesTable)
     ["cheese"] = 80,
     ["sushi"] = 150,
     ["tomato"] = 50,
+		["burger"] = 100,
+		["lettuce"] = 40,
+		["bread"] = 55
   }
 	local sum = 0
 	for i = 1, #namesTable do

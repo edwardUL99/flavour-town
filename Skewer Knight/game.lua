@@ -281,11 +281,15 @@ local function createCombinationsTable()
 	foodCombinations[1] = {"bacon", "lettuce", "tomato", 800}
 	foodCombinations[2] = {"bread", "cheese", "burger", 950}
 	foodCombinations[3] = {"bacon", "bacon", "bacon", 1000}
-	foodCombinations[4] = {"broccoli", "cheese",  "tomato", 100}
+	foodCombinations[4] = {"bacon", "cheese",  "tomato", 600}
   foodCombinations[5] = {"carrot", "tomato", "lettuce", 500}
 	foodCombinations[6] = {"bacon", "cheese", "sushi", 750}
 	foodCombinations[7] = {"tomato", "tomato", "tomato", 250}
-
+	foodCombinations[8] = {"bread", "tomato", "bacon", 650}
+	foodCombinations[9] = {"bread", "lettuce", "burger", 850}
+	foodCombinations[10] = {"bread", "tomato", "burger", 900}
+	foodCombinations[11] = {"sushi", "carrot", "tomato", 400}
+	foodCombinations[12] = {"sushi", "bacon", "burger", 900}
 end
 
 local function checkCombinationDefault(namesTable)

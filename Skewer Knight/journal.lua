@@ -134,19 +134,19 @@ end
 
 
 local function createDisplayObject(x, y, object)
-  local newDisplay = display.newImageRect(uiLayer, "Images/comboBack.png", 650, 400)
+  local newDisplay = display.newImageRect(uiLayer, "Images/comboBack.png", 550, 300)
   local savedX = x
   newDisplay.x = x
   newDisplay.y = y
   table.insert(displayObjects, newDisplay)
 
-  x = x - 150
+  x = x - 130
   for i = 1, #object-1 do
-    objects:spawnObject(uiLayer, x, y, 200, 200, object[i])
-    x = x + 150
+    objects:spawnObject(uiLayer, x, y, 150, 150, object[i])
+    x = x + 130
   end
 
-  local pointsText = display.newText(uiLayer, object[#object], savedX, y + 100, native.systemFont, 50)
+  local pointsText = display.newText(uiLayer, object[#object], savedX, y + 70, native.systemFont, 50)
 end
 
 local function removeDuplicates(object)
@@ -161,9 +161,9 @@ local function removeDuplicates(object)
 end
 
 local function displayCombos()
-	local x = -250
-	local y = 350
-  local maxPerRow = 3
+	local x = -500
+	local y = 300
+  local maxPerRow = 4
   local displayed = 0
   local alreadyDisplayed = false
 	local combo = ""
@@ -177,8 +177,8 @@ local function displayCombos()
           	createDisplayObject(x, y, object)
           	displayed = displayed + 1
           	if (displayed == maxPerRow) then
-          	  x = -250
-           	  y = y + 350
+          	  x = -500
+           	  y = y + 300
               displayed = 0
             else
               --end

@@ -10,13 +10,14 @@ settings =
 		-- Supported values for orientation:
 		-- portrait, portraitUpsideDown, landscapeLeft, landscapeRight
 		default = "landscapeRight",
-		supported = { "landscapeRight", },
+		supported = { "landscapeRight", "landscapeLeft" },
 	},
 
 	window =
 	{
 		defaultViewWidth = 1366,
 		defaultViewHeight = 768,
+		suspendWhenMinimized = true,
 	},
 	--
 	-- Android section

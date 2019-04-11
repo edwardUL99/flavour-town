@@ -11,6 +11,7 @@ local background
 local prevButton
 local nextButton
 local tutorial
+local text
 local tutorialObjects = {}
 local previous = 1 --Stores the previously displayed object's index, tutorialObjects[1] will be the first displayed
 local next = 2
@@ -111,6 +112,9 @@ function scene:create( event )
 	tutorialObjects[6].x = display.contentCenterX
 	tutorialObjects[6].y = display.contentCenterY
 	tutorialObjects[6].isVisible = false
+
+	tutorialObjects[7] = display.newText(uiLayer, "After playing, ensure you visit the journal to save your changes!", display.contentCenterX + 110, display.contentCenterY, native.systemFont, 60)
+	tutorialObjects[7].isVisible = false
 
 	nextButton:addEventListener("tap", nextBanner)
 	prevButton:addEventListener("tap", prevBanner)

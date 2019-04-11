@@ -31,19 +31,6 @@ local function goBackToGame()
   timer.performWithDelay(500, function() composer.gotoScene( "loading", "fade", 500 ) end)
 end
 
-local function printTable(table)
-	for i = 1, #table do
-		print(table[i])
-	end
-	print("------------")
-end
-
-local function print2D(twoD)
-	for i = 1, #twoD do
-		printTable(twoD[i])
-	end
-end
-
 local function loadScore()
   local file = io.open(scoresPath, "r")
 
@@ -88,15 +75,6 @@ local function saveCombos()
 	if file then
 		file:write(json.encode(combinationsTable))
 		io.close(file)
-	end
-end
-
-local function displayArray(array)
-	for i = 1, #array do
-		for j = 1, #array[i] do
-			print(array[i][j])
-		end
-		print("----------------------")
 	end
 end
 
@@ -152,7 +130,6 @@ end
 local function removeDuplicates(object)
   if (object ~= nil) then
   	local objectCount = countSameCombos(object)
-  	print(objectCount)
   	while(objectCount > 1) do
   		table.remove(combinationsTable, comboIndex(object))
   		objectCount = objectCount - 1

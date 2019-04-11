@@ -82,14 +82,10 @@ local backLayer
 local mainLayer
 local uiLayer
 --------------------
-------------------- (I don't know if we're still using these, but I saw they were deleted.
-local motionx = 0     --Keeping them here just in case that was by accident) (Aidan)
+------------------- 
+local motionx = 0
 local motiony = 0	--Character movement variables
 local speed = 20
--------------------
-
----------------------
---BACKGROUND CRAP
 -------------------
 local function moveBg(dt)
 	if (not paused) then
@@ -223,21 +219,6 @@ local function enterFrame(event)
 	end
 end
 
---debug to test output on console
-local function printTable(table)
-	for i = 1, #table do
-		print(table[i])
-	end
-	print("------------")
-end
-
-local function print2D(twoD)
-	for i = 1, #twoD do
-		printTable(twoD[i])
-	end
-end
----Will remove later--
-
 local function tableCopy(table)
 	local copy = {}
 	for i = 1, #table do
@@ -255,9 +236,6 @@ local function isEqualArray(table1, table2)
 	table.remove(tempTable1, 4)
 	table.sort(tempTable1)
 	table.sort(tempTable2)
-
-	print(#tempTable1)
-	print(#tempTable2)
 	--if both tables are same but different order the table.sort will fix that
 	if (#tempTable1 == #tempTable2) then
 		for i = 1, #tempTable1 do
@@ -296,13 +274,6 @@ local function createCombinationsTable()
 end
 
 local function checkCombinationDefault(namesTable)
-	--[[local foodScores = {
-		["bread"] = 125,
-		["burger"] = 250,
-		["broccoli"] = 25,
-		["lettuce"] = -25,
-		["tomato"] = 50,
-	} ]]--
   local foodScores = {
     ["bacon"] = 250,
     ["broccoli"] = -10,
@@ -420,7 +391,6 @@ end
 local function eatSkewer(event)
 	if(#onSkewerArray>0)then
     local points = checkCombination(onSkewerArray)
-		printTable(onSkewerArray)
 
 		if comboIndex(onSkewerArray) then
 			local comboText = display.newText(uiLayer, "Food Combo!", player.x + 100, player.y - 100, native.systemFont, 50)
@@ -439,7 +409,6 @@ local function eatSkewer(event)
 
     local indexComboTable = comboIndex(onSkewerArray)
     if (indexComboTable ~= nil) then
-			printTable(foodCombinations[indexComboTable])
       table.insert(foodCombos, foodCombinations[indexComboTable])
       composer.setVariable("skewerArray", foodCombos)
     end
@@ -589,12 +558,6 @@ local function removeObjectFromTable(object)
 	end
 end
 
-local function playerHit (self,event)
-	print("event.selfElement is " .. event.selfElement)
-end
-
-
-
 local function onCollision(event)
 	if (event.phase == "began" and player ~= nil) then
 		local collidedObject = event.object2
@@ -615,7 +578,6 @@ local function onCollision(event)
 
     if ((event.object1.myName == "player" and event.element1 == 2)
 	 	or (event.object1.myName == "player" and event.element2 == numberToCompare)) then --event.element1 == 1, when the body of the player collides with the food
-			print("Collision on body")
       health = health - 1
       --Changes colour of player to red, then changes it back after 500ms
       player:setFillColor(1, 0.2, 0.2)
@@ -700,10 +662,6 @@ function scene:create( event )
     addHeart()
   end
 
-  player.preCollision = playerHit
-  player:addEventListener("preCollision")
-
-	--Score is text for prototype
 	scoreText = display.newText(uiLayer, "Score: " .. score, display.contentCenterX + 900, display.contentCenterY - 500, native.systemFont, 80)
 
 	pauseButton = display.newImageRect(uiLayer, "Images/pause.png", 200, 200)
@@ -762,7 +720,6 @@ function scene:show( event )
 
 	elseif ( phase == "did" ) then
 		createCombinationsTable()
-    print("Scene shown")
 		physics.start()
     Runtime:addEventListener("collision", onCollision)
 		Runtime:addEventListener("enterFrame", enterFrame)
@@ -792,7 +749,6 @@ function scene:hide(event)
     Runtime:removeEventListener("enterFrame", enterFrame)
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen
-    print("hidden")
 		Runtime:removeEventListener("collision",onCollision)
 		Runtime:removeEventListener("key", keyPressed)
 		Runtime:addEventListener("key", back)
@@ -812,7 +768,6 @@ function scene:destroy( event )
 
 	local sceneGroup = self.view
 	-- Code here runs prior to the removal of scene's view
-	print("removed")
 	player = nil
 	foodCombinations = nil
 end

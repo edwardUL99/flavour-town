@@ -35,7 +35,6 @@ local function textListener(event)
 		local target = event.target
 		if (event.phase == "editing") then
 			local text = target.text
-			print(target.myName)
 			settingsFunctions.store(target.myName, text)
 			if text then
 				target.placeholder = "" .. settings[target.myName]

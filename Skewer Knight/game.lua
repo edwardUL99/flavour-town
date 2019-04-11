@@ -414,7 +414,7 @@ local function eatSkewer(event)
 
 		if comboIndex(onSkewerArray) then
 			local comboText = display.newText(uiLayer, "Food Combo!", player.x + 100, player.y - 100, native.systemFont, 50)
-			transition.fadeOut(comboText, {time = 1000})
+			timer.performWithDelay(2000, function() transition.fadeOut(comboText, {time = 500}) end)
 		end
 
     if (pointsDoubled) then
@@ -422,8 +422,8 @@ local function eatSkewer(event)
     end
 
     score = score + points
-		local pointsText = display.newText(uiLayer, "+".. points, player.x + 200, player.y + 100, native.systemFont, 60)
-		timer.performWithDelay(2000, function() transition.fadeOut(pointsText, {time = 500}) end, 1)
+		local pointsText = display.newText(uiLayer, "" .. points, player.x + 200, player.y + 100, native.systemFont, 60)
+		timer.performWithDelay(2000, function() transition.fadeOut(pointsText, {time = 500}) end)
 		scoreText.text = "Score: " .. score
 
     local indexComboTable = comboIndex(onSkewerArray)

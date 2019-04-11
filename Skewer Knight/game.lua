@@ -282,7 +282,7 @@ local function createCombinationsTable()
 	foodCombinations[2] = {"bread", "cheese", "burger", 950}
 	foodCombinations[3] = {"bacon", "bacon", "bacon", 1000}
 	foodCombinations[4] = {"broccoli", "cheese",  "tomato", 100}
-  foodCombinations[5] = {"carrot", "tomato", "broccoli", 500}
+  foodCombinations[5] = {"carrot", "tomato", "lettuce", 500}
 	foodCombinations[6] = {"bacon", "cheese", "sushi", 750}
 	foodCombinations[7] = {"tomato", "tomato", "tomato", 250}
 
@@ -298,7 +298,7 @@ local function checkCombinationDefault(namesTable)
 	} ]]--
   local foodScores = {
     ["bacon"] = 250,
-    ["broccoli"] = 25,
+    ["broccoli"] = -10,
     ["carrot"] = 75,
     ["cheese"] = 80,
     ["sushi"] = 150,
@@ -334,19 +334,10 @@ local function addHeart()
 end
 
 local function removeHeart()
-	if (health == 2) then
-      display.remove(lives[3])
-      heartXPos = heartXPos - 100
-      heartArrayPos = 2
-   elseif(health == 1) then
-      display.remove(lives[2])
-      heartXPos = heartXPos - 100
-      heartArrayPos = 1
-   elseif ( health == 0) then
-     display.remove(lives[1])
-     heartXPos = heartXPos - 100
-     heartArrayPos = 0
-   end
+	display.remove(lives[heartArrayPos])
+	table.remove(lives, heartArrayPos)
+	heartArrayPos = heartArrayPos - 1
+	heartXPos = heartXPos - 100
 end
 
 local function onComplete()
@@ -384,13 +375,13 @@ local function checkPowerUp()
 		player:setFillColor(0, 1, 0.2)
 		audio.play(hurtAudio)
 		health = health - 3
-		removeHeart()
-		if (health < 1) then
-	       player.alpha = 0
-	       timer.performWithDelay(50, function() player.isBodyActive = false end)
-	       unTrackPlayer()
-	       timer.performWithDelay(2000, goToMainMenu)
-      end
+		for i = #lives, 1, -1 do
+			removeHeart()
+		end
+	  player.alpha = 0
+	  timer.performWithDelay(50, function() player.isBodyActive = false end)
+		unTrackPlayer()
+	 	timer.performWithDelay(2000, goToJournal)
 
 	elseif (isEqualArray(onSkewerArray, {"sushi", "sushi", "sushi"})) then
 	   pointsDoubled = true
@@ -399,7 +390,7 @@ local function checkPowerUp()
 	   timerPowerUp = timer.performWithDelay(10000, function() pointsDoubled = false
 	                                                            onComplete()
 	                                                  end)
-	elseif(isEqualArray(onSkewerArray, {"tomato", "broccoli", "carrot"})) then
+	elseif(isEqualArray(onSkewerArray, {"tomato", "lettuce", "carrot"})) then
 		local smallText = display.newText(uiLayer, "Evasiveness increased!", player.x+100, player.y, native.systemFont, 80)
 		powerUpState = true
 		transition.fadeOut(smallText, {time = 1000})

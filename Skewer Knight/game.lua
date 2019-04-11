@@ -38,8 +38,11 @@ local foodCombinations = {}
 local amountOfCombos = 5 --Decide later
 -----------------------
 --Audio--
-local hurtAudio = audio.loadSound("Oof.mp3")
+local hurtAudio = audio.loadSound("Oof.wav")
 local eatAudio = audio.loadSound("OmNomNom.wav")
+local pickupAudio = audio.loadSound("pickup.wav")
+local powerUpAudio = audio.loadSound("powerup.wav")
+local powerUpOver = audio.loadSound("powerupover.wav")
 --------------------
 --Graphics variables--
 local heartXPos = -800
@@ -350,6 +353,7 @@ local function onComplete()
   end
   timer.performWithDelay(2000, function() transition.fadeOut(overText, {time = 500}) end)
 	timerPowerUp = nil
+	audio.play(powerUpOver)
 end
 
 local function checkPowerUp()
@@ -357,6 +361,7 @@ local function checkPowerUp()
 		return
 	end
 	if(isEqualArray(onSkewerArray,{"tomato","tomato","tomato"}))then
+		audio.play(powerUpAudio)
 		if(health<3)then
 			local healthNewText = display.newText(uiLayer, "+1 Health", player.x+100, player.y, native.systemFont, 80)
 			timer.performWithDelay(2000, function() transition.fadeOut(healthNewText, {time = 500}) end, 1)
@@ -365,6 +370,7 @@ local function checkPowerUp()
 
 		end
 	elseif(isEqualArray(onSkewerArray,{"bacon","bacon","bacon"}))then
+		audio.play(powerUpAudio)
 		skewerOffset = powerUps.baconSizeIncrease(player, skewerOffset)
 		powerUpState = true
 		afterIncrease = false
@@ -374,6 +380,7 @@ local function checkPowerUp()
 			powerUpState = false
 			afterIncrease = true
 			timerPowerUp = nil
+			audio.play(powerUpOver)
 		end)
 	elseif(isEqualArray(onSkewerArray, {"broccoli","broccoli","broccoli"}))then
 		player:setFillColor(0, 1, 0.2)
@@ -388,6 +395,7 @@ local function checkPowerUp()
 	 	timer.performWithDelay(2000, goToJournal)
 
 	elseif (isEqualArray(onSkewerArray, {"sushi", "sushi", "sushi"})) then
+		audio.play(powerUpAudio)
 	   pointsDoubled = true
 	   local doubledText = display.newText(uiLayer, "x2 Points multiplier", player.x+100, player.y, native.systemFont, 80)
 	   timer.performWithDelay(2000, function() transition.fadeOut(doubledText, {time = 500}) end, 1)
@@ -395,6 +403,7 @@ local function checkPowerUp()
 	                                                            onComplete()
 	                                                  end)
 	elseif(isEqualArray(onSkewerArray, {"tomato", "lettuce", "carrot"})) then
+		audio.play(powerUpAudio)
 		local smallText = display.newText(uiLayer, "Evasiveness increased!", player.x+100, player.y, native.systemFont, 80)
 		powerUpState = true
 		transition.fadeOut(smallText, {time = 1000})
@@ -403,6 +412,7 @@ local function checkPowerUp()
 			powerUps.evasivenessRevert(player, skewerShape, playerShape)
 			powerUpState = false
 			timerPowerUp = nil
+			audio.play(powerUpOver)
 		end)
   end
 end
@@ -435,6 +445,7 @@ local function eatSkewer(event)
     end
 
 		audio.play(eatAudio)
+		timer.performWithDelay(500, function() audio.play(eatAudio) end)
 		unTrackPlayer()
 
   	checkPowerUp()
@@ -623,7 +634,8 @@ local function onCollision(event)
         timer.performWithDelay(2000, goToJournal)
       end
 
-	elseif (event.object1.myName == "player" or event.object2.myName == "player") then
+	elseif (event.object1.myName == "player") then
+			audio.play(pickupAudio)
   		removeObjectFromTable(collidedObject)
       table.insert(onSkewerArray, collidedObject.myName)
       timer.performWithDelay(50, function()
@@ -786,6 +798,9 @@ function scene:hide(event)
 		Runtime:addEventListener("key", back)
 		audio.dispose(eatAudio)
 		audio.dispose(hurtAudio)
+		audio.dispose(powerUpAudio)
+		audio.dispose(pickupAudio)
+		audio.dispose(powerUpOver)
 		physics.pause()
     composer.removeScene("game")
 	end

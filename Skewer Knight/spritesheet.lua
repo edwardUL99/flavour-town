@@ -125,7 +125,7 @@ SheetInfo.sheet =
     },
 
     sheetContentWidth = 600,
-    sheetContentHeight = 400
+    sheetContentHeight = 600
 }
 
 SheetInfo.frameIndex =

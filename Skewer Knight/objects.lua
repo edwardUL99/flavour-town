@@ -18,7 +18,7 @@ objects.foodsIndices =
 function objects:createObjects(layer, rightBound, bottomBound, topBound)
     local foodCollisionFilter = {groupIndex = -2}
     local names = {"tomato", "broccoli", "carrot","bacon", "sushi", "cheese", "lettuce", "burger", "bread"}
-    local name = "broccoli"--names[math.random(#names)]
+    local name = names[math.random(#names)]
     --I added the getWidth and getHeight methods to the spritesheet.lua file. Better to use newImageRect
     local newItem = display.newImageRect(layer, imageSheet, sheetInfo:getFrameIndex(name), sheetInfo:getWidth(name), sheetInfo:getHeight(name))
     newItem.height = 200

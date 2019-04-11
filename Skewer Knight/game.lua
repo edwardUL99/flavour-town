@@ -62,7 +62,7 @@ local displayObjects = {}
 local bg1
 local bg2 --two SCROLLING backgrounds, to make it look like player is moving)
 local bgImage2 = {type = "image", filename ="Images/background.jpg"}
-local foodScrollSpeed = 10
+local foodScrollSpeed = 15
 local bgScrollSpeed = 5
 local skewerOffset = 0
 local powerUpState = false --to prevent the player from getting more than one power up

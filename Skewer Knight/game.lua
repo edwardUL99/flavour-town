@@ -284,7 +284,7 @@ local function createCombinationsTable()
 	foodCombinations[4] = {"bacon", "cheese",  "tomato", 600}
   foodCombinations[5] = {"carrot", "tomato", "lettuce", 500}
 	foodCombinations[6] = {"bacon", "cheese", "sushi", 750}
-	foodCombinations[7] = {"tomato", "tomato", "tomato", 250}
+	foodCombinations[7] = {"bread", "bacon", "burger", 1000}
 	foodCombinations[8] = {"bread", "tomato", "bacon", 650}
 	foodCombinations[9] = {"bread", "lettuce", "burger", 850}
 	foodCombinations[10] = {"bread", "tomato", "burger", 900}
@@ -420,9 +420,10 @@ local function eatSkewer(event)
     if (pointsDoubled) then
       points = points * 2
     end
-
+		local sign = "+"
+		if (points < 0) then sign = "" end
     score = score + points
-		local pointsText = display.newText(uiLayer, "" .. points, player.x + 200, player.y + 100, native.systemFont, 60)
+		local pointsText = display.newText(uiLayer, sign .. points .. " " .. "points", player.x + 200, player.y + 100, native.systemFont, 60)
 		timer.performWithDelay(2000, function() transition.fadeOut(pointsText, {time = 500}) end)
 		scoreText.text = "Score: " .. score
 
@@ -526,17 +527,7 @@ local function gameLoop()
 	end
 
 end
-----------------------------------------------------------------------------
-----------------------------------------------------------------------------
---INCOMPLETE/BROKEN FUNCTIONS BELOW
-----------------------------------------------------------------------------
 
----------------------------------------------------------------------------
-----------------------------------------------------------------------------
---EMPTY/UNUSED FUNCTIONS BELOW
-----------------------------------------------------------------------------
-
--- Will be used if we switch to Windows and use arrow keys
 local function keyPressed(event)
 	if (event.phase == "down") then
 		if (event.keyName == "left" or event.keyName == settings["left"]) then
@@ -633,14 +624,13 @@ local function onCollision(event)
       end
 
 	elseif (event.object1.myName == "player" or event.object2.myName == "player") then
-      print("Collision on skewer")
   		removeObjectFromTable(collidedObject)
       table.insert(onSkewerArray, collidedObject.myName)
       timer.performWithDelay(50, function()
                                 collidedObject.isBodyActive = false
                                 table.insert(foodsToMove, collidedObject) end)
 
-  	  if (#onSkewerArray == maxOnSkewer) then
+  	  if (#onSkewerArray >= maxOnSkewer) then
 				removeObjectFromTable(collidedObject)
         timer.performWithDelay(50, function()
                                  collidedObject.isBodyActive = false
@@ -651,7 +641,6 @@ local function onCollision(event)
 		end
   end
 end
-----------------------------------------------------------------------------
 ----------------------------------------------------------------------------
 -- Scene event functions
 ----------------------------------------------------------------------------

@@ -33,14 +33,15 @@ end
 
 local function textListener(event)
 		local target = event.target
-    if ( event.phase == "ended" or event.phase == "submitted" ) then
-        -- Output resulting text from "defaultField"
- 			local text = target.text
+		if (event.phase == "editing") then
+			local text = target.text
 			print(target.myName)
 			settingsFunctions.store(target.myName, text)
 			if text then
 				target.placeholder = "" .. settings[target.myName]
 			end
+    elseif ( event.phase == "ended" or event.phase == "submitted" ) then
+        -- Output resulting text from "defaultField"
 			native.setKeyboardFocus(nil)
     end
 end

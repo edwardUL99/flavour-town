@@ -32,10 +32,7 @@ local function load()
     io.close(file)
     settings.custom = json.decode(contents)
   end
-
-  for w, v in pairs(settings.custom) do
-    print(w .. " " .. v)
-  end
+  
   return settings.custom
 end
 

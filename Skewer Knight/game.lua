@@ -631,7 +631,7 @@ local function onCollision(event)
         player.alpha = 0
         timer.performWithDelay(50, function() player.isBodyActive = false end)
         unTrackPlayer()
-        timer.performWithDelay(2000, goToMainMenu)
+        timer.performWithDelay(2000, goToJournal)
       end
 
 	elseif (event.object1.myName == "player" or event.object2.myName == "player") then

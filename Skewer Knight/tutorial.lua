@@ -41,6 +41,19 @@ local function prevBanner()
 		next = next - 1
 	end
 end
+
+local function keyPressed(event)
+	local keyName = event.keyName
+	if (event.phase == "down") then
+		if (keyName == "right") then
+			nextBanner()
+		elseif (keyName == "left") then
+			prevBanner()
+		end
+	elseif (event.phase == "up") then
+		return false
+	end
+end
 -- -----------------------------------------------------------------------------------
 -- Scene event functions
 -- -----------------------------------------------------------------------------------
@@ -115,7 +128,7 @@ function scene:show( event )
 
 	elseif ( phase == "did" ) then
 		-- Code here runs when the scene is entirely on screen
-
+	Runtime:addEventListener("key", keyPressed)
 	end
 end
 
@@ -131,6 +144,7 @@ function scene:hide( event )
 
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen
+		Runtime:removeEventListener("key", keyPressed)
 		composer.removeScene("tutorial")
 	end
 end

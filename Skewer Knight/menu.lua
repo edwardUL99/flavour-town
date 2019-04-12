@@ -93,9 +93,9 @@ function scene:create( event )
 	background.y = 0 + display.screenOriginY
 
 	-- create/position logo/title image on upper-half of the screen
-	local titleLogo = display.newImageRect( "Images/logo.png", 464, 82 )
-	titleLogo.x = display.contentCenterX
-	titleLogo.y = 100
+	local titleLogo = display.newImageRect( "Images/logo.png", 600, 200 )
+	titleLogo.x = display.contentCenterX - 20
+	titleLogo.y = 200
 
 	-- create a widget button (which will load game.lua on release)
 	local options =

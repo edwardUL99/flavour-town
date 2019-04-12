@@ -1,10 +1,10 @@
 local composer = require( "composer" ) --This is very IMPORTANT
 local scene = composer.newScene()
-local objects = require("objects")
-local options = require("settings")
+local objects = require("Scripts.objects")
+local options = require("Scripts.settings")
 local settings = composer.getVariable("settings")
 local physics = require( "physics" )
-local powerUps = require("powerUps")
+local powerUps = require("Scripts.powerUps")
 
 physics.start()
 physics.setGravity(0,0)
@@ -82,7 +82,7 @@ local backLayer
 local mainLayer
 local uiLayer
 --------------------
-------------------- 
+-------------------
 local motionx = 0
 local motiony = 0	--Character movement variables
 local speed = 20
@@ -663,6 +663,7 @@ function scene:create( event )
   end
 
 	scoreText = display.newText(uiLayer, "Score: " .. score, display.contentCenterX + 900, display.contentCenterY - 500, native.systemFont, 80)
+	scoreText:setFillColor(0.9, 0.25, 0.2333)
 
 	pauseButton = display.newImageRect(uiLayer, "Images/pause.png", 200, 200)
 	pauseButton.x = rightBound
@@ -679,8 +680,9 @@ function scene:create( event )
 	playButton.y = bottomBound - 100
 	playButton.isVisible = false
 
-	pauseText = display.newText(uiLayer, "Paused", 100, 100, display.systemFont, 60)
+	pauseText = display.newText(uiLayer, "Paused", display.contentCenterX, 500, display.systemFont, 100)
 	pauseText.isVisible = false
+	pauseText:setFillColor(0.9, 0.25, 0.2333)
 	table.insert(displayObjects, pauseText)
 
 	eatButton = display.newImageRect(uiLayer, "Images/eatButton.png", 200, 200)

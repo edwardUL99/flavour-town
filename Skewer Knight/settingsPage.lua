@@ -2,7 +2,7 @@
 local composer = require( "composer" )
 
 local scene = composer.newScene()
-local settingsFunctions = require("settings")
+local settingsFunctions = require("Scripts.settings")
 
 -- -----------------------------------------------------------------------------------
 -- Code outside of the scene event functions below will only be executed ONCE unless

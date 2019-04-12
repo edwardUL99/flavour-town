@@ -227,6 +227,7 @@ function scene:create( event )
   end
 
   local highScoreText = display.newText(uiLayer, "High Score: " .. highScore[1], 1250, 90, native.systemFont, 80)
+  highScoreText:setFillColor(0.9, 0.25, 0.2333)
 
   displayCombos()
   saveScore()

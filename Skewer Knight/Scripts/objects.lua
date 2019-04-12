@@ -1,6 +1,6 @@
 local objects = {}
 
-local sheetInfo = require("Images.spritesheet")
+local sheetInfo = require("spritesheet")
 local imageSheet = graphics.newImageSheet("Images/spritesheet.png", sheetInfo:getSheet())
 
 objects.foodsIndices =
@@ -12,7 +12,10 @@ objects.foodsIndices =
     ["cheese"] = 4,
     ["sushi"] = 5,
     ["tomato"] = 6,
-}
+    ["bread"] = 7,
+    ["lettuce"] = 8,
+    ["burger"] = 9,
+ }
 
 
 function objects:createObjects(layer, rightBound, bottomBound, topBound)

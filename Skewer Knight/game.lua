@@ -1,6 +1,6 @@
 local composer = require( "composer" ) --This is very IMPORTANT
 local scene = composer.newScene()
-local objects = require("Scripts.objects")
+local objects = require("objects")
 local options = require("Scripts.settings")
 local settings = composer.getVariable("settings")
 local physics = require( "physics" )
